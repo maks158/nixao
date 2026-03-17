@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Нихауу — уведомления</title>
+    <style>
+        /* (стили полностью совпадают с предыдущей версией, я их не менял) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            background: #f0f2f5;
+            transition: background 0.3s, color 0.3s;
+        }
+        /* Темы */
+        body.light {
+            --bg: #f0f2f5;
+            --surface: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #666;
+            --accent: #0084ff;
+            --border: #e9edf0;
+            --message-out: #dcf8c6;
+            --message-in: #ffffff;
+        }
+        body.dark {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --text: #f0f0f0;
+            --text-secondary: #aaa;
+            --accent: #4e9eff;
+            --border: #2a2a40;
+            --message-out: #2b5b4c;
+            --message-in: #2d2d44;
+        }
+        body.ocean {
+            --bg: #1a3b5c;
+            --surface: #2c4c6b;
+            --text: #ffffff;
+            --text-secondary: #b8d8f0;
+            --accent: #ff6b6b;
+            --border: #4a6a88;
+            --message-out: #4ecdc4;
+            --message-in: #3d5e7c;
+        }
+        body.forest {
+            --bg: #1e3c2c;
+            --surface: #2d4a3a;
+            --text: #ffffff;
+            --text-secondary: #c1e1c1;
+            --accent: #ffb347;
+            --border: #4d6a55;
+            --message-out: #98c1a9;
+            --message-in: #3d5a48;
+        }
+        body.desert {
+            --bg: #e6d5b8;
+            --surface: #f4e4c1;
+            --text: #5a3e2b;
+            --text-secondary: #8b6e4b;
+            --accent: #b45f3b;
+            --border: #d4b68a;
+            --message-out: #e6b89c;
+            --message-in: #faf0e6;
+        }
+        body.mint {
+            --bg: #d4edda;
+            --surface: #e8f5e9;
+            --text: #1e3c2c;
+            --text-secondary: #2d4a3a;
+            --accent: #4caf7f;
+            --border: #b8dfc6;
+            --message-out: #98c1a9;
+            --message-in: #ffffff;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            height: 100%;
+        }
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        /* Шапка */
+        .header {
+            background: var(--surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .crystals-badge {
+            background: gold;
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            color: var(--text);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .tab.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+        /* Контент (скроллится!) */
+        #content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Поиск */
+        .search-block {
+            background: var(--surface);
+            border-radius: 30px;
+            padding: 12px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        /* Контакты */
+        .contact-item {
+            background: var(--surface);
+            padding: 12px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .contact-item:active {
+            transform: scale(0.98);
+        }
+        .contact-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .contact-info {
+            flex: 1;
+        }
+        .contact-name {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .contact-username {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        /* Экран чата */
+        .chat-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg);
+        }
+        .chat-header {
+            background: var(--surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            max-width: 80%;
+            margin-bottom: 8px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: pop 0.3s;
+        }
+        @keyframes pop {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .message.out {
+            background: var(--message-out);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .message.in {
+            background: var(--message-in);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        .message-time {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-align: right;
+        }
+        .chat-input-area {
+            background: var(--surface);
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .chat-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border-radius: 30px;
+            padding: 4px 12px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 16px;
+        }
+        .chat-input:focus {
+            outline: none;
+        }
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        /* Подарки */
+        .gifts-grid, .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .gift-card, .collection-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            animation: float 3s infinite ease-in-out;
+        }
+        .gift-card:active, .collection-card:active {
+            transform: scale(0.97);
+        }
+        .gift-emoji, .collection-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0); }
+        }
+        .gift-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .gift-price {
+            color: gold;
+            font-weight: bold;
+        }
+        /* Окно звонка */
+        .call-window {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--surface);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .call-window.active {
+            display: flex;
+        }
+        .call-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .call-timer {
+            font-size: 32px;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        .call-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .call-btn.end {
+            background: #ff4444;
+            color: white;
+        }
+        /* Модалки */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--surface);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            margin: 6px 0;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+        }
+        .modal-btn.secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        .theme-btn {
+            width: 100%;
+            padding: 12px;
+            margin: 4px 0;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body class="light">
+    <div id="app">
+        <!-- Главный экран -->
+        <div id="main-screen" style="display: flex; flex-direction: column; height: 100%;">
+            <div class="header">
+                <div class="avatar" id="header-avatar" onclick="openProfileModal()">Н</div>
+                <div style="font-weight:700;">Нихауу</div>
+                <div class="crystals-badge" onclick="openCrystalsShop()">
+                    <span>💎</span> <span id="header-crystals">0</span>
+                </div>
+                <button class="icon-btn" onclick="openSettings()">⚙️</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('chats')">Чаты</div>
+                <div class="tab" onclick="switchTab('contacts')">Контакты</div>
+                <div class="tab" onclick="switchTab('shop')">Магазин</div>
+            </div>
+
+            <div id="content"></div>
+        </div>
+
+        <!-- Экран чата -->
+        <div id="chat-screen" class="chat-screen" style="display: none;">
+            <div class="chat-header">
+                <button class="icon-btn" onclick="closeChat()">←</button>
+                <div class="avatar" id="chat-avatar"></div>
+                <div style="flex:1; font-weight:700;" id="chat-name"></div>
+                <button class="icon-btn" onclick="startCall()">📞</button>
+            </div>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Сообщение" onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="send-btn" onclick="sendMessage()">📤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Окно звонка -->
+        <div id="call-window" class="call-window">
+            <div class="call-avatar" id="call-avatar">👤</div>
+            <div class="call-timer" id="call-timer">00:00</div>
+            <button class="call-btn end" onclick="endCall()">📞</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ВХОДА -->
+    <div id="auth-modal" class="modal active">
+        <div class="modal-content">
+            <div class="modal-title">🔐 Вход</div>
+            <div id="login-form">
+                <input type="email" id="login-email" class="modal-input" placeholder="Email" value="test@test.com">
+                <input type="password" id="login-password" class="modal-input" placeholder="Пароль" value="123456">
+                <button class="modal-btn" onclick="login()">Войти</button>
+            </div>
+            <div id="register-form" style="display:none;">
+                <input type="text" id="register-name" class="modal-input" placeholder="Имя">
+                <input type="email" id="register-email" class="modal-input" placeholder="Email">
+                <input type="password" id="register-password" class="modal-input" placeholder="Пароль">
+                <button class="modal-btn" onclick="register()">Зарегистрироваться</button>
+            </div>
+            <button class="modal-btn secondary" id="toggle-auth-btn" onclick="toggleAuthForm()">Нет аккаунта?</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ПРОФИЛЯ -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">👤 Мой профиль</div>
+            <div style="text-align:center;">
+                <div class="avatar" style="width:80px;height:80px;font-size:36px;margin:0 auto;" id="profile-avatar">Н</div>
+            </div>
+            <input type="text" id="profile-name" class="modal-input" placeholder="Имя">
+            <input type="text" id="profile-username" class="modal-input" placeholder="@username">
+            <textarea id="profile-bio" class="modal-input" placeholder="О себе" rows="3"></textarea>
+            
+            <h3 style="margin:16px 0 8px;">💎 Кристаллы: <span id="profile-crystals">0</span></h3>
+            
+            <h3>🎁 Моя коллекция</h3>
+            <div id="collection-container" class="collection-grid"></div>
+
+            <button class="modal-btn" onclick="saveProfile()">Сохранить</button>
+            <button class="modal-btn secondary" onclick="closeModal('profile-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ЧУЖОГО ПРОФИЛЯ -->
+    <div id="user-profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">👤 Профиль пользователя</div>
+            <div id="user-profile-content" class="user-profile" style="text-align:center;"></div>
+            <button class="modal-btn" onclick="closeModal('user-profile-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА НАСТРОЕК -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">⚙️ Настройки</div>
+            
+            <h4>🎨 Тема</h4>
+            <button class="theme-btn" onclick="setTheme('light')">☀️ Светлая</button>
+            <button class="theme-btn" onclick="setTheme('dark')">🌙 Тёмная</button>
+            <button class="theme-btn" onclick="setTheme('ocean')">🌊 Океан</button>
+            <button class="theme-btn" onclick="setTheme('forest')">🌲 Лес</button>
+            <button class="theme-btn" onclick="setTheme('desert')">🏜️ Пустыня</button>
+            <button class="theme-btn" onclick="setTheme('mint')">🌱 Мятная</button>
+            <button class="theme-btn" onclick="document.getElementById('custom-theme-block').style.display='block'">🎨 Своя</button>
+            <div id="custom-theme-block" style="display:none; margin-top:10px;">
+                <input type="color" id="custom-bg" class="modal-input" value="#f0f2f5">
+                <input type="color" id="custom-surface" class="modal-input" value="#ffffff">
+                <input type="color" id="custom-text" class="modal-input" value="#1a1a1a">
+                <input type="color" id="custom-accent" class="modal-input" value="#0084ff">
+                <button class="modal-btn" onclick="applyCustomTheme()">Применить</button>
+            </div>
+
+            <h4 style="margin-top:20px;">🔔 Уведомления</h4>
+            <label style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="notifications" checked> Включить
+            </label>
+
+            <h4 style="margin-top:20px;">💎 Промокод</h4>
+            <input type="text" id="promo-code" class="modal-input" placeholder="Введите код">
+            <button class="modal-btn" onclick="activatePromo()">Активировать</button>
+
+            <button class="modal-btn" style="background:#ff4444; margin-top:20px;" onclick="logout()">🚪 Выйти</button>
+            <button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ПОИСКА -->
+    <div id="search-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">🔍 Найти пользователя</div>
+            <div style="display:flex; gap:5px;">
+                <span style="background:var(--border); padding:14px; border-radius:30px 0 0 30px;">@</span>
+                <input type="text" id="search-username" class="modal-input" placeholder="username" style="border-radius:0 30px 30px 0;">
+            </div>
+            <button class="modal-btn" onclick="findUser()">Найти</button>
+            <div id="search-result" style="margin:16px 0;"></div>
+            <button class="modal-btn secondary" onclick="closeModal('search-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА КРИСТАЛЛОВ -->
+    <div id="crystals-shop" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">💎 Купить кристаллы</div>
+            <button class="modal-btn secondary" onclick="buyCrystals(100)">100 кристаллов - 199₽</button>
+            <button class="modal-btn secondary" onclick="buyCrystals(250)">250 - 260₽</button>
+            <button class="modal-btn secondary" onclick="buyCrystals(500)">500 - 470₽</button>
+            <button class="modal-btn secondary" onclick="buyCrystals(1000)">1000 - 700₽</button>
+            <button class="modal-btn secondary" onclick="buyCrystals(2500)">2500 - 1999₽</button>
+            <button class="modal-btn secondary" onclick="buyCrystals(5000)">5000 - 3800₽</button>
+            <button class="modal-btn" onclick="closeModal('crystals-shop')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА ПОДАРКОВ -->
+    <div id="gifts-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">🎁 Подарки</div>
+            <div id="gifts-list" class="gifts-grid"></div>
+            <button class="modal-btn secondary" onclick="closeModal('gifts-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Скрытый аудио-элемент для звука уведомления -->
+    <audio id="notification-sound" preload="auto" style="display:none;">
+        <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//sQZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" type="audio/mp3">
+    </audio>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwX0gTIGwKSVGcE3TF6f5TYbG1Q0HB6mA",
+            authDomain: "nixaayymessage.firebaseapp.com",
+            projectId: "nixaayymessage",
+            storageBucket: "nixaayymessage.firebasestorage.app",
+            messagingSenderId: "852106735451",
+            appId: "1:852106735451:web:0b9e79d4207c67ff00f47e"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userData = { crystals: 0, collection: [] };
+        let contacts = [];
+        let currentChat = null;
+        let messagesUnsubscribe = null;
+
+        // Подарки
+        const gifts = [
+            { id:1, name:'Роза', price:20, emoji:'🌹' },
+            { id:2, name:'Подсолнух', price:25, emoji:'🌻' },
+            { id:3, name:'Сакура', price:30, emoji:'🌸' },
+            { id:4, name:'Гибискус', price:35, emoji:'🌺' },
+            { id:5, name:'Тюльпан', price:40, emoji:'🌷' },
+            { id:6, name:'Ромашка', price:45, emoji:'🌼' },
+            { id:7, name:'Букет', price:60, emoji:'💐' },
+            { id:8, name:'Торт', price:80, emoji:'🎂' },
+            { id:9, name:'Мишка', price:100, emoji:'🧸' },
+            { id:10, name:'Кольцо', price:150, emoji:'💍' },
+            { id:11, name:'Корона', price:200, emoji:'👑' },
+            { id:12, name:'Бриллиант', price:300, emoji:'💎' },
+            { id:13, name:'Звезда', price:400, emoji:'⭐' },
+            { id:14, name:'Луна', price:500, emoji:'🌙' },
+            { id:15, name:'Огонь', price:600, emoji:'🔥' },
+            { id:16, name:'Снежинка', price:700, emoji:'❄️' },
+            { id:17, name:'Единорог', price:800, emoji:'🦄' },
+            { id:18, name:'Дракон', price:1000, emoji:'🐉' },
+            { id:19, name:'Феникс', price:1500, emoji:'🦚' },
+            { id:20, name:'Космос', price:2000, emoji:'👾' },
+            { id:21, name:'Молния', price:2500, emoji:'⚡' },
+            { id:22, name:'Вулкан', price:3000, emoji:'🌋' },
+            { id:23, name:'Остров', price:4000, emoji:'🏝️' },
+            { id:24, name:'Маска', price:5000, emoji:'🎭' },
+            { id:25, name:'Меч', price:6000, emoji:'🗡️' },
+            { id:26, name:'Щит', price:7000, emoji:'🛡️' },
+            { id:27, name:'Кубок', price:8000, emoji:'🏆' },
+            { id:28, name:'Око', price:10000, emoji:'👁️' },
+            { id:29, name:'Бесконечность', price:12000, emoji:'🌀' },
+            { id:30, name:'Дракон времени', price:15000, emoji:'🐉✨' }
+        ];
+
+        // Авторизация
+        function toggleAuthForm() {
+            const l = document.getElementById('login-form');
+            const r = document.getElementById('register-form');
+            const btn = document.getElementById('toggle-auth-btn');
+            if (l.style.display !== 'none') {
+                l.style.display = 'none';
+                r.style.display = 'block';
+                btn.textContent = 'Уже есть аккаунт?';
+            } else {
+                l.style.display = 'block';
+                r.style.display = 'none';
+                btn.textContent = 'Нет аккаунта?';
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                closeModal('auth-modal');
+            } catch (e) { alert('Ошибка: ' + e.message); }
+        }
+
+        async function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const pass = document.getElementById('register-password').value;
+            if (!name || !email || !pass) return alert('Заполни всё');
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                await db.collection('users').doc(cred.user.uid).set({
+                    name, email,
+                    username: name.toLowerCase() + Math.floor(Math.random()*100),
+                    crystals: 0,
+                    collection: [],
+                    bio: ''
+                });
+                closeModal('auth-modal');
+            } catch (e) { alert('Ошибка: ' + e.message); }
+        }
+
+        // Профиль
+        function openProfileModal() {
+            document.getElementById('profile-modal').classList.add('active');
+            document.getElementById('profile-name').value = userData.name || '';
+            document.getElementById('profile-username').value = userData.username || '';
+            document.getElementById('profile-bio').value = userData.bio || '';
+            document.getElementById('profile-crystals').textContent = userData.crystals;
+            document.getElementById('profile-avatar').textContent = (userData.name || 'Н')[0];
+
+            const container = document.getElementById('collection-container');
+            if (userData.collection?.length) {
+                container.innerHTML = userData.collection.map((g, i) => `
+                    <div class="collection-card" onclick="sellGift(${i})">
+                        <div class="collection-emoji">${g.emoji}</div>
+                        <div class="gift-name">${g.name}</div>
+                        <div style="color:gold;">${Math.floor(g.price*0.7)}💎</div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="empty-state">Нет подарков</div>';
+            }
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('profile-name').value;
+            const username = document.getElementById('profile-username').value;
+            const bio = document.getElementById('profile-bio').value;
+            await db.collection('users').doc(currentUser.uid).update({ name, username, bio });
+            userData = { ...userData, name, username, bio };
+            document.getElementById('header-avatar').textContent = name[0];
+            closeModal('profile-modal');
+        }
+
+        // Просмотр чужого профиля
+        async function viewUserProfile(userId) {
+            const doc = await db.collection('users').doc(userId).get();
+            if (!doc.exists) return;
+            const user = doc.data();
+            const content = document.getElementById('user-profile-content');
+            content.innerHTML = `
+                <div class="avatar" style="width:80px;height:80px;font-size:36px;margin:0 auto 16px;">${user.name[0]}</div>
+                <h2>${user.name}</h2>
+                <p style="color:var(--text-secondary);">@${user.username || 'username'}</p>
+                <p style="margin:8px 0;">${user.bio || 'Нет описания'}</p>
+                <h3 style="margin:16px 0 8px;">💎 Кристаллы: ${user.crystals || 0}</h3>
+                <h3>🎁 Коллекция</h3>
+                <div class="collection-grid">
+                    ${(user.collection || []).map(g => `
+                        <div class="collection-card" style="cursor:default;">
+                            <div class="collection-emoji">${g.emoji}</div>
+                            <div class="gift-name">${g.name}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('user-profile-modal').classList.add('active');
+        }
+
+        // Подарки
+        function openGiftsModal() {
+            const list = document.getElementById('gifts-list');
+            list.innerHTML = gifts.map(g => `
+                <div class="gift-card" onclick="buyGift(${g.id})">
+                    <div class="gift-emoji">${g.emoji}</div>
+                    <div class="gift-name">${g.name}</div>
+                    <div class="gift-price">${g.price} 💎</div>
+                </div>
+            `).join('');
+            document.getElementById('gifts-modal').classList.add('active');
+        }
+
+        function buyGift(id) {
+            const gift = gifts.find(g => g.id === id);
+            if (userData.crystals < gift.price) return alert('❌ Недостаточно кристаллов');
+            userData.crystals -= gift.price;
+            if (!userData.collection) userData.collection = [];
+            userData.collection.push(gift);
+            db.collection('users').doc(currentUser.uid).update({
+                crystals: userData.crystals,
+                collection: userData.collection
+            });
+            document.getElementById('header-crystals').textContent = userData.crystals;
+            alert(`✅ Куплен ${gift.name}!`);
+            closeModal('gifts-modal');
+        }
+
+        function sellGift(index) {
+            const gift = userData.collection[index];
+            const refund = Math.floor(gift.price * 0.7);
+            if (!confirm(`Обменять ${gift.name} на ${refund} кристаллов?`)) return;
+            userData.crystals += refund;
+            userData.collection.splice(index, 1);
+            db.collection('users').doc(currentUser.uid).update({
+                crystals: userData.crystals,
+                collection: userData.collection
+            });
+            document.getElementById('header-crystals').textContent = userData.crystals;
+            openProfileModal();
+        }
+
+        // Поиск пользователей
+        function openSearchModal() { document.getElementById('search-modal').classList.add('active'); }
+        async function findUser() {
+            const username = document.getElementById('search-username').value.toLowerCase();
+            if (!username) return;
+            const snap = await db.collection('users').where('username', '==', username).get();
+            const res = document.getElementById('search-result');
+            if (snap.empty) {
+                res.innerHTML = '<div style="color:#999;">❌ Не найден</div>';
+                return;
+            }
+            const user = snap.docs[0].data();
+            const userId = snap.docs[0].id;
+            res.innerHTML = `
+                <div style="background:var(--surface); border-radius:20px; padding:16px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="avatar" style="width:40px;height:40px;">${user.name[0]}</div>
+                        <div>
+                            <div style="font-weight:700;">${user.name}</div>
+                            <div>@${user.username}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:10px;">
+                        <button class="modal-btn" style="flex:1;" onclick="startChat('${userId}', '${user.name}')">💬 Написать</button>
+                        <button class="modal-btn secondary" style="flex:1;" onclick="viewUserProfile('${userId}')">👤 Профиль</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startChat(userId, userName) {
+            currentChat = { id: userId, name: userName };
+            document.getElementById('main-screen').style.display = 'none';
+            document.getElementById('chat-screen').style.display = 'flex';
+            document.getElementById('chat-name').textContent = userName;
+            document.getElementById('chat-avatar').textContent = userName[0];
+            loadMessages(userId);
+            closeModal('search-modal');
+        }
+
+        // Уведомления
+        async function requestNotificationPermission() {
+            if (!("Notification" in window)) return;
+            if (Notification.permission === "default") {
+                await Notification.requestPermission();
+            }
+        }
+
+        function playNotificationSound() {
+            const sound = document.getElementById('notification-sound');
+            sound.play().catch(() => {});
+        }
+
+        function showNotification(title, body) {
+            if (!document.getElementById('notifications').checked) return;
+            
+            // Звук
+            playNotificationSound();
+
+            // Визуальное уведомление (если окно не активно)
+            if (document.hidden && Notification.permission === "granted") {
+                new Notification(title, { body, icon: '🔔' });
+            }
+        }
+
+        // Сообщения
+        function loadMessages(contactId) {
+            if (messagesUnsubscribe) messagesUnsubscribe();
+            const chatId = [currentUser.uid, contactId].sort().join('_');
+            messagesUnsubscribe = db.collection('messages')
+                .where('chatId', '==', chatId)
+                .orderBy('timestamp')
+                .onSnapshot(snap => {
+                    const container = document.getElementById('chat-messages');
+                    
+                    // Проверяем новые сообщения
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const msg = change.doc.data();
+                            // Если сообщение не наше и мы не в этом чате — уведомление
+                            if (msg.senderId !== currentUser.uid && currentChat?.id !== contactId) {
+                                showNotification('Новое сообщение', `${userData.name || 'Кто-то'} написал(а): ${msg.text.substring(0,30)}${msg.text.length>30?'…':''}`);
+                            }
+                        }
+                    });
+
+                    container.innerHTML = '';
+                    snap.forEach(doc => {
+                        const msg = doc.data();
+                        const div = document.createElement('div');
+                        div.className = `message ${msg.senderId === currentUser.uid ? 'out' : 'in'}`;
+                        div.innerHTML = `${msg.text}<div class="message-time">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : ''}</div>`;
+                        container.appendChild(div);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !currentChat) return;
+            const chatId = [currentUser.uid, currentChat.id].sort().join('_');
+            await db.collection('messages').add({
+                text,
+                senderId: currentUser.uid,
+                chatId,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        }
+
+        function closeChat() {
+            if (messagesUnsubscribe) messagesUnsubscribe();
+            document.getElementById('main-screen').style.display = 'flex';
+            document.getElementById('chat-screen').style.display = 'none';
+        }
+
+        // Контакты
+        async function loadContacts() {
+            const snap = await db.collection('users').get();
+            contacts = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                .filter(c => c.id !== currentUser?.uid);
+            renderContacts();
+        }
+
+        function renderContacts() {
+            const el = document.getElementById('content');
+            if (!contacts.length) {
+                el.innerHTML = '<div class="empty-state">👥 Нет контактов</div>';
+                return;
+            }
+            el.innerHTML = contacts.map(c => `
+                <div class="contact-item">
+                    <div class="contact-avatar" onclick="viewUserProfile('${c.id}')">${c.name[0]}</div>
+                    <div class="contact-info" onclick="startChat('${c.id}', '${c.name}')">
+                        <div class="contact-name">${c.name}</div>
+                        <div class="contact-username">@${c.username || 'user'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Магазин кристаллов
+        function openCrystalsShop() { document.getElementById('crystals-shop').classList.add('active'); }
+        function buyCrystals(amount) {
+            userData.crystals += amount;
+            db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
+            document.getElementById('header-crystals').textContent = userData.crystals;
+            alert(`✅ +${amount} кристаллов`);
+            closeModal('crystals-shop');
+        }
+
+        // Темы
+        function setTheme(theme) {
+            document.body.className = theme;
+            closeModal('settings-modal');
+        }
+        function applyCustomTheme() {
+            const bg = document.getElementById('custom-bg').value;
+            const surface = document.getElementById('custom-surface').value;
+            const text = document.getElementById('custom-text').value;
+            const accent = document.getElementById('custom-accent').value;
+            document.body.style.setProperty('--bg', bg);
+            document.body.style.setProperty('--surface', surface);
+            document.body.style.setProperty('--text', text);
+            document.body.style.setProperty('--accent', accent);
+            document.body.className = '';
+            closeModal('settings-modal');
+        }
+
+        // Промокоды
+        function activatePromo() {
+            const code = document.getElementById('promo-code').value.toLowerCase();
+            const promos = {
+                'tester26': 5000, 'nihauu2024': 3000, 'welcome': 1000,
+                'gift500': 500, 'vip': 10000, 'newyear2024': 2024
+            };
+            if (promos[code]) {
+                userData.crystals += promos[code];
+                db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
+                document.getElementById('header-crystals').textContent = userData.crystals;
+                alert(`✅ +${promos[code]} кристаллов!`);
+                closeModal('settings-modal');
+            } else alert('❌ Неверный промокод');
+        }
+
+        // Звонок
+        function startCall() {
+            document.getElementById('call-window').classList.add('active');
+            document.getElementById('call-avatar').textContent = currentChat?.name[0] || '👤';
+            let seconds = 0;
+            const timer = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('call-timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+            window.callTimer = timer;
+        }
+
+        function endCall() {
+            document.getElementById('call-window').classList.remove('active');
+            clearInterval(window.callTimer);
+        }
+
+        // Выход
+        async function logout() {
+            if (confirm('Выйти?')) {
+                await auth.signOut();
+                location.reload();
+            }
+        }
+
+        // Переключение вкладок
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            const el = document.getElementById('content');
+            if (tab === 'chats') {
+                el.innerHTML = `
+                    <div class="search-block" onclick="openSearchModal()">
+                        <span>🔍</span>
+                        <span style="color:var(--text-secondary);">Найти пользователя...</span>
+                    </div>
+                    <div class="empty-state">💬 Нажми 🔍 чтобы найти собеседника</div>
+                `;
+            } else if (tab === 'contacts') {
+                renderContacts();
+            } else if (tab === 'shop') {
+                el.innerHTML = `
+                    <button class="modal-btn" onclick="openGiftsModal()" style="background:gold;color:black;margin-bottom:10px;">🎁 Магазин подарков</button>
+                    <button class="modal-btn" onclick="openCrystalsShop()">💎 Купить кристаллы</button>
+                `;
+            }
+        }
+
+        // Модалки
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
+
+        // Слушатель авторизации
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                closeModal('auth-modal');
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    await db.collection('users').doc(user.uid).set({
+                        name: 'Пользователь',
+                        email: user.email,
+                        username: 'user' + Math.floor(Math.random()*1000),
+                        crystals: 0,
+                        collection: [],
+                        bio: ''
+                    });
+                }
+                userData = (await db.collection('users').doc(user.uid).get()).data() || { crystals: 0, collection: [] };
+                document.getElementById('header-avatar').textContent = (userData.name || 'Н')[0];
+                document.getElementById('header-crystals').textContent = userData.crystals;
+                
+                // Запрашиваем разрешение на уведомления
+                requestNotificationPermission();
+                
+                loadContacts();
+            } else {
+                document.getElementById('auth-modal').classList.add('active');
+            }
+        });
+
+        // Старт
+        switchTab('chats');
+    </script>
+</body>
+</html>
