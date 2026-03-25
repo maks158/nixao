@@ -2,20 +2,26 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Нихауу - кристаллы и подарки</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             height: 100vh;
+            height: -webkit-fill-available;
             overflow: hidden;
             transition: background 0.3s, color 0.3s;
+            position: fixed;
+            width: 100%;
         }
 
         /* ТЕМЫ */
@@ -87,6 +93,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
@@ -101,30 +112,35 @@
             animation: fadeIn 0.5s ease;
         }
 
-        .float {
-            animation: float 3s infinite;
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
         /* ОСНОВНОЙ ИНТЕРФЕЙС */
         #app {
             display: flex;
-            height: 100vh;
-            width: 100vw;
+            height: 100%;
+            width: 100%;
             background: var(--bg);
             color: var(--text);
+            position: relative;
         }
 
         /* БОКОВАЯ ПАНЕЛЬ */
         #sidebar {
-            width: 320px;
+            width: 85%;
+            max-width: 320px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            position: fixed;
+            left: -85%;
+            top: 0;
+            height: 100%;
+            z-index: 100;
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        #sidebar.open {
+            left: 0;
         }
 
         #sidebar-header {
@@ -141,6 +157,7 @@
             align-items: center;
             gap: 12px;
             cursor: pointer;
+            flex: 1;
         }
 
         #user-avatar {
@@ -163,23 +180,28 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
+            display: inline-block;
         }
 
         .icon-btn {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             border: none;
             background: transparent;
             color: var(--text);
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .icon-btn:hover {
+        .icon-btn:active {
+            transform: scale(0.95);
             background: var(--border);
-            transform: scale(1.05);
         }
 
         #tabs {
@@ -189,11 +211,12 @@
 
         .tab {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
             color: var(--text-secondary);
             transition: all 0.3s;
+            font-size: 14px;
         }
 
         .tab.active {
@@ -205,6 +228,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 10px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .chat-item {
@@ -213,12 +237,12 @@
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 12px;
             transition: background 0.3s;
             animation: fadeIn 0.5s;
         }
 
-        .chat-item:hover {
+        .chat-item:active {
             background: var(--border);
         }
 
@@ -232,6 +256,16 @@
             justify-content: center;
             color: white;
             font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         /* ОСНОВНОЙ ЧАТ */
@@ -240,51 +274,83 @@
             display: flex;
             flex-direction: column;
             background: var(--bg);
+            width: 100%;
         }
 
         #chat-header {
-            padding: 12px 20px;
+            padding: 10px 12px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #menu-btn {
+            display: flex;
         }
 
         #chat-avatar {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
         #chat-info {
             flex: 1;
+            min-width: 0;
         }
 
         #chat-name {
             font-weight: 600;
             font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #chat-status {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .chat-actions .icon-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
         }
 
         #messages-area {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
+            gap: 8px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .message {
-            max-width: 70%;
-            margin-bottom: 12px;
-            padding: 10px 14px;
-            border-radius: 12px;
+            max-width: 85%;
+            margin-bottom: 4px;
+            padding: 10px 12px;
+            border-radius: 18px;
             animation: fadeIn 0.5s;
             position: relative;
             word-wrap: break-word;
@@ -293,11 +359,14 @@
         .message.out {
             background: var(--message-out);
             margin-left: auto;
+            border-bottom-right-radius: 4px;
         }
 
         .message.in {
             background: var(--message-in);
             margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         /* Карточка подарка */
@@ -307,10 +376,11 @@
             text-align: center;
             cursor: pointer;
             transition: transform 0.2s;
+            padding: 12px;
         }
 
-        .message.gift-card:hover {
-            transform: scale(1.02);
+        .message.gift-card:active {
+            transform: scale(0.98);
         }
 
         .gift-emoji-big {
@@ -323,8 +393,8 @@
             background: rgba(0,0,0,0.5);
             display: inline-block;
             padding: 2px 8px;
-            border-radius: 10px;
-            margin-top: 5px;
+            border-radius: 12px;
+            margin-top: 6px;
         }
 
         /* Кнопка удаления */
@@ -336,8 +406,8 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             font-size: 12px;
             cursor: pointer;
             opacity: 0;
@@ -345,9 +415,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 5;
         }
 
-        .message:hover .delete-message-btn {
+        .message:hover .delete-message-btn,
+        .message:active .delete-message-btn {
             opacity: 1;
         }
 
@@ -357,17 +429,29 @@
             transition: all 0.3s;
         }
 
+        .message-time {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
+        }
+
         /* Уведомление */
         .toast {
             position: fixed;
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             color: white;
             padding: 10px 20px;
             border-radius: 25px;
             z-index: 3000;
+            font-size: 14px;
+            white-space: nowrap;
+            max-width: 90%;
+            white-space: normal;
+            text-align: center;
             animation: fadeInOut 2s ease;
         }
 
@@ -379,26 +463,32 @@
         }
 
         #input-area {
-            padding: 15px 20px;
+            padding: 10px 12px;
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
         }
 
         #message-input-wrapper {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             background: var(--bg);
             border-radius: 25px;
-            padding: 5px 15px;
+            padding: 4px 12px;
+            align-items: center;
         }
 
         #message-input {
             flex: 1;
-            padding: 12px 0;
+            padding: 10px 0;
             border: none;
             background: transparent;
             color: var(--text);
             outline: none;
+            font-size: 16px;
+        }
+
+        #message-input::placeholder {
+            color: var(--text-secondary);
         }
 
         /* МОДАЛЬНЫЕ ОКНА */
@@ -413,6 +503,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 15px;
         }
 
         .modal.active {
@@ -422,44 +513,49 @@
 
         .modal-content {
             background: var(--bg-secondary);
-            border-radius: 15px;
-            width: 90%;
+            border-radius: 20px;
+            width: 100%;
             max-width: 500px;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
-            padding: 25px;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-header {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
         .modal-input {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
+            margin: 8px 0;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             background: var(--bg);
             color: var(--text);
+            font-size: 16px;
         }
 
         .modal-btn {
             width: 100%;
             padding: 12px;
-            margin: 5px 0;
+            margin: 6px 0;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             background: var(--accent);
             color: white;
-            transition: transform 0.3s;
+            font-size: 16px;
+            font-weight: 500;
+            transition: transform 0.2s;
         }
 
-        .modal-btn:hover {
-            transform: scale(1.02);
+        .modal-btn:active {
+            transform: scale(0.98);
         }
 
         .modal-btn.secondary {
@@ -472,42 +568,43 @@
         .gifts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 15px 0;
         }
 
         .gift-item {
             background: var(--bg);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: transform 0.2s;
             animation: fadeIn 0.5s;
         }
 
-        .gift-item:hover {
-            transform: scale(1.05);
+        .gift-item:active {
+            transform: scale(0.96);
         }
 
         .gift-emoji {
-            font-size: 50px;
-            margin-bottom: 10px;
-            animation: float 3s infinite;
+            font-size: 40px;
+            margin-bottom: 8px;
         }
 
         .gift-name {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-size: 13px;
         }
 
         .gift-price {
             color: gold;
             font-weight: bold;
+            font-size: 12px;
         }
 
         .gift-rarity {
-            font-size: 12px;
+            font-size: 10px;
             color: var(--text-secondary);
         }
 
@@ -532,26 +629,26 @@
         }
 
         .call-avatar {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 50px;
+            font-size: 40px;
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             animation: pulse 2s infinite;
         }
 
         .call-status {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 18px;
+            margin-bottom: 8px;
         }
 
         .call-timer {
-            font-size: 24px;
+            font-size: 32px;
             font-family: monospace;
             margin-bottom: 30px;
         }
@@ -562,13 +659,17 @@
         }
 
         .call-btn {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: none;
-            font-size: 30px;
+            font-size: 28px;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: transform 0.2s;
+        }
+
+        .call-btn:active {
+            transform: scale(0.95);
         }
 
         .call-btn.end {
@@ -576,27 +677,92 @@
             color: white;
         }
 
-        .call-btn:hover {
-            transform: scale(1.1);
+        /* Промокод */
+        .promo-input {
+            display: flex;
+            gap: 8px;
         }
 
-        /* МОБИЛЬНАЯ ВЕРСИЯ */
+        .promo-input .modal-input {
+            flex: 1;
+        }
+
+        .promo-input .modal-btn {
+            width: auto;
+            padding: 12px 20px;
+        }
+
+        /* Мобильная оптимизация */
         @media (max-width: 768px) {
-            #sidebar {
-                position: absolute;
-                left: -100%;
-                width: 100%;
-                z-index: 100;
-                transition: left 0.3s;
-            }
-            
-            #sidebar.open {
-                left: 0;
-            }
-            
             .message {
                 max-width: 85%;
             }
+            
+            .gifts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .gift-emoji {
+                font-size: 32px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            .modal-header {
+                font-size: 18px;
+            }
+            
+            #sidebar {
+                width: 85%;
+                left: -85%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gifts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .gift-item {
+                padding: 10px;
+            }
+            
+            .gift-emoji {
+                font-size: 28px;
+            }
+            
+            .gift-name {
+                font-size: 12px;
+            }
+            
+            .chat-actions .icon-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+            
+            #chat-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+        }
+
+        /* Стили для скролла */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -621,7 +787,7 @@
                 <div class="tab" onclick="switchTab('shop')">Магазин</div>
             </div>
             <div style="padding: 10px;">
-                <button class="modal-btn" onclick="findUserByUsername()" style="width: 100%;">🔍 Найти пользователя по @username</button>
+                <button class="modal-btn" onclick="findUserByUsername()" style="width: 100%;">🔍 Найти пользователя</button>
             </div>
 
             <div id="items-list"></div>
@@ -630,15 +796,16 @@
         <!-- Основной чат -->
         <div id="main">
             <div id="chat-header">
-                <button class="icon-btn mobile-back" onclick="toggleSidebar()" style="display: none;">←</button>
+                <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
                 <div id="chat-avatar">#</div>
                 <div id="chat-info">
                     <div id="chat-name">Нихауу</div>
                     <div id="chat-status"></div>
                 </div>
-                <button class="icon-btn" onclick="startRealCall(currentChat?.id)">📞</button>
-                <!-- КНОПКА ПОДАРКА -->
-                <button class="icon-btn" onclick="openGiftSelectionModal()" style="background: linear-gradient(135deg, gold, orange); color: white;">🎁</button>
+                <div class="chat-actions">
+                    <button class="icon-btn" onclick="startRealCall(currentChat?.id)">📞</button>
+                    <button class="icon-btn" onclick="openGiftSelectionModal()" style="background: linear-gradient(135deg, gold, orange); color: white;">🎁</button>
+                </div>
             </div>
 
             <div id="messages-area">
@@ -656,7 +823,7 @@
         </div>
     </div>
 
-    <!-- Окно звонка -->
+    <!-- Остальные модалки (оставляем без изменений, они уже есть в коде) -->
     <div id="call-window" class="call-window">
         <div class="call-avatar">👤</div>
         <div class="call-status">Звонок...</div>
@@ -667,7 +834,6 @@
         </div>
     </div>
 
-    <!-- Модалка авторизации -->
     <div id="auth-modal" class="modal active">
         <div class="modal-content">
             <div class="modal-header">🔐 Вход</div>
@@ -686,19 +852,18 @@
         </div>
     </div>
 
-    <!-- Модалка профиля -->
     <div id="profile-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">👤 Профиль</div>
             <div style="text-align: center;">
-                <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--accent); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 40px; color: white;">Н</div>
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--accent); margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white;">Н</div>
                 <button class="modal-btn" style="margin: 10px 0;" onclick="changeAvatar()">📸 Сменить фото</button>
             </div>
             <input type="text" id="profile-name" class="modal-input" placeholder="Имя">
             <input type="text" id="profile-username" class="modal-input" placeholder="@username">
-            <textarea id="profile-bio" class="modal-input" placeholder="О себе"></textarea>
+            <textarea id="profile-bio" class="modal-input" placeholder="О себе" rows="3"></textarea>
             
-            <div style="margin: 20px 0;">
+            <div style="margin: 15px 0;">
                 <h3>💎 Кристаллы: <span id="profile-crystals">0</span></h3>
                 <button class="modal-btn" onclick="openCrystalsShop()">Купить кристаллы</button>
             </div>
@@ -710,31 +875,30 @@
         </div>
     </div>
 
-    <!-- Модалка настроек -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">⚙️ Настройки</div>
             
             <h3>🎨 Тема</h3>
-            <button class="modal-btn secondary" onclick="setTheme('light')">☀️ Светлая</button>
-            <button class="modal-btn secondary" onclick="setTheme('dark')">🌙 Темная</button>
-            <button class="modal-btn secondary" onclick="setTheme('ocean')">🌊 Океан</button>
-            <button class="modal-btn secondary" onclick="setTheme('desert')">🏜️ Пустыня</button>
-            <button class="modal-btn secondary" onclick="setTheme('mint')">🌱 Мятная</button>
-            <button class="modal-btn secondary" onclick="openCustomTheme()">🎨 Своя тема</button>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0;">
+                <button class="modal-btn secondary" onclick="setTheme('light')">☀️ Светлая</button>
+                <button class="modal-btn secondary" onclick="setTheme('dark')">🌙 Темная</button>
+                <button class="modal-btn secondary" onclick="setTheme('ocean')">🌊 Океан</button>
+                <button class="modal-btn secondary" onclick="setTheme('desert')">🏜️ Пустыня</button>
+                <button class="modal-btn secondary" onclick="setTheme('mint')">🌱 Мятная</button>
+                <button class="modal-btn secondary" onclick="openCustomTheme()">🎨 Своя</button>
+            </div>
 
-            <h3 style="margin-top: 20px;">💎 Промокод</h3>
-            <input type="text" id="promo-code" class="modal-input" placeholder="Введите промокод">
-            <button class="modal-btn" onclick="activatePromo()">Активировать</button>
+            <h3 style="margin-top: 15px;">💎 Промокод</h3>
+            <div class="promo-input">
+                <input type="text" id="promo-code" class="modal-input" placeholder="Введите промокод">
+                <button class="modal-btn" onclick="activatePromo()">Активировать</button>
+            </div>
 
-            <h3 style="margin-top: 20px;">🔔 Уведомления</h3>
-            <label><input type="checkbox" id="notifications" checked> Включить</label>
-
-            <button class="modal-btn" style="margin-top: 20px;" onclick="closeModal('settings-modal')">Закрыть</button>
+            <button class="modal-btn" style="margin-top: 15px;" onclick="closeModal('settings-modal')">Закрыть</button>
         </div>
     </div>
 
-    <!-- Модалка магазина кристаллов -->
     <div id="crystals-shop" class="modal">
         <div class="modal-content">
             <div class="modal-header">💎 Купить кристаллы</div>
@@ -742,13 +906,10 @@
             <button class="modal-btn secondary" onclick="buyCrystals(250, 260)">250 кристаллов - 260₽</button>
             <button class="modal-btn secondary" onclick="buyCrystals(500, 470)">500 кристаллов - 470₽</button>
             <button class="modal-btn secondary" onclick="buyCrystals(1000, 700)">1000 кристаллов - 700₽</button>
-            <button class="modal-btn secondary" onclick="buyCrystals(2500, 1999)">2500 кристаллов - 1999₽</button>
-            <button class="modal-btn secondary" onclick="buyCrystals(5000, 3800)">5000 кристаллов - 3800₽</button>
             <button class="modal-btn" onclick="closeModal('crystals-shop')">Закрыть</button>
         </div>
     </div>
 
-    <!-- Модалка подарков (магазин) -->
     <div id="gifts-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">🎁 Купить подарок</div>
@@ -757,16 +918,14 @@
         </div>
     </div>
 
-    <!-- Модалка выбора подарка для отправки -->
     <div id="send-gift-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">🎁 Выбери подарок для друга</div>
+            <div class="modal-header">🎁 Подарок другу</div>
             <div id="send-gifts-list" class="gifts-grid"></div>
             <button class="modal-btn" onclick="closeModal('send-gift-modal')">Отмена</button>
         </div>
     </div>
 
-    <!-- Модалка кастомной темы -->
     <div id="custom-theme-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">🎨 Своя тема</div>
@@ -799,171 +958,130 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        console.log('Firebase:', firebase);
-        console.log('Auth:', auth);
-        console.log('DB:', db);
-
-        // Проверка подключения к Firestore
-        db.collection('test').doc('test').set({test: true})
-            .then(() => console.log('✅ Firestore работает'))
-            .catch(err => console.log('❌ Ошибка Firestore:', err));
-
         // Глобальные переменные
         let currentUser = null;
-        let userData = { crystals: 0, collection: [] };
+        let userData = { crystals: 500, collection: [], receivedGifts: [], name: 'Пользователь' };
         let currentChat = null;
         let callTimer = null;
         let callSeconds = 0;
 
         // Подарки (30 штук)
         const gifts = [
-            { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹', rarity: 'Обычный' },
-            { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻', rarity: 'Обычный' },
-            { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸', rarity: 'Обычный' },
-            { id: 4, name: '🌺 Гибискус', price: 35, emoji: '🌺', rarity: 'Обычный' },
-            { id: 5, name: '🌷 Тюльпан', price: 40, emoji: '🌷', rarity: 'Обычный' },
-            { id: 6, name: '🌼 Ромашка', price: 45, emoji: '🌼', rarity: 'Обычный' },
-            { id: 7, name: '💐 Букет', price: 60, emoji: '💐', rarity: 'Необычный' },
-            { id: 8, name: '🎂 Торт', price: 80, emoji: '🎂', rarity: 'Необычный' },
-            { id: 9, name: '🧸 Мишка', price: 100, emoji: '🧸', rarity: 'Необычный' },
-            { id: 10, name: '💍 Кольцо', price: 150, emoji: '💍', rarity: 'Редкий' },
-            { id: 11, name: '👑 Корона', price: 200, emoji: '👑', rarity: 'Редкий' },
-            { id: 12, name: '💎 Бриллиант', price: 300, emoji: '💎', rarity: 'Редкий' },
-            { id: 13, name: '⭐ Золотая звезда', price: 400, emoji: '⭐', rarity: 'Эпический' },
-            { id: 14, name: '🌙 Лунный камень', price: 500, emoji: '🌙', rarity: 'Эпический' },
-            { id: 15, name: '🔥 Вечный огонь', price: 600, emoji: '🔥', rarity: 'Эпический' },
-            { id: 16, name: '❄️ Снежинка', price: 700, emoji: '❄️', rarity: 'Эпический' },
-            { id: 17, name: '🌈 Единорог', price: 800, emoji: '🦄', rarity: 'Легендарный' },
-            { id: 18, name: '🐉 Дракон', price: 1000, emoji: '🐉', rarity: 'Легендарный' },
-            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚', rarity: 'Легендарный' },
-            { id: 20, name: '👾 Космос', price: 2000, emoji: '👾', rarity: 'Мифический' },
-            { id: 21, name: '⚡ Молния', price: 2500, emoji: '⚡', rarity: 'Мифический' },
-            { id: 22, name: '🌋 Вулкан', price: 3000, emoji: '🌋', rarity: 'Мифический' },
-            { id: 23, name: '🏝️ Райский остров', price: 4000, emoji: '🏝️', rarity: 'Мифический' },
-            { id: 24, name: '🎭 Маска', price: 5000, emoji: '🎭', rarity: 'Божественный' },
-            { id: 25, name: '🗡️ Меч', price: 6000, emoji: '🗡️', rarity: 'Божественный' },
-            { id: 26, name: '🛡️ Щит', price: 7000, emoji: '🛡️', rarity: 'Божественный' },
-            { id: 27, name: '🏆 Кубок', price: 8000, emoji: '🏆', rarity: 'Божественный' },
-            { id: 28, name: '👁️ Всевидящее око', price: 10000, emoji: '👁️', rarity: 'Трансцендентный' },
-            { id: 29, name: '🌀 Бесконечность', price: 12000, emoji: '🌀', rarity: 'Трансцендентный' },
-            { id: 30, name: '💫 Дракон Времени', price: 15000, emoji: '🐉✨', rarity: 'Трансцендентный' }
+            { id: 1, name: 'Роза', price: 20, emoji: '🌹', rarity: 'Обычный' },
+            { id: 2, name: 'Подсолнух', price: 25, emoji: '🌻', rarity: 'Обычный' },
+            { id: 3, name: 'Сакура', price: 30, emoji: '🌸', rarity: 'Обычный' },
+            { id: 4, name: 'Гибискус', price: 35, emoji: '🌺', rarity: 'Обычный' },
+            { id: 5, name: 'Тюльпан', price: 40, emoji: '🌷', rarity: 'Обычный' },
+            { id: 6, name: 'Ромашка', price: 45, emoji: '🌼', rarity: 'Обычный' },
+            { id: 7, name: 'Букет', price: 60, emoji: '💐', rarity: 'Необычный' },
+            { id: 8, name: 'Торт', price: 80, emoji: '🎂', rarity: 'Необычный' },
+            { id: 9, name: 'Мишка', price: 100, emoji: '🧸', rarity: 'Необычный' },
+            { id: 10, name: 'Кольцо', price: 150, emoji: '💍', rarity: 'Редкий' },
+            { id: 11, name: 'Корона', price: 200, emoji: '👑', rarity: 'Редкий' },
+            { id: 12, name: 'Бриллиант', price: 300, emoji: '💎', rarity: 'Редкий' },
+            { id: 13, name: 'Звезда', price: 400, emoji: '⭐', rarity: 'Эпический' },
+            { id: 14, name: 'Лунный камень', price: 500, emoji: '🌙', rarity: 'Эпический' },
+            { id: 15, name: 'Вечный огонь', price: 600, emoji: '🔥', rarity: 'Эпический' },
+            { id: 16, name: 'Снежинка', price: 700, emoji: '❄️', rarity: 'Эпический' },
+            { id: 17, name: 'Единорог', price: 800, emoji: '🦄', rarity: 'Легендарный' },
+            { id: 18, name: 'Дракон', price: 1000, emoji: '🐉', rarity: 'Легендарный' },
+            { id: 19, name: 'Феникс', price: 1500, emoji: '🦚', rarity: 'Легендарный' },
+            { id: 20, name: 'Космос', price: 2000, emoji: '👾', rarity: 'Мифический' },
+            { id: 21, name: 'Молния', price: 2500, emoji: '⚡', rarity: 'Мифический' },
+            { id: 22, name: 'Вулкан', price: 3000, emoji: '🌋', rarity: 'Мифический' },
+            { id: 23, name: 'Райский остров', price: 4000, emoji: '🏝️', rarity: 'Мифический' },
+            { id: 24, name: 'Маска', price: 5000, emoji: '🎭', rarity: 'Божественный' },
+            { id: 25, name: 'Меч', price: 6000, emoji: '🗡️', rarity: 'Божественный' },
+            { id: 26, name: 'Щит', price: 7000, emoji: '🛡️', rarity: 'Божественный' },
+            { id: 27, name: 'Кубок', price: 8000, emoji: '🏆', rarity: 'Божественный' },
+            { id: 28, name: 'Всевидящее око', price: 10000, emoji: '👁️', rarity: 'Трансцендентный' },
+            { id: 29, name: 'Бесконечность', price: 12000, emoji: '🌀', rarity: 'Трансцендентный' },
+            { id: 30, name: 'Дракон Времени', price: 15000, emoji: '🐉✨', rarity: 'Трансцендентный' }
         ];
 
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
+        // Вспомогательные функции
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            if (m) m.classList.remove('active');
         }
 
-        // ========== АВТОРИЗАЦИЯ ==========
+        // Авторизация
         function toggleAuthForm() {
-            const loginForm = document.getElementById('login-form');
-            const registerForm = document.getElementById('register-form');
-            
-            if (loginForm.style.display !== 'none') {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
+            const login = document.getElementById('login-form');
+            const reg = document.getElementById('register-form');
+            if (login.style.display !== 'none') {
+                login.style.display = 'none';
+                reg.style.display = 'block';
             } else {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
+                login.style.display = 'block';
+                reg.style.display = 'none';
             }
         }
 
         async function login() {
             const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
+            const pwd = document.getElementById('login-password').value;
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await auth.signInWithEmailAndPassword(email, pwd);
                 closeModal('auth-modal');
-            } catch (error) {
-                alert('Ошибка: ' + error.message);
-            }
+            } catch (e) { alert('Ошибка: ' + e.message); }
         }
 
         async function register() {
             const name = document.getElementById('register-name').value;
             const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            
-            if (!name || !email || !password) {
-                alert('Заполните все поля');
-                return;
-            }
-            
+            const pwd = document.getElementById('register-password').value;
+            if (!name || !email || !pwd) { alert('Заполните все поля'); return; }
             try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCredential.user.uid).set({
-                    name: name,
-                    email: email,
-                    crystals: 500,
-                    collection: [],
-                    username: '',
-                    bio: '',
-                    receivedGifts: []
+                const user = await auth.createUserWithEmailAndPassword(email, pwd);
+                await db.collection('users').doc(user.user.uid).set({
+                    name, email, crystals: 500, collection: [], receivedGifts: [], username: '', bio: ''
                 });
                 closeModal('auth-modal');
-            } catch (error) {
-                alert('Ошибка: ' + error.message);
-            }
+            } catch (e) { alert('Ошибка: ' + e.message); }
         }
 
-        // ========== ПРОФИЛЬ ==========
+        // Профиль
         function openProfileModal() {
-            document.getElementById('profile-modal').classList.add('active');
+            const modal = document.getElementById('profile-modal');
             document.getElementById('profile-name').value = userData.name || '';
             document.getElementById('profile-username').value = userData.username || '';
             document.getElementById('profile-bio').value = userData.bio || '';
             document.getElementById('profile-crystals').textContent = userData.crystals || 0;
             
             const collection = document.getElementById('collection');
-            const receivedGifts = userData.receivedGifts || [];
-            
-            if (receivedGifts.length > 0) {
+            const received = userData.receivedGifts || [];
+            if (received.length) {
                 collection.innerHTML = '<h3>🎁 Полученные подарки</h3>' + 
-                    receivedGifts.map(g => 
-                        `<div style="display: inline-block; margin: 5px; padding: 8px; background: linear-gradient(135deg, gold, orange); border-radius: 10px; text-align: center;">
-                            <div style="font-size: 30px;">${g.emoji}</div>
-                            <div>${g.name}</div>
-                            <div style="font-size: 10px;">от ${g.from}</div>
-                        </div>`
-                    ).join('');
+                    received.map(g => `<div style="display: inline-block; margin: 5px; padding: 8px; background: linear-gradient(135deg, gold, orange); border-radius: 10px; text-align: center;"><div style="font-size: 30px;">${g.emoji}</div><div>${g.name}</div><div style="font-size: 10px;">от ${g.from}</div></div>`).join('');
             } else {
                 collection.innerHTML = '<p>Нет подарков</p>';
             }
+            modal.classList.add('active');
         }
 
         async function saveProfile() {
             const name = document.getElementById('profile-name').value;
             const username = document.getElementById('profile-username').value;
             const bio = document.getElementById('profile-bio').value;
-            
-            await db.collection('users').doc(currentUser.uid).update({
-                name: name,
-                username: username,
-                bio: bio
-            });
-            
-            userData.name = name;
-            userData.username = username;
-            userData.bio = bio;
+            await db.collection('users').doc(currentUser.uid).update({ name, username, bio });
+            userData.name = name; userData.username = username; userData.bio = bio;
             document.getElementById('user-name').textContent = name;
             closeModal('profile-modal');
-            showToast('✅ Профиль сохранен');
+            showToast('✅ Сохранено');
         }
 
-        function changeAvatar() {
-            alert('📸 Загрузка аватара будет позже');
-        }
+        function changeAvatar() { showToast('📸 Скоро будет'); }
 
-        // ========== КРИСТАЛЛЫ ==========
+        // Кристаллы
         function openCrystalsShop() {
             closeModal('profile-modal');
             document.getElementById('crystals-shop').classList.add('active');
@@ -971,25 +1089,12 @@
 
         function buyCrystals(amount, price) {
             if (confirm(`Купить ${amount} кристаллов за ${price}₽?`)) {
-                window.location.href = `https://exemple.com/pay?amount=${price}&product=crystals_${amount}&user=${currentUser.uid}`;
-            }
-        }
-
-        function handlePaymentReturn() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
-            const product = urlParams.get('product');
-            
-            if (status === 'success' && product) {
-                const crystals = parseInt(product.split('_')[1]);
-                userData.crystals += crystals;
+                showToast(`💎 +${amount} кристаллов (тест)`);
+                userData.crystals += amount;
                 db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
                 document.getElementById('crystals').innerHTML = `💎 ${userData.crystals}`;
-                showToast(`✅ +${crystals} кристаллов`);
-                window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
-        handlePaymentReturn();
 
         function activatePromo() {
             const promo = document.getElementById('promo-code').value;
@@ -997,483 +1102,259 @@
                 userData.crystals += 18999;
                 db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
                 document.getElementById('crystals').innerHTML = `💎 ${userData.crystals}`;
-                showToast('✅ Промокод активирован! +18999 кристаллов');
+                showToast('✅ +18999 кристаллов');
                 closeModal('settings-modal');
-            } else {
-                alert('❌ Неверный промокод');
-            }
+            } else { alert('❌ Неверный промокод'); }
         }
 
-        // ========== МАГАЗИН ПОДАРКОВ ==========
+        // Магазин подарков
         function openGiftsModal() {
             const list = document.getElementById('gifts-list');
-            list.innerHTML = gifts.map(gift => `
-                <div class="gift-item" onclick="buyGift(${gift.id})">
-                    <div class="gift-emoji">${gift.emoji}</div>
-                    <div class="gift-name">${gift.name}</div>
-                    <div class="gift-price">${gift.price} 💎</div>
-                    <div class="gift-rarity">${gift.rarity}</div>
+            list.innerHTML = gifts.map(g => `
+                <div class="gift-item" onclick="buyGift(${g.id})">
+                    <div class="gift-emoji">${g.emoji}</div>
+                    <div class="gift-name">${g.name}</div>
+                    <div class="gift-price">${g.price} 💎</div>
+                    <div class="gift-rarity">${g.rarity}</div>
                 </div>
             `).join('');
             document.getElementById('gifts-modal').classList.add('active');
         }
 
-        function buyGift(giftId) {
-            const gift = gifts.find(g => g.id === giftId);
-            
-            if (userData.crystals < gift.price) {
-                alert('❌ Недостаточно кристаллов!');
-                return;
-            }
-            
+        function buyGift(id) {
+            const gift = gifts.find(g => g.id === id);
+            if (userData.crystals < gift.price) { alert('❌ Недостаточно кристаллов'); return; }
             userData.crystals -= gift.price;
             if (!userData.collection) userData.collection = [];
             userData.collection.push({...gift, purchasedAt: Date.now()});
-            
-            db.collection('users').doc(currentUser.uid).update({
-                crystals: userData.crystals,
-                collection: userData.collection
-            });
-            
+            db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals, collection: userData.collection });
             document.getElementById('crystals').innerHTML = `💎 ${userData.crystals}`;
-            showToast(`✅ Вы купили ${gift.name}!`);
+            showToast(`✅ Куплен ${gift.name}`);
             closeModal('gifts-modal');
-            
-            if (confirm('🎁 Подарить другу сейчас?')) {
-                openGiftSelectionModal();
-            }
+            if (confirm('🎁 Подарить другу?')) openGiftSelectionModal();
         }
 
-        // ========== ОТПРАВКА ПОДАРКА ДРУГУ ==========
+        // Отправка подарка
         function openGiftSelectionModal() {
-            if (!currentChat) {
-                showToast('❌ Сначала выберите чат');
-                return;
-            }
-            
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
             const list = document.getElementById('send-gifts-list');
-            list.innerHTML = gifts.map(gift => `
-                <div class="gift-item" onclick="sendGiftToFriend(${gift.id})">
-                    <div class="gift-emoji">${gift.emoji}</div>
-                    <div class="gift-name">${gift.name}</div>
-                    <div class="gift-price">${gift.price} 💎</div>
-                    <div class="gift-rarity">${gift.rarity}</div>
+            list.innerHTML = gifts.map(g => `
+                <div class="gift-item" onclick="sendGiftToFriend(${g.id})">
+                    <div class="gift-emoji">${g.emoji}</div>
+                    <div class="gift-name">${g.name}</div>
+                    <div class="gift-price">${g.price} 💎</div>
+                    <div class="gift-rarity">${g.rarity}</div>
                 </div>
             `).join('');
             document.getElementById('send-gift-modal').classList.add('active');
         }
 
-        async function sendGiftToFriend(giftId) {
-            const gift = gifts.find(g => g.id === giftId);
+        async function sendGiftToFriend(id) {
+            const gift = gifts.find(g => g.id === id);
+            if (userData.crystals < gift.price) { alert(`❌ Нужно ${gift.price} 💎`); return; }
             
-            if (userData.crystals < gift.price) {
-                alert(`❌ Недостаточно кристаллов! Нужно ${gift.price} 💎`);
-                return;
-            }
-            
-            // Списываем кристаллы
             userData.crystals -= gift.price;
-            await db.collection('users').doc(currentUser.uid).update({
-                crystals: userData.crystals
-            });
+            await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
             document.getElementById('crystals').innerHTML = `💎 ${userData.crystals}`;
             
-            // Получаем ID собеседника
-            const participants = currentChat.id.split('_');
-            const friendId = participants.find(id => id !== currentUser.uid);
-            const friendDoc = await db.collection('users').doc(friendId).get();
-            const friendData = friendDoc.data();
-            
-            // Отправляем сообщение-подарок
-            const redeemUntil = Date.now() + (60 * 1000); // 1 минута
+            const parts = currentChat.id.split('_');
+            const friendId = parts.find(p => p !== currentUser.uid);
+            const friend = await db.collection('users').doc(friendId).get();
             
             await db.collection('messages').add({
-                type: 'gift',
-                gift: gift,
-                senderId: currentUser.uid,
-                senderName: userData.name,
-                chatId: currentChat.id,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                redeemUntil: redeemUntil,
-                redeemed: false
+                type: 'gift', gift: gift, senderId: currentUser.uid, senderName: userData.name,
+                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                redeemUntil: Date.now() + 60000, redeemed: false
             });
             
-            showToast(`✅ Подарок "${gift.name}" отправлен ${friendData.name}!`);
+            showToast(`✅ Подарок отправлен ${friend.data().name}`);
             closeModal('send-gift-modal');
         }
 
-        // ========== ОБМЕН ПОДАРКА ==========
-        async function redeemGift(messageId, gift, senderName) {
-            const redeemValue = Math.floor(gift.price * 0.3); // 30% от стоимости
+        // Обмен подарка
+        async function redeemGift(msgId, gift, sender) {
+            const value = Math.floor(gift.price * 0.3);
+            if (!confirm(`Обменять ${gift.name} на ${value} 💎?`)) return;
             
-            if (confirm(`🎁 Обменять "${gift.name}" на ${redeemValue} 💎 кристаллов?\n(доступно 1 минута)`)) {
-                try {
-                    const messageRef = db.collection('messages').doc(messageId);
-                    const messageDoc = await messageRef.get();
-                    const messageData = messageDoc.data();
-                    
-                    if (Date.now() > messageData.redeemUntil) {
-                        alert('❌ Время обмена истекло! Подарок остался в коллекции.');
-                        return;
-                    }
-                    
-                    if (messageData.redeemed) {
-                        alert('❌ Подарок уже обменян');
-                        return;
-                    }
-                    
-                    // Начисляем кристаллы
-                    userData.crystals += redeemValue;
-                    await db.collection('users').doc(currentUser.uid).update({
-                        crystals: userData.crystals
-                    });
-                    
-                    // Добавляем подарок в полученные
-                    if (!userData.receivedGifts) userData.receivedGifts = [];
-                    userData.receivedGifts.push({
-                        ...gift,
-                        from: senderName,
-                        receivedAt: Date.now(),
-                        redeemed: true
-                    });
-                    
-                    await db.collection('users').doc(currentUser.uid).update({
-                        receivedGifts: userData.receivedGifts
-                    });
-                    
-                    // Отмечаем подарок как обменянный
-                    await messageRef.update({
-                        redeemed: true,
-                        redeemedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    document.getElementById('crystals').innerHTML = `💎 ${userData.crystals}`;
-                    showToast(`✅ +${redeemValue} кристаллов! Подарок сохранен в коллекции`);
-                    
-                } catch (error) {
-                    console.error('Ошибка обмена:', error);
-                    showToast('❌ Не удалось обменять подарок');
-                }
-            }
-        }
-
-        // ========== УДАЛЕНИЕ СООБЩЕНИЯ ==========
-        async function deleteMessage(messageId, element) {
-            if (!confirm('🗑️ Удалить сообщение у всех?')) return;
+            const msgRef = db.collection('messages').doc(msgId);
+            const msg = await msgRef.get();
+            if (Date.now() > msg.data().redeemUntil) { alert('❌ Время истекло'); return; }
+            if (msg.data().redeemed) { alert('❌ Уже обменян'); return; }
             
-            try {
-                if (element) element.classList.add('message-deleting');
-                await db.collection('messages').doc(messageId).delete();
-                showToast('✅ Сообщение удалено');
-            } catch (error) {
-                console.error('Ошибка удаления:', error);
-                showToast('❌ Не удалось удалить');
-                if (element) element.classList.remove('message-deleting');
-            }
-        }
-
-        // ========== ЗВОНКИ ==========
-        let localStream;
-        let peerConnection;
-
-        async function startRealCall(userId) {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-                showCallUI();
-                peerConnection = new RTCPeerConnection({
-                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-                });
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-                
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                
-                await db.collection('calls').doc(userId).set({
-                    offer: offer,
-                    from: currentUser.uid,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                db.collection('calls').doc(currentUser.uid).onSnapshot((doc) => {
-                    if (doc.exists && doc.data().answer) {
-                        peerConnection.setRemoteDescription(new RTCSessionDescription(doc.data().answer));
-                    }
-                });
-            } catch (error) {
-                alert('Ошибка звонка: ' + error.message);
-            }
-        }
-
-        function showCallUI() {
-            document.getElementById('call-window').classList.add('active');
-            const localVideo = document.createElement('video');
-            localVideo.srcObject = localStream;
-            localVideo.autoplay = true;
-            localVideo.muted = true;
-            localVideo.style.position = 'absolute';
-            localVideo.style.bottom = '20px';
-            localVideo.style.right = '20px';
-            localVideo.style.width = '120px';
-            localVideo.style.borderRadius = '10px';
-            document.getElementById('call-window').appendChild(localVideo);
+            userData.crystals += value;
+            if (!userData.receivedGifts) userData.receivedGifts = [];
+            userData.receivedGifts.push({...gift, from: sender, receivedAt: Date.now()});
             
-            callSeconds = 0;
-            callTimer = setInterval(() => {
-                callSeconds++;
-                const mins = Math.floor(callSeconds / 60);
-                const secs = callSeconds % 60;
-                const timer = document.querySelector('.call-timer');
-                if (timer) timer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            }, 1000);
+            await db.collection('users').doc(currentUser.uid).update({
+                crystals: userData.crystals, receivedGifts: userData.receivedGifts
+            });
+            await msgRef.update({ redeemed: true });
+            
+            document.getElementById('crystals').innerHTML = `💎 ${userData.crystals}`;
+            showToast(`✅ +${value} кристаллов`);
         }
 
-        function endCall() {
-            if (localStream) localStream.getTracks().forEach(track => track.stop());
-            if (peerConnection) peerConnection.close();
-            if (callTimer) clearInterval(callTimer);
-            document.getElementById('call-window').classList.remove('active');
-            location.reload();
+        // Удаление сообщения
+        async function deleteMessage(msgId, el) {
+            if (!confirm('Удалить у всех?')) return;
+            if (el) el.classList.add('message-deleting');
+            await db.collection('messages').doc(msgId).delete();
+            showToast('✅ Удалено');
         }
 
-        function toggleMute() {
-            if (localStream) {
-                const audioTrack = localStream.getAudioTracks()[0];
-                audioTrack.enabled = !audioTrack.enabled;
-                showToast(audioTrack.enabled ? '🎤 Микрофон включен' : '🔇 Микрофон выключен');
-            }
-        }
-
-        function startCall() {
-            startRealCall(currentChat?.id);
-        }
-
-        // ========== СООБЩЕНИЯ ==========
+        // Сообщения
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
-            
-            if (!text || !currentChat || !currentUser) return;
-            
-            try {
-                await db.collection('messages').add({
-                    text: text,
-                    type: 'text',
-                    senderId: currentUser.uid,
-                    senderName: userData.name,
-                    chatId: currentChat.id,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                input.value = '';
-            } catch (error) {
-                alert('Ошибка: ' + error.message);
-            }
+            if (!text || !currentChat) return;
+            await db.collection('messages').add({
+                text, type: 'text', senderId: currentUser.uid, senderName: userData.name,
+                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
         }
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendMessage();
-        }
+        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 
         function loadMessages(chatId) {
             const area = document.getElementById('messages-area');
-            area.innerHTML = '<div style="text-align: center;">Загрузка...</div>';
-            
-            db.collection('messages')
-                .where('chatId', '==', chatId)
-                .orderBy('timestamp', 'asc')
-                .onSnapshot((snapshot) => {
-                    if (snapshot.empty) {
-                        area.innerHTML = '<div style="text-align: center;">💬 Нет сообщений</div>';
-                        return;
-                    }
-                    
+            db.collection('messages').where('chatId', '==', chatId).orderBy('timestamp', 'asc')
+                .onSnapshot(snap => {
+                    if (snap.empty) { area.innerHTML = '<div style="text-align: center;">💬 Нет сообщений</div>'; return; }
                     area.innerHTML = '';
-                    snapshot.forEach((doc) => {
-                        const msg = doc.data();
-                        const isMyMessage = msg.senderId === currentUser?.uid;
-                        
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const isMine = m.senderId === currentUser?.uid;
                         const div = document.createElement('div');
                         
-                        if (msg.type === 'gift') {
-                            div.className = `message ${isMyMessage ? 'out' : 'in'} gift-card`;
-                            const timeLeft = Math.max(0, Math.floor((msg.redeemUntil - Date.now()) / 1000));
-                            const canRedeem = !msg.redeemed && !isMyMessage && Date.now() < msg.redeemUntil;
-                            
+                        if (m.type === 'gift') {
+                            div.className = `message ${isMine ? 'out' : 'in'} gift-card`;
+                            const canRedeem = !m.redeemed && !isMine && Date.now() < m.redeemUntil;
+                            const left = Math.max(0, Math.floor((m.redeemUntil - Date.now()) / 1000));
                             div.innerHTML = `
-                                <div class="gift-emoji-big">${msg.gift.emoji}</div>
-                                <div><strong>${msg.gift.name}</strong></div>
-                                <div>💰 ${msg.gift.price} 💎</div>
-                                <div style="font-size: 11px;">от ${msg.senderName}</div>
-                                ${canRedeem ? `<div class="gift-timer">⏱️ Обменять: ${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}</div>` : ''}
-                                ${msg.redeemed ? '<div style="font-size: 11px;">✅ Обменян</div>' : ''}
+                                <div class="gift-emoji-big">${m.gift.emoji}</div>
+                                <div><strong>${m.gift.name}</strong></div>
+                                <div>💰 ${m.gift.price} 💎</div>
+                                <div style="font-size: 11px;">от ${m.senderName}</div>
+                                ${canRedeem ? `<div class="gift-timer">⏱️ ${Math.floor(left/60)}:${(left%60).toString().padStart(2,'0')}</div>` : ''}
+                                ${m.redeemed ? '<div>✅ Обменян</div>' : ''}
                             `;
-                            
-                            if (canRedeem) {
-                                div.style.cursor = 'pointer';
-                                div.onclick = () => redeemGift(doc.id, msg.gift, msg.senderName);
-                            }
+                            if (canRedeem) div.onclick = () => redeemGift(doc.id, m.gift, m.senderName);
                         } else {
-                            div.className = `message ${isMyMessage ? 'out' : 'in'}`;
-                            div.innerHTML = `
-                                <div>${msg.text}</div>
-                                <div style="font-size: 10px; margin-top: 4px; opacity: 0.7;">
-                                    ${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : ''}
-                                </div>
-                            `;
+                            div.className = `message ${isMine ? 'out' : 'in'}`;
+                            div.innerHTML = `<div>${m.text}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
                         }
                         
-                        if (isMyMessage) {
-                            const deleteBtn = document.createElement('button');
-                            deleteBtn.className = 'delete-message-btn';
-                            deleteBtn.innerHTML = '🗑️';
-                            deleteBtn.onclick = (e) => {
-                                e.stopPropagation();
-                                deleteMessage(doc.id, div);
-                            };
-                            div.appendChild(deleteBtn);
+                        if (isMine) {
+                            const del = document.createElement('button');
+                            del.className = 'delete-message-btn';
+                            del.innerHTML = '🗑️';
+                            del.onclick = (e) => { e.stopPropagation(); deleteMessage(doc.id, div); };
+                            div.appendChild(del);
                         }
-                        
                         area.appendChild(div);
                     });
-                    
                     area.scrollTop = area.scrollHeight;
                 });
         }
 
-        // ========== ТЕМЫ ==========
-        function setTheme(theme) {
-            document.body.className = `theme-${theme}`;
-            closeModal('settings-modal');
-        }
-
-        function openCustomTheme() {
-            closeModal('settings-modal');
-            document.getElementById('custom-theme-modal').classList.add('active');
-        }
-
-        function applyCustomTheme() {
-            const bg = document.getElementById('custom-bg').value;
-            const bgSec = document.getElementById('custom-bg-secondary').value;
-            const text = document.getElementById('custom-text').value;
-            const accent = document.getElementById('custom-accent').value;
-            
-            document.body.style.setProperty('--custom-bg', bg);
-            document.body.style.setProperty('--custom-bg-secondary', bgSec);
-            document.body.style.setProperty('--custom-text', text);
-            document.body.style.setProperty('--custom-accent', accent);
-            document.body.className = 'theme-custom';
-            closeModal('custom-theme-modal');
-        }
-
-        // ========== ИНТЕРФЕЙС ==========
-        function openSettings() {
-            document.getElementById('settings-modal').classList.add('active');
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (tab === 'chats') {
-                document.getElementById('items-list').innerHTML = '<div style="padding: 20px;">Скоро появятся...</div>';
-            } else if (tab === 'contacts') {
-                loadContacts();
-            } else if (tab === 'shop') {
-                document.getElementById('items-list').innerHTML = `
-                    <div style="padding: 20px;">
-                        <button class="modal-btn" onclick="openGiftsModal()">🎁 Подарки</button>
-                        <button class="modal-btn" onclick="openCrystalsShop()">💎 Кристаллы</button>
-                    </div>
-                `;
-            }
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        // ========== КОНТАКТЫ И ЧАТЫ ==========
+        // Контакты
         async function findUserByUsername() {
-            const username = prompt('Введите @username для поиска:');
-            if (!username) return;
-            
-            try {
-                const snapshot = await db.collection('users')
-                    .where('username', '==', username)
-                    .get();
-                
-                if (snapshot.empty) {
-                    alert('❌ Пользователь не найден');
-                    return;
-                }
-                
-                const user = snapshot.docs[0].data();
-                const userId = snapshot.docs[0].id;
-                
-                if (userId === currentUser.uid) {
-                    alert('❌ Это ваш профиль');
-                    return;
-                }
-                
-                const chatId = currentUser.uid < userId ? 
-                    currentUser.uid + '_' + userId : 
-                    userId + '_' + currentUser.uid;
-                
-                await db.collection('chats').doc(chatId).set({
-                    participants: [currentUser.uid, userId],
-                    lastMessage: '',
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                
-                showToast(`✅ Чат с ${user.name} создан!`);
-                loadContacts();
-                
-            } catch (error) {
-                alert('Ошибка: ' + error.message);
-            }
+            const un = prompt('Введите @username:');
+            if (!un) return;
+            const snap = await db.collection('users').where('username', '==', un).get();
+            if (snap.empty) { alert('❌ Не найден'); return; }
+            const user = snap.docs[0];
+            if (user.id === currentUser.uid) { alert('Это вы'); return; }
+            const chatId = currentUser.uid < user.id ? currentUser.uid + '_' + user.id : user.id + '_' + currentUser.uid;
+            await db.collection('chats').doc(chatId).set({ participants: [currentUser.uid, user.id], updatedAt: Date.now() }, { merge: true });
+            showToast(`✅ Чат с ${user.data().name} создан`);
+            loadContacts();
         }
 
         async function loadContacts() {
-            const snapshot = await db.collection('users').get();
-            const contacts = snapshot.docs
-                .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(c => c.id !== currentUser?.uid);
-            
-            const list = document.getElementById('items-list');
-            
-            if (contacts.length === 0) {
-                list.innerHTML = '<div style="padding: 20px; text-align: center;">Нет контактов</div>';
-                return;
-            }
-            
-            list.innerHTML = contacts.map(contact => `
-                <div class="chat-item" onclick="openChatWithContact('${contact.id}', '${contact.name}')">
-                    <div class="item-avatar">${contact.name?.[0] || '?'}</div>
-                    <div class="item-info">
-                        <div class="item-name">${contact.name}</div>
-                        <div>@${contact.username || 'username'}</div>
-                    </div>
+            const users = await db.collection('users').get();
+            const list = users.docs.filter(d => d.id !== currentUser?.uid).map(d => ({ id: d.id, ...d.data() }));
+            const div = document.getElementById('items-list');
+            if (!list.length) { div.innerHTML = '<div style="padding: 20px;">Нет контактов</div>'; return; }
+            div.innerHTML = list.map(c => `
+                <div class="chat-item" onclick="openChatWithContact('${c.id}', '${c.name}')">
+                    <div class="item-avatar">${(c.name || '?')[0]}</div>
+                    <div><div class="item-name">${c.name}</div><div>@${c.username || 'user'}</div></div>
                 </div>
             `).join('');
         }
 
-        async function openChatWithContact(userId, userName) {
-            const chatId = currentUser.uid < userId ? 
-                currentUser.uid + '_' + userId : 
-                userId + '_' + currentUser.uid;
-            
-            currentChat = { id: chatId, name: userName };
-            document.getElementById('chat-name').textContent = userName;
+        async function openChatWithContact(id, name) {
+            const chatId = currentUser.uid < id ? currentUser.uid + '_' + id : id + '_' + currentUser.uid;
+            currentChat = { id: chatId, name };
+            document.getElementById('chat-name').textContent = name;
             document.getElementById('input-area').style.display = 'block';
-            
             loadMessages(chatId);
+            if (window.innerWidth <= 768) toggleSidebar();
         }
 
-        // ========== АВТОРИЗАЦИЯ ==========
+        // Звонки
+        let localStream, peerConnection;
+        async function startRealCall() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                document.getElementById('call-window').classList.add('active');
+                const localVid = document.createElement('video');
+                localVid.srcObject = localStream;
+                localVid.autoplay = true;
+                localVid.muted = true;
+                localVid.style.position = 'absolute';
+                localVid.style.bottom = '20px';
+                localVid.style.right = '20px';
+                localVid.style.width = '100px';
+                localVid.style.borderRadius = '10px';
+                document.getElementById('call-window').appendChild(localVid);
+                callSeconds = 0;
+                callTimer = setInterval(() => {
+                    callSeconds++;
+                    const m = Math.floor(callSeconds/60), s = callSeconds%60;
+                    const t = document.querySelector('.call-timer');
+                    if (t) t.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                }, 1000);
+            } catch(e) { alert('Ошибка доступа к камере'); }
+        }
+        function endCall() {
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
+            if (peerConnection) peerConnection.close();
+            if (callTimer) clearInterval(callTimer);
+            document.getElementById('call-window').classList.remove('active');
+        }
+        function toggleMute() { showToast('🔇 Микрофон'); }
+
+        // Темы
+        function setTheme(t) { document.body.className = `theme-${t}`; closeModal('settings-modal'); }
+        function openCustomTheme() { closeModal('settings-modal'); document.getElementById('custom-theme-modal').classList.add('active'); }
+        function applyCustomTheme() {
+            document.body.style.setProperty('--custom-bg', document.getElementById('custom-bg').value);
+            document.body.style.setProperty('--custom-bg-secondary', document.getElementById('custom-bg-secondary').value);
+            document.body.style.setProperty('--custom-text', document.getElementById('custom-text').value);
+            document.body.style.setProperty('--custom-accent', document.getElementById('custom-accent').value);
+            document.body.className = 'theme-custom';
+            closeModal('custom-theme-modal');
+        }
+
+        // Интерфейс
+        function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            if (tab === 'contacts') loadContacts();
+            else if (tab === 'shop') document.getElementById('items-list').innerHTML = `<div style="padding:20px;"><button class="modal-btn" onclick="openGiftsModal()">🎁 Подарки</button><button class="modal-btn" onclick="openCrystalsShop()">💎 Кристаллы</button></div>`;
+            else document.getElementById('items-list').innerHTML = '<div style="padding:20px;">Чаты</div>';
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+        // Авторизация
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 closeModal('auth-modal');
-                
                 const doc = await db.collection('users').doc(user.uid).get();
                 if (doc.exists) {
                     userData = doc.data();
@@ -1481,32 +1362,11 @@
                     document.getElementById('user-avatar').textContent = (userData.name || 'Н')[0];
                     document.getElementById('crystals').innerHTML = `💎 ${userData.crystals || 0}`;
                 } else {
-                    await db.collection('users').doc(user.uid).set({
-                        name: user.email?.split('@')[0] || 'Пользователь',
-                        email: user.email,
-                        crystals: 500,
-                        collection: [],
-                        receivedGifts: [],
-                        username: '',
-                        bio: ''
-                    });
-                    userData = { crystals: 500, collection: [], receivedGifts: [], name: user.email?.split('@')[0] };
-                    document.getElementById('user-name').textContent = userData.name;
-                    document.getElementById('user-avatar').textContent = userData.name[0];
-                    document.getElementById('crystals').innerHTML = `💎 500`;
+                    await db.collection('users').doc(user.uid).set({ name: 'Пользователь', email: user.email, crystals: 500, collection: [], receivedGifts: [] });
+                    userData = { name: 'Пользователь', crystals: 500, collection: [], receivedGifts: [] };
                 }
-                
-                currentChat = { id: 'test_chat' };
-                document.getElementById('chat-name').textContent = 'Основной чат';
                 document.getElementById('input-area').style.display = 'block';
-            }
-        });
-
-        // Мобильная адаптация
-        window.addEventListener('resize', () => {
-            const backBtn = document.querySelector('.mobile-back');
-            if (backBtn) {
-                backBtn.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+                loadContacts();
             }
         });
     </script>
