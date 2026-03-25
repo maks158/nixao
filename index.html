@@ -98,14 +98,9 @@
             to { transform: translateX(0); }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes slideOut {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
         }
 
         .fade-in {
@@ -122,7 +117,7 @@
             position: relative;
         }
 
-        /* БОКОВАЯ ПАНЕЛЬ */
+        /* БОКОВАЯ ПАНЕЛЬ - работает на телефоне */
         #sidebar {
             width: 85%;
             max-width: 320px;
@@ -134,13 +129,30 @@
             left: -85%;
             top: 0;
             height: 100%;
-            z-index: 100;
-            transition: left 0.3s ease;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.2);
         }
 
         #sidebar.open {
             left: 0;
+        }
+
+        /* Оверлей для затемнения при открытом меню */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
         }
 
         #sidebar-header {
@@ -291,6 +303,7 @@
 
         #menu-btn {
             display: flex;
+            background: var(--bg);
         }
 
         #chat-avatar {
@@ -500,7 +513,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 2000;
             justify-content: center;
             align-items: center;
             padding: 15px;
@@ -616,7 +629,7 @@
             right: 0;
             bottom: 0;
             background: var(--bg);
-            z-index: 2000;
+            z-index: 2500;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -677,6 +690,11 @@
             color: white;
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         /* Промокод */
         .promo-input {
             display: flex;
@@ -693,6 +711,22 @@
         }
 
         /* Мобильная оптимизация */
+        @media (min-width: 769px) {
+            #sidebar {
+                position: relative;
+                left: 0 !important;
+                width: 320px;
+            }
+            
+            #menu-btn {
+                display: none !important;
+            }
+            
+            .sidebar-overlay {
+                display: none !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .message {
                 max-width: 85%;
@@ -713,11 +747,6 @@
             
             .modal-header {
                 font-size: 18px;
-            }
-            
-            #sidebar {
-                width: 85%;
-                left: -85%;
             }
         }
 
@@ -768,26 +797,29 @@
 </head>
 <body class="theme-light">
     <div id="app">
+        <!-- Оверлей для затемнения при открытом меню -->
+        <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+        
         <!-- Боковая панель -->
         <div id="sidebar">
             <div id="sidebar-header">
-                <div id="user-info" onclick="openProfileModal()">
+                <div id="user-info" onclick="openProfileModal(); closeSidebar();">
                     <div id="user-avatar">Н</div>
                     <div>
                         <div id="user-name">Загрузка...</div>
                         <div id="crystals">💎 0</div>
                     </div>
                 </div>
-                <button class="icon-btn" onclick="openSettings()">⚙️</button>
+                <button class="icon-btn" onclick="openSettings(); closeSidebar();">⚙️</button>
             </div>
 
             <div id="tabs">
-                <div class="tab active" onclick="switchTab('chats')">Чаты</div>
-                <div class="tab" onclick="switchTab('contacts')">Контакты</div>
-                <div class="tab" onclick="switchTab('shop')">Магазин</div>
+                <div class="tab active" onclick="switchTab('chats'); closeSidebar();">Чаты</div>
+                <div class="tab" onclick="switchTab('contacts'); closeSidebar();">Контакты</div>
+                <div class="tab" onclick="switchTab('shop'); closeSidebar();">Магазин</div>
             </div>
             <div style="padding: 10px;">
-                <button class="modal-btn" onclick="findUserByUsername()" style="width: 100%;">🔍 Найти пользователя</button>
+                <button class="modal-btn" onclick="findUserByUsername(); closeSidebar();" style="width: 100%;">🔍 Найти пользователя</button>
             </div>
 
             <div id="items-list"></div>
@@ -823,7 +855,7 @@
         </div>
     </div>
 
-    <!-- Остальные модалки (оставляем без изменений, они уже есть в коде) -->
+    <!-- Остальные модалки -->
     <div id="call-window" class="call-window">
         <div class="call-avatar">👤</div>
         <div class="call-status">Звонок...</div>
@@ -998,6 +1030,21 @@
             { id: 29, name: 'Бесконечность', price: 12000, emoji: '🌀', rarity: 'Трансцендентный' },
             { id: 30, name: 'Дракон Времени', price: 15000, emoji: '🐉✨', rarity: 'Трансцендентный' }
         ];
+
+        // ========== ФУНКЦИИ МЕНЮ ==========
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
 
         // Вспомогательные функции
         function showToast(msg) {
@@ -1291,7 +1338,10 @@
             document.getElementById('chat-name').textContent = name;
             document.getElementById('input-area').style.display = 'block';
             loadMessages(chatId);
-            if (window.innerWidth <= 768) toggleSidebar();
+            // Закрываем меню на телефоне после выбора чата
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
         }
 
         // Звонки
@@ -1348,7 +1398,6 @@
             else if (tab === 'shop') document.getElementById('items-list').innerHTML = `<div style="padding:20px;"><button class="modal-btn" onclick="openGiftsModal()">🎁 Подарки</button><button class="modal-btn" onclick="openCrystalsShop()">💎 Кристаллы</button></div>`;
             else document.getElementById('items-list').innerHTML = '<div style="padding:20px;">Чаты</div>';
         }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
         // Авторизация
         auth.onAuthStateChanged(async (user) => {
@@ -1369,6 +1418,9 @@
                 loadContacts();
             }
         });
+
+        // Закрывать меню при клике вне его (на оверлей)
+        document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
     </script>
 </body>
 </html>
