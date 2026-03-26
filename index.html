@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Нихауу - NFT подарки и NixCoin</title>
     <style>
         * {
@@ -103,30 +102,11 @@
             backdrop-filter: blur(10px);
             border-left: 4px solid var(--accent);
         }
-        .notification-icon {
-            font-size: 28px;
-        }
-        .notification-content {
-            flex: 1;
-        }
-        .notification-title {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .notification-text {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        .notification-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-        @keyframes fadeOutNotification {
-            to { opacity: 0; transform: translateX(100px); }
-        }
+        .notification-icon { font-size: 28px; }
+        .notification-content { flex: 1; }
+        .notification-title { font-weight: bold; font-size: 14px; }
+        .notification-text { font-size: 12px; opacity: 0.8; }
+        .notification-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary); }
 
         /* ГРАФИК СВЕЧЕЙ */
         .chart-container {
@@ -144,32 +124,12 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        .chart-price {
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .chart-change {
-            font-size: 14px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
+        .chart-price { font-size: 28px; font-weight: bold; }
+        .chart-change { font-size: 14px; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
         .chart-change.up { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
         .chart-change.down { background: rgba(244, 67, 54, 0.2); color: #f44336; }
-        canvas {
-            width: 100%;
-            height: 280px;
-            background: var(--chart-bg);
-            border-radius: 12px;
-            display: block;
-        }
-        .chart-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
+        canvas { width: 100%; height: 280px; background: var(--chart-bg); border-radius: 12px; display: block; }
+        .chart-stats { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary); }
 
         /* ОСНОВНОЙ ИНТЕРФЕЙС */
         #app { display: flex; height: 100%; width: 100%; background: var(--bg); color: var(--text); }
@@ -206,7 +166,7 @@
         .message.out { background: var(--message-out); margin-left: auto; border-bottom-right-radius: 4px; }
         .message.in { background: var(--message-in); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: var(--shadow); }
 
-        /* КАРТОЧКА ПОДАРКА С ФОНОМ */
+        /* КАРТОЧКА ПОДАРКА */
         .message.gift-card { 
             padding: 16px; 
             border-radius: 20px; 
@@ -253,7 +213,6 @@
         .gift-name { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
         .gift-price { background: rgba(0,0,0,0.1); display: inline-block; padding: 4px 8px; border-radius: 20px; margin-top: 6px; font-size: 12px; }
         .nixcoin-rate { background: linear-gradient(135deg, #00c6fb, #005bea); padding: 8px 12px; border-radius: 20px; color: white; font-size: 14px; margin: 5px 10px; text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .nixcoin-rate:active { transform: scale(0.98); }
         .profile-view { display: flex; align-items: center; gap: 15px; padding: 15px; background: var(--bg); border-radius: 16px; margin-bottom: 15px; }
         .avatar-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
         .avatar-option { font-size: 40px; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s; background: var(--bg); }
@@ -329,7 +288,25 @@
     </div>
 
     <!-- Модалки -->
-    <div id="auth-modal" class="modal active"><div class="modal-content"><div class="modal-header">🔐 Вход</div><input type="email" id="login-email" class="modal-input" placeholder="Email" value="test@test.com"><input type="password" id="login-password" class="modal-input" placeholder="Пароль" value="123456"><button class="modal-btn" onclick="login()">Войти</button><button class="modal-btn secondary" onclick="showRegister()">Регистрация</button></div></div>
+    <div id="auth-modal" class="modal active">
+        <div class="modal-content">
+            <div class="modal-header">🔐 Вход / Регистрация</div>
+            <div id="login-form">
+                <input type="email" id="login-email" class="modal-input" placeholder="Email">
+                <input type="password" id="login-password" class="modal-input" placeholder="Пароль">
+                <button class="modal-btn" onclick="login()">Войти</button>
+                <button class="modal-btn secondary" onclick="showRegisterForm()">Нет аккаунта? Зарегистрироваться</button>
+            </div>
+            <div id="register-form" style="display: none;">
+                <input type="text" id="reg-name" class="modal-input" placeholder="Ваше имя">
+                <input type="email" id="reg-email" class="modal-input" placeholder="Email">
+                <input type="password" id="reg-password" class="modal-input" placeholder="Пароль (мин. 6 символов)">
+                <input type="text" id="reg-username" class="modal-input" placeholder="@username (необязательно)">
+                <button class="modal-btn" onclick="register()">Зарегистрироваться</button>
+                <button class="modal-btn secondary" onclick="showLoginForm()">Уже есть аккаунт? Войти</button>
+            </div>
+        </div>
+    </div>
     <div id="profile-modal" class="modal"><div class="modal-content"><div class="modal-header" id="profile-modal-title">👤 Мой профиль</div><div id="profile-view"></div><div id="profile-edit-area" style="display: none;"><input type="text" id="edit-name" class="modal-input" placeholder="Имя"><input type="text" id="edit-username" class="modal-input" placeholder="@username"><textarea id="edit-bio" class="modal-input" rows="3" placeholder="О себе"></textarea><div class="avatar-selector" id="avatar-selector"></div><button class="modal-btn" onclick="saveProfileEdit()">Сохранить</button><button class="modal-btn secondary" onclick="cancelProfileEdit()">Отмена</button></div><button class="modal-btn" id="edit-profile-btn" onclick="startProfileEdit()">✏️ Редактировать профиль</button><button class="modal-btn secondary" onclick="closeModal('profile-modal')">Закрыть</button></div></div>
     <div id="gift-detail-modal" class="modal"><div class="modal-content" id="gift-detail-content"></div></div>
     <div id="chart-modal" class="modal"><div class="modal-content"><div class="modal-header">📊 График NixCoin (свечной)</div><div id="chart-container" class="chart-container"><div class="chart-header"><div><span class="chart-price">$<span id="chart-current-price">2.50</span></span><span id="chart-change" class="chart-change up">+0.00%</span></div><div>🪙 NIX/USD</div></div><canvas id="priceChart" width="400" height="280"></canvas><div class="chart-stats"><span>📊 Объем: <span id="volume-24h">0</span> NIX</span><span>📈 Макс: $<span id="high-24h">2.50</span></span><span>📉 Мин: $<span id="low-24h">2.50</span></span></div></div><button class="modal-btn secondary" onclick="closeModal('chart-modal')">Закрыть</button></div></div>
@@ -369,13 +346,104 @@
         let nixcoinRate = 2.50;
         let usdToRub = 70;
         let rateUpdateInterval = null;
-        let notificationSound = null;
         
         // Данные для свечного графика
         let candleData = [];
         let currentCandle = null;
         
-        // Функция показа уведомления
+        // Функции для переключения форм
+        function showRegisterForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+        
+        function showLoginForm() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+        }
+        
+        // Функция регистрации
+        async function register() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const username = document.getElementById('reg-username').value.trim();
+            
+            if (!name) {
+                alert('Введите ваше имя');
+                return;
+            }
+            if (!email) {
+                alert('Введите email');
+                return;
+            }
+            if (!password || password.length < 6) {
+                alert('Пароль должен быть не менее 6 символов');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Создаем профиль пользователя в Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    username: username || '',
+                    bio: '',
+                    avatar: '👤',
+                    crystals: 500,
+                    nixcoin: 0,
+                    collection: [],
+                    receivedGifts: [],
+                    nftCollection: [],
+                    nftForSale: [],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('✅ Регистрация успешна!');
+                closeModal('auth-modal');
+                
+            } catch (error) {
+                console.error('Ошибка регистрации:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('❌ Этот email уже зарегистрирован');
+                } else if (error.code === 'auth/weak-password') {
+                    alert('❌ Пароль слишком слабый');
+                } else {
+                    alert('❌ Ошибка регистрации: ' + error.message);
+                }
+            }
+        }
+        
+        // Функция входа
+        async function login() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                alert('Введите email и пароль');
+                return;
+            }
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                closeModal('auth-modal');
+                showToast('✅ Вход выполнен!');
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                if (error.code === 'auth/user-not-found') {
+                    alert('❌ Пользователь не найден');
+                } else if (error.code === 'auth/wrong-password') {
+                    alert('❌ Неверный пароль');
+                } else {
+                    alert('❌ Ошибка входа: ' + error.message);
+                }
+            }
+        }
+        
+        // Функция уведомления
         function showNotification(title, message, icon = '🔔') {
             const notification = document.createElement('div');
             notification.className = 'notification';
@@ -393,14 +461,6 @@
                 }
             };
             document.body.appendChild(notification);
-            
-            // Воспроизводим звук уведомления
-            try {
-                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-                audio.volume = 0.3;
-                audio.play().catch(e => console.log('Звук не воспроизведен'));
-            } catch(e) {}
-            
             setTimeout(() => {
                 if (notification.parentElement) notification.remove();
             }, 5000);
@@ -411,7 +471,6 @@
         
         function setupMessageNotifications(chatId, chatName) {
             if (!currentUser) return;
-            
             db.collection('messages')
                 .where('chatId', '==', chatId)
                 .orderBy('timestamp', 'desc')
@@ -421,7 +480,6 @@
                         const msg = doc.data();
                         const isNotMine = msg.senderId !== currentUser?.uid;
                         const isNew = !lastMessageCount[chatId] || lastMessageCount[chatId] !== doc.id;
-                        
                         if (isNotMine && isNew && (!currentChat || currentChat.id !== chatId)) {
                             lastMessageCount[chatId] = doc.id;
                             const messageText = msg.type === 'gift' ? `🎁 Подарок: ${msg.gift.name}` : msg.text;
@@ -431,12 +489,7 @@
                 });
         }
         
-        // Функции для уведомлений в чате
-        let activeChatId = null;
-        
-        function setActiveChat(chatId) {
-            activeChatId = chatId;
-        }
+        function setActiveChat(chatId) { activeChatId = chatId; }
 
         // Фоны для NFT
         const bgColors = [
@@ -731,9 +784,6 @@
             if (rateUpdateInterval) clearInterval(rateUpdateInterval); 
             rateUpdateInterval = setInterval(updateNixCoinRate, 3000);
         }
-
-        async function login() { try { await auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value); closeModal('auth-modal'); } catch(e) { alert('Ошибка: ' + e.message); } }
-        function showRegister() { alert('Регистрация: используйте test@test.com / 123456'); }
 
         // ========== ПРОФИЛЬ ==========
         async function openProfileModal(userId) {
@@ -1262,10 +1312,25 @@
                     document.getElementById('crystals').innerHTML = `💎 ${Math.floor(userData.crystals || 0)}`;
                     document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin || 0)} NIX`;
                 } else {
-                    await db.collection('users').doc(user.uid).set({ name: 'Пользователь', email: user.email, crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], username: '', bio: '', avatar: '👤' });
-                    userData = { name: 'Пользователь', crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], avatar: '👤' };
+                    // Создаем профиль если его нет (для существующих пользователей без данных)
+                    await db.collection('users').doc(user.uid).set({ 
+                        name: user.email?.split('@')[0] || 'Пользователь', 
+                        email: user.email, 
+                        crystals: 500, 
+                        nixcoin: 0, 
+                        collection: [], 
+                        receivedGifts: [], 
+                        nftCollection: [], 
+                        nftForSale: [], 
+                        username: '', 
+                        bio: '', 
+                        avatar: '👤' 
+                    });
+                    userData = { name: user.email?.split('@')[0] || 'Пользователь', crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], avatar: '👤' };
                     document.getElementById('crystals').innerHTML = `💎 500`;
                     document.getElementById('nixcoin-balance').innerHTML = `🪙 0 NIX`;
+                    document.getElementById('user-name').textContent = userData.name;
+                    document.getElementById('user-avatar').textContent = (userData.name || 'Н')[0];
                 }
                 document.getElementById('input-area').style.display = 'block';
                 loadContacts();
@@ -1285,7 +1350,8 @@
         window.showGiftDetail = showGiftDetail; window.redeemGiftFromDetail = redeemGiftFromDetail;
         window.openChartModal = openChartModal; window.openMarketplace = openMarketplace; window.openSellNFT = openSellNFT;
         window.confirmSellNFT = confirmSellNFT; window.buyFromMarketplace = buyFromMarketplace;
-        window.showNotification = showNotification;
+        window.showNotification = showNotification; window.showRegisterForm = showRegisterForm; window.showLoginForm = showLoginForm;
+        window.register = register; window.login = login;
     </script>
 </body>
 </html>
