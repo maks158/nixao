@@ -68,12 +68,25 @@
         .nft-bg-cyan { background: linear-gradient(135deg, #00c6fb, #005bea); }
         .nft-bg-black { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
         .nft-bg-purple { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
+        /* Фон для ПЕПЫ */
+        .nft-bg-pepe { background: linear-gradient(135deg, #2ecc71, #27ae60, #1e8449); position: relative; overflow: hidden; }
+        .nft-bg-pepe::before {
+            content: "🐸";
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.2;
+            bottom: -20px;
+            right: -20px;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
 
         /* АНИМАЦИИ */
         @keyframes nft-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes nft-bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
         @keyframes nft-pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
         @keyframes nft-float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
+        @keyframes nft-croak { 0%,100%{transform:scale(1);} 25%{transform:scale(1.05) rotate(2deg);} 75%{transform:scale(0.98) rotate(-2deg);} }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
         
@@ -81,6 +94,7 @@
         .nft-bounce { animation: nft-bounce 1s ease-in-out infinite; display: inline-block; }
         .nft-pulse { animation: nft-pulse 1.5s ease-in-out infinite; display: inline-block; }
         .nft-float { animation: nft-float 2s ease-in-out infinite; display: inline-block; }
+        .nft-croak { animation: nft-croak 2s ease-in-out infinite; display: inline-block; }
 
         /* УВЕДОМЛЕНИЯ */
         .notification {
@@ -211,7 +225,7 @@
         .gift-card-shop:active { transform: scale(0.96); }
         .gift-emoji { font-size: 48px; margin-bottom: 10px; display: inline-block; }
         .gift-name { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
-        .gift-price { background: rgba(0,0,0,0.1); display: inline-block; padding: 4px 8px; border-radius: 20px; margin-top: 6px; font-size: 12px; }
+        .gift-price { background: rgba(0,0,0,0.4); display: inline-block; padding: 4px 8px; border-radius: 20px; margin-top: 6px; font-size: 12px; color: white; }
         .nixcoin-rate { background: linear-gradient(135deg, #00c6fb, #005bea); padding: 8px 12px; border-radius: 20px; color: white; font-size: 14px; margin: 5px 10px; text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .profile-view { display: flex; align-items: center; gap: 15px; padding: 15px; background: var(--bg); border-radius: 16px; margin-bottom: 15px; }
         .avatar-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
@@ -298,9 +312,9 @@
                 <button class="modal-btn secondary" onclick="showRegisterForm()">Нет аккаунта? Зарегистрироваться</button>
             </div>
             <div id="register-form" style="display: none;">
-                <input type="text" id="reg-name" class="modal-input" placeholder="Ваше имя">
-                <input type="email" id="reg-email" class="modal-input" placeholder="Email">
-                <input type="password" id="reg-password" class="modal-input" placeholder="Пароль (мин. 6 символов)">
+                <input type="text" id="reg-name" class="modal-input" placeholder="Ваше имя *">
+                <input type="email" id="reg-email" class="modal-input" placeholder="Email *">
+                <input type="password" id="reg-password" class="modal-input" placeholder="Пароль (мин. 6 символов) *">
                 <input type="text" id="reg-username" class="modal-input" placeholder="@username (необязательно)">
                 <button class="modal-btn" onclick="register()">Зарегистрироваться</button>
                 <button class="modal-btn secondary" onclick="showLoginForm()">Уже есть аккаунт? Войти</button>
@@ -317,7 +331,7 @@
     <div id="crystals-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 Кристаллы</div><button class="modal-btn" onclick="buyCrystals(100)">100 💎 - 199₽</button><button class="modal-btn" onclick="buyCrystals(500)">500 💎 - 470₽</button><button class="modal-btn" onclick="buyCrystals(1000)">1000 💎 - 700₽</button><button class="modal-btn secondary" onclick="closeModal('crystals-shop')">Закрыть</button></div></div>
     <div id="nixcoin-shop" class="modal"><div class="modal-content"><div class="modal-header">🪙 Купить NixCoin</div><div>1 NIX = $<span id="nixcoin-rate-modal">2.50</span> | 1 NIX = ₽<span id="nixcoin-rub-modal">175</span></div><button class="modal-btn" onclick="buyNixCoin(10)">10 NIX - $<span id="nix-price-10">25.00</span> / ₽<span id="nix-price-10-rub">1750</span></button><button class="modal-btn" onclick="buyNixCoin(50)">50 NIX - $<span id="nix-price-50">125.00</span> / ₽<span id="nix-price-50-rub">8750</span></button><button class="modal-btn" onclick="buyNixCoin(100)">100 NIX - $<span id="nix-price-100">250.00</span> / ₽<span id="nix-price-100-rub">17500</span></button><button class="modal-btn secondary" onclick="closeModal('nixcoin-shop')">Закрыть</button></div></div>
     <div id="gifts-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Обычные подарки (30 шт)</div><div id="gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('gifts-modal')">Закрыть</button></div></div>
-    <div id="nft-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 NFT Подарки (15 шт)</div><div id="nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('nft-shop')">Закрыть</button></div></div>
+    <div id="nft-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 NFT Подарки (16 шт)</div><div id="nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('nft-shop')">Закрыть</button></div></div>
     <div id="send-gift-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Подарок другу</div><div id="send-gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('send-gift-modal')">Отмена</button></div></div>
     <div id="call-window" class="modal"><div class="modal-content"><div class="modal-header">📞 Звонок</div><button class="modal-btn" onclick="endCall()">Завершить</button></div></div>
 
@@ -347,9 +361,22 @@
         let usdToRub = 70;
         let rateUpdateInterval = null;
         
-        // Данные для свечного графика
+        // Данные для свечного графика (синхронизируются через Firebase)
         let candleData = [];
         let currentCandle = null;
+        let priceHistoryRef = null;
+        
+        // NFT ПЕПА (лягушка) с уникальным фоном
+        const pepeNFT = { 
+            id: 116, 
+            name: '🐸 ПЕПА', 
+            basePrice: 12098, 
+            emoji: '🐸', 
+            rarity: 'Легендарный', 
+            animation: 'nft-croak', 
+            desc: 'Легендарная лягушка удачи! Ква-ква!',
+            bgClass: 'nft-bg-pepe'
+        };
         
         // Функции для переключения форм
         function showRegisterForm() {
@@ -362,88 +389,50 @@
             document.getElementById('register-form').style.display = 'none';
         }
         
-        // Функция регистрации
         async function register() {
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
             const username = document.getElementById('reg-username').value.trim();
             
-            if (!name) {
-                alert('Введите ваше имя');
-                return;
-            }
-            if (!email) {
-                alert('Введите email');
-                return;
-            }
-            if (!password || password.length < 6) {
-                alert('Пароль должен быть не менее 6 символов');
-                return;
-            }
+            if (!name) { alert('❌ Введите ваше имя'); return; }
+            if (!email) { alert('❌ Введите email'); return; }
+            if (!password || password.length < 6) { alert('❌ Пароль должен быть не менее 6 символов'); return; }
             
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Создаем профиль пользователя в Firestore
                 await db.collection('users').doc(user.uid).set({
-                    name: name,
-                    email: email,
-                    username: username || '',
-                    bio: '',
-                    avatar: '👤',
-                    crystals: 500,
-                    nixcoin: 0,
-                    collection: [],
-                    receivedGifts: [],
-                    nftCollection: [],
-                    nftForSale: [],
+                    name: name, email: email, username: username || '', bio: '', avatar: '👤',
+                    crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                showToast('✅ Регистрация успешна!');
+                showToast('✅ Регистрация успешна! Добро пожаловать!');
                 closeModal('auth-modal');
-                
             } catch (error) {
-                console.error('Ошибка регистрации:', error);
-                if (error.code === 'auth/email-already-in-use') {
-                    alert('❌ Этот email уже зарегистрирован');
-                } else if (error.code === 'auth/weak-password') {
-                    alert('❌ Пароль слишком слабый');
-                } else {
-                    alert('❌ Ошибка регистрации: ' + error.message);
-                }
+                if (error.code === 'auth/email-already-in-use') alert('❌ Этот email уже зарегистрирован');
+                else if (error.code === 'auth/weak-password') alert('❌ Пароль слишком слабый');
+                else alert('❌ Ошибка регистрации: ' + error.message);
             }
         }
         
-        // Функция входа
         async function login() {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
-            
-            if (!email || !password) {
-                alert('Введите email и пароль');
-                return;
-            }
-            
+            if (!email || !password) { alert('❌ Введите email и пароль'); return; }
             try {
                 await auth.signInWithEmailAndPassword(email, password);
                 closeModal('auth-modal');
                 showToast('✅ Вход выполнен!');
             } catch (error) {
-                console.error('Ошибка входа:', error);
-                if (error.code === 'auth/user-not-found') {
-                    alert('❌ Пользователь не найден');
-                } else if (error.code === 'auth/wrong-password') {
-                    alert('❌ Неверный пароль');
-                } else {
-                    alert('❌ Ошибка входа: ' + error.message);
-                }
+                if (error.code === 'auth/user-not-found') alert('❌ Пользователь не найден');
+                else if (error.code === 'auth/wrong-password') alert('❌ Неверный пароль');
+                else alert('❌ Ошибка входа: ' + error.message);
             }
         }
         
-        // Функция уведомления
         function showNotification(title, message, icon = '🔔') {
             const notification = document.createElement('div');
             notification.className = 'notification';
@@ -455,38 +444,26 @@
                 </div>
                 <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
             `;
-            notification.onclick = (e) => {
-                if (e.target.className !== 'notification-close') {
-                    notification.remove();
-                }
-            };
+            notification.onclick = (e) => { if (e.target.className !== 'notification-close') notification.remove(); };
             document.body.appendChild(notification);
-            setTimeout(() => {
-                if (notification.parentElement) notification.remove();
-            }, 5000);
+            setTimeout(() => { if (notification.parentElement) notification.remove(); }, 5000);
         }
         
-        // Функция для проверки новых сообщений
         let lastMessageCount = {};
-        
         function setupMessageNotifications(chatId, chatName) {
             if (!currentUser) return;
-            db.collection('messages')
-                .where('chatId', '==', chatId)
-                .orderBy('timestamp', 'desc')
-                .limit(1)
-                .onSnapshot((snapshot) => {
-                    snapshot.forEach((doc) => {
-                        const msg = doc.data();
-                        const isNotMine = msg.senderId !== currentUser?.uid;
-                        const isNew = !lastMessageCount[chatId] || lastMessageCount[chatId] !== doc.id;
-                        if (isNotMine && isNew && (!currentChat || currentChat.id !== chatId)) {
-                            lastMessageCount[chatId] = doc.id;
-                            const messageText = msg.type === 'gift' ? `🎁 Подарок: ${msg.gift.name}` : msg.text;
-                            showNotification(chatName, messageText, msg.type === 'gift' ? '🎁' : '💬');
-                        }
-                    });
+            db.collection('messages').where('chatId', '==', chatId).orderBy('timestamp', 'desc').limit(1).onSnapshot((snapshot) => {
+                snapshot.forEach((doc) => {
+                    const msg = doc.data();
+                    const isNotMine = msg.senderId !== currentUser?.uid;
+                    const isNew = !lastMessageCount[chatId] || lastMessageCount[chatId] !== doc.id;
+                    if (isNotMine && isNew && (!currentChat || currentChat.id !== chatId)) {
+                        lastMessageCount[chatId] = doc.id;
+                        const messageText = msg.type === 'gift' ? `🎁 Подарок: ${msg.gift.name}` : msg.text;
+                        showNotification(chatName, messageText, msg.type === 'gift' ? '🎁' : '💬');
+                    }
                 });
+            });
         }
         
         function setActiveChat(chatId) { activeChatId = chatId; }
@@ -505,16 +482,13 @@
         ];
 
         const bgEmojis = [
-            { emoji: "✨", chance: 30, bonus: 5, name: "Искры" },
-            { emoji: "⭐", chance: 25, bonus: 10, name: "Звезда" },
-            { emoji: "💫", chance: 18, bonus: 15, name: "Комета" },
-            { emoji: "🌟", chance: 12, bonus: 20, name: "Сияние" },
-            { emoji: "🔥", chance: 8, bonus: 30, name: "Пламя" },
-            { emoji: "💎", chance: 5, bonus: 50, name: "Кристалл" },
+            { emoji: "✨", chance: 30, bonus: 5, name: "Искры" }, { emoji: "⭐", chance: 25, bonus: 10, name: "Звезда" },
+            { emoji: "💫", chance: 18, bonus: 15, name: "Комета" }, { emoji: "🌟", chance: 12, bonus: 20, name: "Сияние" },
+            { emoji: "🔥", chance: 8, bonus: 30, name: "Пламя" }, { emoji: "💎", chance: 5, bonus: 50, name: "Кристалл" },
             { emoji: "👑", chance: 2, bonus: 100, name: "Корона" }
         ];
 
-        // NFT Подарки
+        // NFT Подарки (включая ПЕПУ)
         const nftGifts = [
             { id: 101, name: '🍜 Лопша', basePrice: 45, emoji: '🍜', rarity: 'Редкий', animation: 'nft-spin', desc: 'Волшебная лапша удачи' },
             { id: 102, name: '🥄 Чайная ложка', basePrice: 35, emoji: '🥄', rarity: 'Обычный', animation: 'nft-float', desc: 'Ложка размешивает счастье' },
@@ -530,7 +504,8 @@
             { id: 112, name: '🦋 Бабочка счастья', basePrice: 45, emoji: '🦋', rarity: 'Редкий', animation: 'nft-float', desc: 'Приносит радость' },
             { id: 113, name: '🌟 Падающая звезда', basePrice: 65, emoji: '🌟', rarity: 'Эпический', animation: 'nft-bounce', desc: 'Загадай желание' },
             { id: 114, name: '🎵 Музыкальная нота', basePrice: 30, emoji: '🎵', rarity: 'Обычный', animation: 'nft-pulse', desc: 'Мелодия удачи' },
-            { id: 115, name: '👑 Корона судьбы', basePrice: 150, emoji: '👑', rarity: 'Трансцендентный', animation: 'nft-spin', desc: 'Власть над фортуной' }
+            { id: 115, name: '👑 Корона судьбы', basePrice: 150, emoji: '👑', rarity: 'Трансцендентный', animation: 'nft-spin', desc: 'Власть над фортуной' },
+            pepeNFT
         ];
 
         // Обычные подарки
@@ -578,7 +553,87 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
         function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); }
 
-        // Отрисовка свечного графика
+        // Синхронизация графика через Firebase
+        function initPriceSync() {
+            priceHistoryRef = db.collection('global').doc('priceHistory');
+            priceHistoryRef.onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.currentRate) nixcoinRate = data.currentRate;
+                    if (data.candleData) candleData = data.candleData;
+                    if (data.currentCandle) currentCandle = data.currentCandle;
+                    updateUI();
+                    if (document.getElementById('chart-modal').classList.contains('active')) drawCandlestickChart();
+                } else {
+                    priceHistoryRef.set({
+                        currentRate: nixcoinRate,
+                        candleData: [],
+                        currentCandle: { open: nixcoinRate, high: nixcoinRate, low: nixcoinRate, close: nixcoinRate, time: Date.now() },
+                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            });
+        }
+        
+        function updateUI() {
+            const rubValue = Math.floor(nixcoinRate * usdToRub);
+            document.getElementById('nixcoin-usd').textContent = nixcoinRate.toFixed(2);
+            document.getElementById('nixcoin-rub').textContent = rubValue;
+            document.getElementById('nixcoin-rate-modal').textContent = nixcoinRate.toFixed(2);
+            document.getElementById('nixcoin-rub-modal').textContent = rubValue;
+            [10, 50, 100].forEach(amount => {
+                const usdPrice = (amount * nixcoinRate).toFixed(2);
+                const rubPrice = Math.floor(amount * nixcoinRate * usdToRub);
+                const usdEl = document.getElementById(`nix-price-${amount}`);
+                const rubEl = document.getElementById(`nix-price-${amount}-rub`);
+                if (usdEl) usdEl.textContent = usdPrice;
+                if (rubEl) rubEl.textContent = rubPrice;
+            });
+        }
+        
+        async function updateNixCoinRateGlobal() {
+            const changeType = Math.random();
+            let changePercent = 0, isUp = true;
+            if (changeType < 0.005) { changePercent = 15; isUp = true; }
+            else if (changeType < 0.02) { changePercent = 8; isUp = true; }
+            else if (changeType < 0.05) { changePercent = 5; isUp = true; }
+            else if (changeType < 0.12) { changePercent = 2; isUp = true; }
+            else if (changeType < 0.25) { changePercent = 1; isUp = true; }
+            else if (changeType < 0.40) { changePercent = 1; isUp = false; }
+            else if (changeType < 0.60) { changePercent = 2; isUp = false; }
+            else if (changeType < 0.78) { changePercent = 5; isUp = false; }
+            else if (changeType < 0.92) { changePercent = 8; isUp = false; }
+            else { changePercent = 0; }
+            
+            if (changePercent > 0) {
+                const change = isUp ? changePercent : -changePercent;
+                let newRate = nixcoinRate * (1 + change / 100);
+                newRate = Math.max(0.50, Math.min(10, Math.round(newRate * 100) / 100));
+                nixcoinRate = newRate;
+            }
+            
+            const now = Date.now();
+            const candleDuration = 10000;
+            let newCandleData = [...candleData];
+            let newCurrentCandle = currentCandle ? {...currentCandle} : null;
+            
+            if (!newCurrentCandle || (now - newCurrentCandle.time) >= candleDuration) {
+                if (newCurrentCandle) { newCandleData.push(newCurrentCandle); if (newCandleData.length > 30) newCandleData.shift(); }
+                newCurrentCandle = { open: nixcoinRate, high: nixcoinRate, low: nixcoinRate, close: nixcoinRate, time: now };
+            } else {
+                newCurrentCandle.high = Math.max(newCurrentCandle.high, nixcoinRate);
+                newCurrentCandle.low = Math.min(newCurrentCandle.low, nixcoinRate);
+                newCurrentCandle.close = nixcoinRate;
+            }
+            
+            candleData = newCandleData;
+            currentCandle = newCurrentCandle;
+            
+            await priceHistoryRef.set({ currentRate: nixcoinRate, candleData: candleData, currentCandle: currentCandle, lastUpdate: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            updateUI();
+            if (document.getElementById('chart-modal').classList.contains('active')) drawCandlestickChart();
+        }
+        
         function drawCandlestickChart() {
             const canvas = document.getElementById('priceChart');
             if (!canvas) return;
@@ -587,10 +642,11 @@
             const height = canvas.clientHeight;
             canvas.width = width;
             canvas.height = height;
-            
             ctx.clearRect(0, 0, width, height);
             
-            if (candleData.length === 0 && !currentCandle) {
+            const allCandles = [...candleData];
+            if (currentCandle) allCandles.push(currentCandle);
+            if (allCandles.length === 0) {
                 ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary').trim();
                 ctx.font = '14px sans-serif';
                 ctx.textAlign = 'center';
@@ -598,21 +654,12 @@
                 return;
             }
             
-            const allCandles = [...candleData];
-            if (currentCandle) allCandles.push(currentCandle);
-            
-            if (allCandles.length === 0) return;
-            
             let minPrice = Infinity, maxPrice = -Infinity;
-            allCandles.forEach(c => {
-                minPrice = Math.min(minPrice, c.low);
-                maxPrice = Math.max(maxPrice, c.high);
-            });
+            allCandles.forEach(c => { minPrice = Math.min(minPrice, c.low); maxPrice = Math.max(maxPrice, c.high); });
             const range = maxPrice - minPrice || 0.01;
             const padding = 20;
             const chartHeight = height - padding * 2;
             const chartWidth = width - padding * 2;
-            
             const candleWidth = Math.max(6, Math.min(20, (chartWidth / allCandles.length) - 2));
             const startX = padding;
             
@@ -634,12 +681,10 @@
                 const candle = allCandles[i];
                 const x = startX + i * (candleWidth + 2);
                 const centerX = x + candleWidth / 2;
-                
                 const yOpen = padding + chartHeight * (1 - (candle.open - minPrice) / range);
                 const yClose = padding + chartHeight * (1 - (candle.close - minPrice) / range);
                 const yHigh = padding + chartHeight * (1 - (candle.high - minPrice) / range);
                 const yLow = padding + chartHeight * (1 - (candle.low - minPrice) / range);
-                
                 const isUp = candle.close >= candle.open;
                 const color = isUp ? getComputedStyle(document.body).getPropertyValue('--candle-up').trim() : getComputedStyle(document.body).getPropertyValue('--candle-down').trim();
                 
@@ -656,100 +701,9 @@
                 ctx.fillStyle = color;
                 ctx.fillRect(x, bodyTop, candleWidth, bodyHeight);
             }
-            
             ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent').trim();
             ctx.font = 'bold 12px monospace';
             ctx.fillText(`$${nixcoinRate.toFixed(2)}`, width - 60, padding - 5);
-        }
-
-        function updateCandleData(newPrice) {
-            const now = Date.now();
-            const candleDuration = 10000;
-            
-            if (!currentCandle || (now - currentCandle.time) >= candleDuration) {
-                if (currentCandle) {
-                    candleData.push(currentCandle);
-                    if (candleData.length > 30) candleData.shift();
-                }
-                currentCandle = {
-                    open: newPrice,
-                    high: newPrice,
-                    low: newPrice,
-                    close: newPrice,
-                    time: now
-                };
-            } else {
-                currentCandle.high = Math.max(currentCandle.high, newPrice);
-                currentCandle.low = Math.min(currentCandle.low, newPrice);
-                currentCandle.close = newPrice;
-            }
-            
-            if (document.getElementById('chart-modal').classList.contains('active')) {
-                drawCandlestickChart();
-            }
-        }
-
-        function updateNixCoinRate() {
-            const changeType = Math.random();
-            let changePercent = 0, isUp = true;
-            if (changeType < 0.005) { changePercent = 15; isUp = true; }
-            else if (changeType < 0.02) { changePercent = 8; isUp = true; }
-            else if (changeType < 0.05) { changePercent = 5; isUp = true; }
-            else if (changeType < 0.12) { changePercent = 2; isUp = true; }
-            else if (changeType < 0.25) { changePercent = 1; isUp = true; }
-            else if (changeType < 0.40) { changePercent = 1; isUp = false; }
-            else if (changeType < 0.60) { changePercent = 2; isUp = false; }
-            else if (changeType < 0.78) { changePercent = 5; isUp = false; }
-            else if (changeType < 0.92) { changePercent = 8; isUp = false; }
-            else { changePercent = 0; }
-            
-            if (changePercent > 0) {
-                const change = isUp ? changePercent : -changePercent;
-                nixcoinRate = nixcoinRate * (1 + change / 100);
-                nixcoinRate = Math.max(0.50, Math.min(10, Math.round(nixcoinRate * 100) / 100));
-            }
-            
-            updateCandleData(nixcoinRate);
-            
-            const rubValue = Math.floor(nixcoinRate * usdToRub);
-            
-            document.getElementById('nixcoin-usd').textContent = nixcoinRate.toFixed(2);
-            document.getElementById('nixcoin-rub').textContent = rubValue;
-            document.getElementById('nixcoin-rate-modal').textContent = nixcoinRate.toFixed(2);
-            document.getElementById('nixcoin-rub-modal').textContent = rubValue;
-            [10, 50, 100].forEach(amount => {
-                const usdPrice = (amount * nixcoinRate).toFixed(2);
-                const rubPrice = Math.floor(amount * nixcoinRate * usdToRub);
-                const usdEl = document.getElementById(`nix-price-${amount}`);
-                const rubEl = document.getElementById(`nix-price-${amount}-rub`);
-                if (usdEl) usdEl.textContent = usdPrice;
-                if (rubEl) rubEl.textContent = rubPrice;
-            });
-            
-            const rateEl = document.getElementById('nixcoin-rate');
-            if (rateEl) {
-                if (changePercent > 0 && isUp) rateEl.innerHTML = `🪙 1 NIX = $${nixcoinRate.toFixed(2)} | 1 NIX = ₽${rubValue} 📈`;
-                else if (changePercent > 0 && !isUp) rateEl.innerHTML = `🪙 1 NIX = $${nixcoinRate.toFixed(2)} | 1 NIX = ₽${rubValue} 📉`;
-                else rateEl.innerHTML = `🪙 1 NIX = $${nixcoinRate.toFixed(2)} | 1 NIX = ₽${rubValue} ➡️`;
-            }
-            
-            if (document.getElementById('chart-modal').classList.contains('active')) {
-                document.getElementById('chart-current-price').textContent = nixcoinRate.toFixed(2);
-                const firstPrice = candleData[0]?.open || nixcoinRate;
-                const change24h = ((nixcoinRate - firstPrice) / firstPrice * 100).toFixed(2);
-                const changeEl = document.getElementById('chart-change');
-                changeEl.textContent = (change24h >= 0 ? '+' : '') + change24h + '%';
-                changeEl.className = 'chart-change ' + (change24h >= 0 ? 'up' : 'down');
-                
-                let high = nixcoinRate, low = nixcoinRate;
-                [...candleData, currentCandle].forEach(c => {
-                    if (c) { high = Math.max(high, c.high); low = Math.min(low, c.low); }
-                });
-                document.getElementById('high-24h').textContent = high.toFixed(2);
-                document.getElementById('low-24h').textContent = low.toFixed(2);
-                document.getElementById('volume-24h').textContent = Math.floor(Math.random() * 10000);
-                drawCandlestickChart();
-            }
         }
 
         function openChartModal() {
@@ -760,11 +714,8 @@
             const changeEl = document.getElementById('chart-change');
             changeEl.textContent = (change24h >= 0 ? '+' : '') + change24h + '%';
             changeEl.className = 'chart-change ' + (change24h >= 0 ? 'up' : 'down');
-            
             let high = nixcoinRate, low = nixcoinRate;
-            [...candleData, currentCandle].forEach(c => {
-                if (c) { high = Math.max(high, c.high); low = Math.min(low, c.low); }
-            });
+            [...candleData, currentCandle].forEach(c => { if (c) { high = Math.max(high, c.high); low = Math.min(low, c.low); } });
             document.getElementById('high-24h').textContent = high.toFixed(2);
             document.getElementById('low-24h').textContent = low.toFixed(2);
             document.getElementById('volume-24h').textContent = Math.floor(Math.random() * 10000);
@@ -773,16 +724,9 @@
         }
         
         function startRateUpdates() { 
-            currentCandle = {
-                open: nixcoinRate,
-                high: nixcoinRate,
-                low: nixcoinRate,
-                close: nixcoinRate,
-                time: Date.now()
-            };
-            updateNixCoinRate(); 
+            initPriceSync();
             if (rateUpdateInterval) clearInterval(rateUpdateInterval); 
-            rateUpdateInterval = setInterval(updateNixCoinRate, 3000);
+            rateUpdateInterval = setInterval(updateNixCoinRateGlobal, 3000);
         }
 
         // ========== ПРОФИЛЬ ==========
@@ -817,7 +761,7 @@
                 <h3>🎁 Мои подарки (${allGifts.length})</h3>
                 <div class="gifts-grid">
                     ${allGifts.map(g => {
-                        const isNFT = g.bgClass && (g.bgClass.includes('nft') || g.finalPrice);
+                        const isNFT = g.bgClass && (g.bgClass.includes('nft') || g.finalPrice || g.id === 116);
                         const bgClass = isNFT ? (g.bgClass || 'nft-bg-purple') : 'regular-gift-bg';
                         const price = isNFT ? (g.finalPrice || Math.floor(g.basePrice * nixcoinRate)) : g.price;
                         const currency = isNFT ? 'NIX' : '💎';
@@ -842,7 +786,7 @@
         }
 
         function showGiftDetail(id, isNFT, name, price, emoji, rarity, from, bgClass, bgEmoji, bonus) {
-            const redeemPercent = isNFT ? 1.0 : 0.6;
+            const redeemPercent = isNFT ? 1.0 : 0.6; // NFT = 100%, обычные = 60%
             const redeemValue = Math.floor(price * redeemPercent);
             const currency = isNFT ? 'NIX' : '💎';
             
@@ -862,6 +806,8 @@
                         <div class="detail-row"><span>🎨 Цвет фона:</span><span><strong>${bgName}</strong> (+${bonus}%)</span></div>
                         <div class="detail-row"><span>✨ Фоновый эмодзи:</span><span><strong>${bgEmoji}</strong></span></div>
                     `;
+                } else if (bgClass === 'nft-bg-pepe') {
+                    bonusHtml = `<div class="detail-row"><span>🎨 Специальный фон:</span><span><strong>🐸 Лягушачий рай!</strong></span></div>`;
                 }
             }
             
@@ -877,7 +823,7 @@
                         ${from ? `<div class="detail-row"><span>🎁 Получен от:</span><span>${from}</span></div>` : '<div class="detail-row"><span>📦 Статус:</span><span>В коллекции</span></div>'}
                         <div class="detail-row"><span>🔄 Обмен дает:</span><span><strong style="color: gold;">${redeemValue} ${currency}</strong> (${redeemPercent*100}%)</span></div>
                     </div>
-                    <button class="modal-btn redeem" onclick="redeemGiftFromDetail('${id}', ${isNFT}, ${price})">🔄 Обменять на ${redeemValue} ${currency}</button>
+                    ${from ? `<button class="modal-btn redeem" onclick="redeemGiftFromDetail('${id}', ${isNFT}, ${price})">🔄 Обменять на ${redeemValue} ${currency}</button>` : '<div style="text-align:center; padding:10px; color:var(--text-secondary);">🔒 Этот подарок нельзя обменять</div>'}
                 </div>
                 <button class="modal-btn secondary" onclick="closeModal('gift-detail-modal')">Закрыть</button>
             `;
@@ -992,6 +938,12 @@
                 db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin });
                 document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
                 showToast('✅ Промокод активирован! +5000 NIX');
+            } else if (promo === 'vantuz') {
+                const pepeNft = { ...pepeNFT, from: 'Система', receivedAt: Date.now(), finalPrice: pepeNFT.basePrice, isGift: true };
+                if (!userData.receivedGifts) userData.receivedGifts = [];
+                userData.receivedGifts.push(pepeNft);
+                db.collection('users').doc(currentUser.uid).update({ receivedGifts: userData.receivedGifts });
+                showToast('🐸 Секретный промокод активирован! Вы получили NFT "ПЕПА"!');
             } else {
                 alert('❌ Неверный промокод');
                 return;
@@ -1024,7 +976,8 @@
         function openNFTShop() {
             document.getElementById('nft-list').innerHTML = nftGifts.map(g => {
                 const currentPrice = getCurrentNFTPrice(g);
-                return `<div class="gift-card-shop nft-bg-purple" style="color: white;" onclick="buyNFTGift(${g.id})"><div class="gift-emoji ${g.animation}">${g.emoji}</div><div class="gift-name">${g.name}</div><div class="gift-price">${currentPrice.nix} NIX</div><div style="font-size: 10px;">≈ $${currentPrice.usd} / ₽${currentPrice.rub}</div><div style="font-size: 9px;">✨ ${g.desc}</div></div>`;
+                const isPepe = g.id === 116;
+                return `<div class="gift-card-shop ${g.bgClass || 'nft-bg-purple'}" style="color: white;" onclick="buyNFTGift(${g.id})"><div class="gift-emoji ${g.animation}">${g.emoji}</div><div class="gift-name">${g.name}</div><div class="gift-price">${currentPrice.nix} NIX</div><div style="font-size: 10px;">≈ $${currentPrice.usd} / ₽${currentPrice.rub}</div><div style="font-size: 9px;">✨ ${g.desc}</div>${isPepe ? '<div style="font-size: 8px; margin-top: 5px;">🐸 Ква-ква! Редчайший NFT!</div>' : ''}</div>`;
             }).join('');
             document.getElementById('nft-shop').classList.add('active');
         }
@@ -1033,15 +986,28 @@
             const gift = nftGifts.find(g => g.id === id);
             const currentPrice = getCurrentNFTPrice(gift);
             if ((userData.nixcoin || 0) < currentPrice.nix) { alert(`❌ Нужно ${currentPrice.nix} NIX (1 NIX = $${nixcoinRate})`); openNixCoinShop(); return; }
-            const nftStyle = getRandomNFTBackground();
-            const finalPrice = Math.floor(currentPrice.nix * (1 + nftStyle.bg.bonus / 100 + nftStyle.emoji.bonus / 100));
-            const nftGift = { ...gift, nftBg: nftStyle.bg, nftEmoji: nftStyle.emoji, finalPrice: finalPrice, purchasedAt: Date.now(), bgClass: nftStyle.bg.class, bgEmoji: nftStyle.emoji.emoji, bonus: nftStyle.bg.bonus + nftStyle.emoji.bonus, from: null };
+            
+            let bgClass, bgEmoji, bonus, finalPrice;
+            if (gift.id === 116) {
+                bgClass = 'nft-bg-pepe';
+                bgEmoji = '🐸';
+                bonus = 0;
+                finalPrice = currentPrice.nix;
+            } else {
+                const nftStyle = getRandomNFTBackground();
+                bgClass = nftStyle.bg.class;
+                bgEmoji = nftStyle.emoji.emoji;
+                bonus = nftStyle.bg.bonus + nftStyle.emoji.bonus;
+                finalPrice = Math.floor(currentPrice.nix * (1 + bonus / 100));
+            }
+            
+            const nftGift = { ...gift, bgClass: bgClass, bgEmoji: bgEmoji, bonus: bonus, finalPrice: finalPrice, purchasedAt: Date.now(), from: null };
             userData.nixcoin -= currentPrice.nix;
             if (!userData.nftCollection) userData.nftCollection = [];
             userData.nftCollection.push(nftGift);
             db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin, nftCollection: userData.nftCollection });
             document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
-            showToast(`✅ NFT "${gift.name}" куплен! Бонус: +${nftGift.bonus}%!`);
+            showToast(`✅ NFT "${gift.name}" куплен! ${gift.id === 116 ? '🐸 Ква-ква!' : `Бонус: +${bonus}%!`}`);
             closeModal('nft-shop');
             if (confirm('🎁 Подарить NFT другу?')) openNFTSelectionModal();
         }
@@ -1050,7 +1016,6 @@
         function openMarketplace() {
             const marketplaceList = document.getElementById('marketplace-list');
             const allNFTs = [];
-            
             db.collection('users').get().then(snapshot => {
                 snapshot.forEach(doc => {
                     const user = doc.data();
@@ -1060,7 +1025,6 @@
                         });
                     }
                 });
-                
                 if (allNFTs.length === 0) {
                     marketplaceList.innerHTML = '<div style="text-align:center; padding:20px;">Нет NFT в продаже</div>';
                 } else {
@@ -1084,29 +1048,20 @@
         }
 
         async function buyFromMarketplace(nftId, price, sellerId, nftName, nftDataStr) {
-            if (userData.nixcoin < price) {
-                alert(`❌ Недостаточно NIX! Нужно ${price} NIX`);
-                return;
-            }
-            
+            if (userData.nixcoin < price) { alert(`❌ Недостаточно NIX! Нужно ${price} NIX`); return; }
             if (!confirm(`Купить "${nftName}" за ${price} NIX?`)) return;
-            
             const nftData = JSON.parse(nftDataStr);
-            
             userData.nixcoin -= price;
             await db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin });
-            
             if (!userData.nftCollection) userData.nftCollection = [];
             userData.nftCollection.push({ ...nftData, from: nftData.sellerName, purchasedFromMarket: true });
             await db.collection('users').doc(currentUser.uid).update({ nftCollection: userData.nftCollection });
-            
             const sellerRef = db.collection('users').doc(sellerId);
             const sellerDoc = await sellerRef.get();
             const sellerData = sellerDoc.data();
             const updatedForSale = (sellerData.nftForSale || []).filter(n => n.id != nftId);
             await sellerRef.update({ nftForSale: updatedForSale });
             await sellerRef.update({ nixcoin: (sellerData.nixcoin || 0) + price });
-            
             document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
             showToast(`✅ Вы купили "${nftName}" за ${price} NIX!`);
             closeModal('marketplace-modal');
@@ -1116,10 +1071,7 @@
         function openSellNFT(nftId) {
             const nft = userData.nftCollection.find(n => n.id == nftId);
             if (!nft) return;
-            if (nft.onSale) {
-                alert('❌ Этот NFT уже выставлен на продажу');
-                return;
-            }
+            if (nft.onSale) { alert('❌ Этот NFT уже выставлен на продажу'); return; }
             const currentValue = Math.floor(nft.basePrice * nixcoinRate);
             document.getElementById('sell-nft-info').innerHTML = `
                 <div style="text-align:center;">
@@ -1137,23 +1089,13 @@
         async function confirmSellNFT() {
             const nftId = document.getElementById('set-price-modal').dataset.nftId;
             const price = parseInt(document.getElementById('sell-price').value);
-            if (!price || price < 1) {
-                alert('Введите корректную цену');
-                return;
-            }
-            
+            if (!price || price < 1) { alert('Введите корректную цену'); return; }
             const nft = userData.nftCollection.find(n => n.id == nftId);
             if (!nft) return;
-            
             userData.nftCollection = userData.nftCollection.filter(n => n.id != nftId);
             if (!userData.nftForSale) userData.nftForSale = [];
             userData.nftForSale.push({ ...nft, salePrice: price, onSale: true });
-            
-            await db.collection('users').doc(currentUser.uid).update({
-                nftCollection: userData.nftCollection,
-                nftForSale: userData.nftForSale
-            });
-            
+            await db.collection('users').doc(currentUser.uid).update({ nftCollection: userData.nftCollection, nftForSale: userData.nftForSale });
             showToast(`✅ NFT "${nft.name}" выставлен на продажу за ${price} NIX`);
             closeModal('set-price-modal');
             openProfileModal(currentUser.uid);
@@ -1250,8 +1192,6 @@
                 });
                 area.scrollTop = area.scrollHeight;
             });
-            
-            // Настраиваем уведомления для этого чата
             setupMessageNotifications(chatId, document.getElementById('chat-name').textContent);
         }
 
@@ -1295,7 +1235,7 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             if (tab === 'contacts') loadContacts();
-            else if (tab === 'shop') document.getElementById('items-list').innerHTML = `<div style="padding:20px;"><button class="modal-btn" onclick="openGiftsModal()">🎁 Обычные подарки (30 шт)</button><button class="modal-btn" onclick="openNFTShop()">💎 NFT подарки (15 шт)</button><button class="modal-btn" onclick="openCrystalsShop()">💎 Купить кристаллы</button><button class="modal-btn" onclick="openNixCoinShop()">🪙 Купить NixCoin</button></div>`;
+            else if (tab === 'shop') document.getElementById('items-list').innerHTML = `<div style="padding:20px;"><button class="modal-btn" onclick="openGiftsModal()">🎁 Обычные подарки (30 шт)</button><button class="modal-btn" onclick="openNFTShop()">💎 NFT подарки (16 шт)</button><button class="modal-btn" onclick="openCrystalsShop()">💎 Купить кристаллы</button><button class="modal-btn" onclick="openNixCoinShop()">🪙 Купить NixCoin</button></div>`;
             else if (tab === 'marketplace') openMarketplace();
             else document.getElementById('items-list').innerHTML = '<div style="padding:20px;">Чаты</div>';
         }
@@ -1312,19 +1252,9 @@
                     document.getElementById('crystals').innerHTML = `💎 ${Math.floor(userData.crystals || 0)}`;
                     document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin || 0)} NIX`;
                 } else {
-                    // Создаем профиль если его нет (для существующих пользователей без данных)
                     await db.collection('users').doc(user.uid).set({ 
-                        name: user.email?.split('@')[0] || 'Пользователь', 
-                        email: user.email, 
-                        crystals: 500, 
-                        nixcoin: 0, 
-                        collection: [], 
-                        receivedGifts: [], 
-                        nftCollection: [], 
-                        nftForSale: [], 
-                        username: '', 
-                        bio: '', 
-                        avatar: '👤' 
+                        name: user.email?.split('@')[0] || 'Пользователь', email: user.email, crystals: 500, nixcoin: 0,
+                        collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], username: '', bio: '', avatar: '👤' 
                     });
                     userData = { name: user.email?.split('@')[0] || 'Пользователь', crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], avatar: '👤' };
                     document.getElementById('crystals').innerHTML = `💎 500`;
