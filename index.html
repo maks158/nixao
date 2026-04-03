@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Нихауу - NFT подарки и NixCoin</title>
     <style>
+        /* ========== ВЕСЬ ТВОЙ СУЩЕСТВУЮЩИЙ CSS ОСТАЕТСЯ ========== */
         * {
             margin: 0;
             padding: 0;
@@ -68,18 +69,8 @@
         .nft-bg-cyan { background: linear-gradient(135deg, #00c6fb, #005bea); }
         .nft-bg-black { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
         .nft-bg-purple { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
-        /* Фон для ПЕПЫ */
         .nft-bg-pepe { background: linear-gradient(135deg, #2ecc71, #27ae60, #1e8449); position: relative; overflow: hidden; }
-        .nft-bg-pepe::before {
-            content: "🐸";
-            position: absolute;
-            font-size: 80px;
-            opacity: 0.2;
-            bottom: -20px;
-            right: -20px;
-            transform: rotate(-15deg);
-            pointer-events: none;
-        }
+        .nft-bg-pepe::before { content: "🐸"; position: absolute; font-size: 80px; opacity: 0.2; bottom: -20px; right: -20px; transform: rotate(-15deg); pointer-events: none; }
 
         /* АНИМАЦИИ */
         @keyframes nft-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -98,22 +89,10 @@
 
         /* УВЕДОМЛЕНИЯ */
         .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--notification-bg);
-            color: var(--text);
-            padding: 12px 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 4000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 320px;
-            animation: slideInRight 0.3s ease forwards;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
+            position: fixed; top: 20px; right: 20px; background: var(--notification-bg); color: var(--text);
+            padding: 12px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 4000; display: flex; align-items: center; gap: 12px; max-width: 320px;
+            animation: slideInRight 0.3s ease forwards; cursor: pointer; backdrop-filter: blur(10px);
             border-left: 4px solid var(--accent);
         }
         .notification-icon { font-size: 28px; }
@@ -124,20 +103,9 @@
 
         /* ГРАФИК СВЕЧЕЙ */
         .chart-container {
-            background: var(--chart-bg);
-            border-radius: 16px;
-            padding: 15px;
-            margin: 10px 0;
-            box-shadow: var(--shadow);
+            background: var(--chart-bg); border-radius: 16px; padding: 15px; margin: 10px 0; box-shadow: var(--shadow);
         }
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .chart-price { font-size: 28px; font-weight: bold; }
         .chart-change { font-size: 14px; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
         .chart-change.up { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
@@ -182,16 +150,8 @@
 
         /* КАРТОЧКА ПОДАРКА */
         .message.gift-card { 
-            padding: 16px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            position: relative; 
-            overflow: visible;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            min-width: 220px; 
-            max-width: 280px;
-            width: auto;
+            padding: 16px; border-radius: 20px; cursor: pointer; transition: all 0.3s; position: relative; overflow: visible;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 220px; max-width: 280px; width: auto;
         }
         .gift-card-content { text-align: center; position: relative; z-index: 2; }
         .gift-emoji-big { font-size: 56px; margin-bottom: 8px; display: inline-block; }
@@ -233,20 +193,104 @@
         .avatar-option:hover, .avatar-option.selected { transform: scale(1.1); background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
         /* Детальная информация */
-        .detail-card {
-            background: var(--bg);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-        }
+        .detail-card { background: var(--bg); border-radius: 20px; padding: 20px; text-align: center; }
         .detail-emoji { font-size: 80px; margin-bottom: 15px; }
         .detail-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
         .detail-info { margin: 15px 0; padding: 10px; background: var(--bg-secondary); border-radius: 12px; }
         .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
         .detail-row:last-child { border-bottom: none; }
 
+        /* ========== НОВЫЕ СТИЛИ ДЛЯ ЗВОНКОВ ========== */
+        .call-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1a1a;
+            z-index: 5000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .call-overlay.active { display: flex; animation: fadeInUp 0.3s; }
+        .call-video-container {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #000;
+        }
+        .remote-video {
+            flex: 1;
+            width: 100%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remote-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .local-video {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 160px;
+            background: #333;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .local-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .call-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+        }
+        .call-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .call-btn:active { transform: scale(0.95); }
+        .call-btn.end-call { background: #ff3b30; color: white; }
+        .call-btn.mute-btn { background: #4a4a4a; color: white; }
+        .call-btn.mute-btn.active { background: #ff9500; }
+        .call-info {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            text-shadow: 0 1px 2px black;
+            z-index: 10;
+        }
+        .call-timer {
+            font-size: 24px;
+            font-family: monospace;
+            margin-top: 5px;
+        }
+
         @media (min-width: 769px) { #sidebar { position: relative; left: 0 !important; width: 320px; } #menu-btn { display: none !important; } .sidebar-overlay { display: none !important; } }
-        @media (max-width: 768px) { .message.gift-card { max-width: 90%; min-width: 200px; } .gift-emoji-big { font-size: 48px; } canvas { height: 200px; } }
+        @media (max-width: 768px) { .message.gift-card { max-width: 90%; min-width: 200px; } .gift-emoji-big { font-size: 48px; } canvas { height: 200px; } .local-video { width: 80px; height: 120px; } }
     </style>
 </head>
 <body class="theme-light">
@@ -286,7 +330,7 @@
                     <div id="chat-status"></div>
                 </div>
                 <div class="chat-actions">
-                    <button class="icon-btn" onclick="startRealCall()">📞</button>
+                    <button class="icon-btn" onclick="startCall()">📞</button>
                     <button class="icon-btn" onclick="openGiftSelectionModal()" style="background: linear-gradient(135deg, gold, orange); color: white;">🎁</button>
                     <button class="icon-btn" onclick="openNFTShop()" style="background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white;">💎</button>
                 </div>
@@ -301,7 +345,7 @@
         </div>
     </div>
 
-    <!-- Модалки -->
+    <!-- Модалки (все существующие) -->
     <div id="auth-modal" class="modal active">
         <div class="modal-content">
             <div class="modal-header">🔐 Вход / Регистрация</div>
@@ -333,7 +377,27 @@
     <div id="gifts-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Обычные подарки (30 шт)</div><div id="gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('gifts-modal')">Закрыть</button></div></div>
     <div id="nft-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 NFT Подарки (16 шт)</div><div id="nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('nft-shop')">Закрыть</button></div></div>
     <div id="send-gift-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Подарок другу</div><div id="send-gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('send-gift-modal')">Отмена</button></div></div>
-    <div id="call-window" class="modal"><div class="modal-content"><div class="modal-header">📞 Звонок</div><button class="modal-btn" onclick="endCall()">Завершить</button></div></div>
+
+    <!-- ========== НОВОЕ ОКНО ЗВОНКА ========== -->
+    <div id="call-overlay" class="call-overlay">
+        <div class="call-info">
+            <div id="call-status">Соединение...</div>
+            <div id="call-timer" class="call-timer">00:00</div>
+        </div>
+        <div class="call-video-container">
+            <div class="remote-video">
+                <video id="remoteVideo" autoplay playsinline></video>
+            </div>
+            <div class="local-video">
+                <video id="localVideo" autoplay playsinline muted></video>
+            </div>
+        </div>
+        <div class="call-controls">
+            <button class="call-btn mute-btn" id="muteBtn" onclick="toggleMute()">🎤</button>
+            <button class="call-btn end-call" onclick="endCall()">📞</button>
+            <button class="call-btn" id="cameraBtn" onclick="toggleCamera()">📷</button>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -354,6 +418,23 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ========== ПЕРЕМЕННЫЕ ДЛЯ ЗВОНКОВ ==========
+        let localStream = null;
+        let peerConnection = null;
+        let currentCallDoc = null;
+        let callTimerInterval = null;
+        let callStartTime = null;
+        
+        // WebRTC конфигурация
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' }
+            ]
+        };
+
         let currentUser = null;
         let userData = { crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], name: 'Пользователь', nftCollection: [], nftForSale: [], avatar: '👤', username: '', bio: '' };
         let currentChat = null;
@@ -361,24 +442,287 @@
         let usdToRub = 70;
         let rateUpdateInterval = null;
         
-        // Данные для свечного графика (синхронизируются через Firebase)
+        // Данные для свечного графика
         let candleData = [];
         let currentCandle = null;
         let priceHistoryRef = null;
         
-        // NFT ПЕПА (лягушка) с уникальным фоном
+        // NFT ПЕПА
         const pepeNFT = { 
-            id: 116, 
-            name: '🐸 ПЕПА', 
-            basePrice: 12098, 
-            emoji: '🐸', 
-            rarity: 'Легендарный', 
-            animation: 'nft-croak', 
-            desc: 'Легендарная лягушка удачи! Ква-ква!',
-            bgClass: 'nft-bg-pepe'
+            id: 116, name: '🐸 ПЕПА', basePrice: 12098, emoji: '🐸', rarity: 'Легендарный', 
+            animation: 'nft-croak', desc: 'Легендарная лягушка удачи! Ква-ква!', bgClass: 'nft-bg-pepe'
         };
         
-        // Функции для переключения форм
+        // ========== ФУНКЦИИ ЗВОНКОВ ==========
+        
+        // Захват медиа (камера/микрофон)
+        async function getMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const localVideo = document.getElementById('localVideo');
+                if (localVideo) localVideo.srcObject = localStream;
+                return true;
+            } catch (err) {
+                console.error('Ошибка доступа к медиа:', err);
+                showToast('❌ Не удалось получить доступ к камере/микрофону');
+                return false;
+            }
+        }
+        
+        // Начать звонок
+        async function startCall() {
+            if (!currentChat || !currentUser) {
+                showToast('❌ Выберите чат');
+                return;
+            }
+            
+            const mediaOk = await getMedia();
+            if (!mediaOk) return;
+            
+            // Показываем окно звонка
+            document.getElementById('call-overlay').classList.add('active');
+            document.getElementById('call-status').textContent = 'Звонок...';
+            
+            // Создаем peer connection
+            peerConnection = new RTCPeerConnection(configuration);
+            
+            // Добавляем локальные треки
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+            
+            // Получаем удаленный поток
+            peerConnection.ontrack = (event) => {
+                const remoteVideo = document.getElementById('remoteVideo');
+                if (remoteVideo && event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                }
+            };
+            
+            // Собираем ICE кандидаты
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate && currentCallDoc) {
+                    db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
+                        candidate: event.candidate,
+                        type: 'candidate',
+                        senderId: currentUser.uid
+                    });
+                }
+            };
+            
+            // Создаем offer
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            
+            // Сохраняем информацию о звонке в Firestore
+            const callData = {
+                from: currentUser.uid,
+                fromName: userData.name,
+                to: currentChat.userId,
+                offer: offer,
+                status: 'calling',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            const callRef = await db.collection('calls').add(callData);
+            currentCallDoc = { id: callRef.id };
+            document.getElementById('call-status').textContent = 'Ожидание ответа...';
+            
+            // Слушаем ответ
+            const unsubscribe = db.collection('calls').doc(callRef.id).onSnapshot(async (snapshot) => {
+                const data = snapshot.data();
+                if (data && data.answer && peerConnection.signalingState !== 'stable') {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                    startCallTimer();
+                    unsubscribe();
+                }
+                if (data && data.status === 'rejected') {
+                    showToast('❌ Звонок отклонен');
+                    endCall();
+                    unsubscribe();
+                }
+            });
+            
+            // Слушаем ICE кандидаты от собеседника
+            db.collection('calls').doc(callRef.id).collection('candidates')
+                .where('senderId', '!=', currentUser.uid)
+                .onSnapshot((snapshot) => {
+                    snapshot.forEach(async (doc) => {
+                        const data = doc.data();
+                        if (data.candidate && peerConnection) {
+                            try {
+                                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                            } catch (e) { console.log('Ошибка добавления кандидата:', e); }
+                        }
+                    });
+                });
+            
+            // Таймаут если не ответили
+            setTimeout(() => {
+                if (peerConnection && peerConnection.signalingState !== 'stable') {
+                    if (currentCallDoc) {
+                        db.collection('calls').doc(currentCallDoc.id).update({ status: 'missed' });
+                    }
+                    showToast('❌ Собеседник не ответил');
+                    endCall();
+                }
+            }, 30000);
+        }
+        
+        // Ответ на звонок
+        async function answerCall(callId, fromId, offer) {
+            const mediaOk = await getMedia();
+            if (!mediaOk) return;
+            
+            document.getElementById('call-overlay').classList.add('active');
+            document.getElementById('call-status').textContent = 'Соединение...';
+            
+            peerConnection = new RTCPeerConnection(configuration);
+            
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+            
+            peerConnection.ontrack = (event) => {
+                const remoteVideo = document.getElementById('remoteVideo');
+                if (remoteVideo && event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                }
+            };
+            
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate && currentCallDoc) {
+                    db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
+                        candidate: event.candidate,
+                        type: 'candidate',
+                        senderId: currentUser.uid
+                    });
+                }
+            };
+            
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            
+            await db.collection('calls').doc(callId).update({
+                answer: answer,
+                status: 'connected',
+                answeredAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            currentCallDoc = { id: callId };
+            startCallTimer();
+            
+            // Слушаем ICE кандидаты
+            db.collection('calls').doc(callId).collection('candidates')
+                .where('senderId', '!=', currentUser.uid)
+                .onSnapshot((snapshot) => {
+                    snapshot.forEach(async (doc) => {
+                        const data = doc.data();
+                        if (data.candidate && peerConnection) {
+                            try {
+                                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                            } catch (e) { console.log('Ошибка добавления кандидата:', e); }
+                        }
+                    });
+                });
+        }
+        
+        // Завершить звонок
+        function endCall() {
+            if (callTimerInterval) {
+                clearInterval(callTimerInterval);
+                callTimerInterval = null;
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            if (currentCallDoc) {
+                db.collection('calls').doc(currentCallDoc.id).update({ status: 'ended', endedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            }
+            document.getElementById('call-overlay').classList.remove('active');
+            currentCallDoc = null;
+            
+            // Очищаем видео элементы
+            const remoteVideo = document.getElementById('remoteVideo');
+            const localVideo = document.getElementById('localVideo');
+            if (remoteVideo) remoteVideo.srcObject = null;
+            if (localVideo) localVideo.srcObject = null;
+        }
+        
+        // Таймер звонка
+        function startCallTimer() {
+            callStartTime = Date.now();
+            document.getElementById('call-status').textContent = 'В разговоре';
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            callTimerInterval = setInterval(() => {
+                if (callStartTime) {
+                    const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                    const mins = Math.floor(elapsed / 60);
+                    const secs = elapsed % 60;
+                    document.getElementById('call-timer').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+        
+        // Отключить/включить микрофон
+        function toggleMute() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    const muteBtn = document.getElementById('muteBtn');
+                    if (muteBtn) {
+                        muteBtn.textContent = audioTrack.enabled ? '🎤' : '🔇';
+                        muteBtn.classList.toggle('active', !audioTrack.enabled);
+                    }
+                }
+            }
+        }
+        
+        // Отключить/включить камеру
+        function toggleCamera() {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    const cameraBtn = document.getElementById('cameraBtn');
+                    if (cameraBtn) {
+                        cameraBtn.textContent = videoTrack.enabled ? '📷' : '🚫';
+                        cameraBtn.style.opacity = videoTrack.enabled ? '1' : '0.5';
+                    }
+                }
+            }
+        }
+        
+        // Слушаем входящие звонки
+        function listenForIncomingCalls() {
+            if (!currentUser) return;
+            
+            db.collection('calls')
+                .where('to', '==', currentUser.uid)
+                .where('status', '==', 'calling')
+                .onSnapshot((snapshot) => {
+                    snapshot.forEach(async (doc) => {
+                        const call = doc.data();
+                        // Показываем уведомление о входящем звонке
+                        const accept = confirm(`📞 Входящий звонок от ${call.fromName || 'Пользователя'}\n\nПринять?`);
+                        if (accept) {
+                            await answerCall(doc.id, call.from, call.offer);
+                        } else {
+                            await db.collection('calls').doc(doc.id).update({ status: 'rejected' });
+                        }
+                    });
+                });
+        }
+        
+        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ (без изменений) ==========
+        
         function showRegisterForm() {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
@@ -488,7 +832,7 @@
             { emoji: "👑", chance: 2, bonus: 100, name: "Корона" }
         ];
 
-        // NFT Подарки (включая ПЕПУ)
+        // NFT Подарки
         const nftGifts = [
             { id: 101, name: '🍜 Лопша', basePrice: 45, emoji: '🍜', rarity: 'Редкий', animation: 'nft-spin', desc: 'Волшебная лапша удачи' },
             { id: 102, name: '🥄 Чайная ложка', basePrice: 35, emoji: '🥄', rarity: 'Обычный', animation: 'nft-float', desc: 'Ложка размешивает счастье' },
@@ -786,7 +1130,7 @@
         }
 
         function showGiftDetail(id, isNFT, name, price, emoji, rarity, from, bgClass, bgEmoji, bonus) {
-            const redeemPercent = isNFT ? 1.0 : 0.6; // NFT = 100%, обычные = 60%
+            const redeemPercent = isNFT ? 1.0 : 0.6;
             const redeemValue = Math.floor(price * redeemPercent);
             const currency = isNFT ? 'NIX' : '💎';
             
@@ -802,10 +1146,7 @@
                 `;
                 if (bonus > 0) {
                     const bgName = bgColors.find(b => b.class === bgClass)?.name || 'Фиолетовый';
-                    bonusHtml = `
-                        <div class="detail-row"><span>🎨 Цвет фона:</span><span><strong>${bgName}</strong> (+${bonus}%)</span></div>
-                        <div class="detail-row"><span>✨ Фоновый эмодзи:</span><span><strong>${bgEmoji}</strong></span></div>
-                    `;
+                    bonusHtml = `<div class="detail-row"><span>🎨 Цвет фона:</span><span><strong>${bgName}</strong> (+${bonus}%)</span></div>`;
                 } else if (bgClass === 'nft-bg-pepe') {
                     bonusHtml = `<div class="detail-row"><span>🎨 Специальный фон:</span><span><strong>🐸 Лягушачий рай!</strong></span></div>`;
                 }
@@ -1226,8 +1567,6 @@
             if (window.innerWidth <= 768) closeSidebar();
         }
 
-        function startRealCall() { showToast('📞 Звонок (демо)'); }
-        function endCall() { closeModal('call-window'); }
         function setTheme(t) { document.body.className = `theme-${t}`; closeModal('settings-modal'); }
         function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
 
@@ -1265,16 +1604,18 @@
                 document.getElementById('input-area').style.display = 'block';
                 loadContacts();
                 startRateUpdates();
+                listenForIncomingCalls(); // Запускаем прослушивание входящих звонков
             }
         });
 
+        // Глобальные функции
         window.toggleSidebar = toggleSidebar; window.closeSidebar = closeSidebar; window.openProfileModal = openProfileModal;
         window.openSettings = openSettings; window.switchTab = switchTab; window.findUserByUsername = findUserByUsername;
         window.openGiftsModal = openGiftsModal; window.openNFTShop = openNFTShop; window.openCrystalsShop = openCrystalsShop;
         window.openNixCoinShop = openNixCoinShop; window.buyRegularGift = buyRegularGift; window.buyNFTGift = buyNFTGift;
         window.buyCrystals = buyCrystals; window.buyNixCoin = buyNixCoin; window.openGiftSelectionModal = openGiftSelectionModal;
-        window.sendGiftToFriend = sendGiftToFriend; window.sendNFTToFriend = sendNFTToFriend; window.startRealCall = startRealCall;
-        window.endCall = endCall; window.sendMessage = sendMessage; window.handleKeyPress = handleKeyPress; window.setTheme = setTheme;
+        window.sendGiftToFriend = sendGiftToFriend; window.sendNFTToFriend = sendNFTToFriend;
+        window.sendMessage = sendMessage; window.handleKeyPress = handleKeyPress; window.setTheme = setTheme;
         window.activatePromo = activatePromo; window.closeModal = closeModal; window.startProfileEdit = startProfileEdit;
         window.saveProfileEdit = saveProfileEdit; window.cancelProfileEdit = cancelProfileEdit; window.selectAvatar = selectAvatar;
         window.showGiftDetail = showGiftDetail; window.redeemGiftFromDetail = redeemGiftFromDetail;
@@ -1282,6 +1623,12 @@
         window.confirmSellNFT = confirmSellNFT; window.buyFromMarketplace = buyFromMarketplace;
         window.showNotification = showNotification; window.showRegisterForm = showRegisterForm; window.showLoginForm = showLoginForm;
         window.register = register; window.login = login;
+        
+        // Функции звонков
+        window.startCall = startCall;
+        window.endCall = endCall;
+        window.toggleMute = toggleMute;
+        window.toggleCamera = toggleCamera;
     </script>
 </body>
 </html>
