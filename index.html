@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Нихауу - NFT подарки и NixCoin</title>
+    <title>Нихауу - NFT подарки и NixCoin | Видеозвонки WebRTC</title>
     <style>
-        /* ========== ВЕСЬ ТВОЙ СУЩЕСТВУЮЩИЙ CSS ОСТАЕТСЯ ========== */
         * {
             margin: 0;
             padding: 0;
@@ -58,6 +57,44 @@
             --candle-down: #f44336;
             --notification-bg: #ffffff;
         }
+        body.theme-ocean {
+            --bg: #1a3b5c;
+            --bg-secondary: #2c4c6b;
+            --text: #ffffff;
+            --text-secondary: #b8d8f0;
+            --border: #4a6a88;
+            --message-out: #ff6b6b;
+            --message-in: #4ecdc4;
+            --accent: #ffd93d;
+            --accent-gradient: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
+            --chart-bg: #2c4c6b;
+            --candle-up: #4caf50;
+            --candle-down: #f44336;
+        }
+        body.theme-desert {
+            --bg: #e6d5b8;
+            --bg-secondary: #f4e4c1;
+            --text: #5a3e2b;
+            --text-secondary: #8b6e4b;
+            --border: #d4b68a;
+            --message-out: #e6b89c;
+            --message-in: #faf0e6;
+            --accent: #b45f3b;
+            --accent-gradient: linear-gradient(135deg, #b45f3b 0%, #e6b89c 100%);
+            --chart-bg: #f4e4c1;
+        }
+        body.theme-mint {
+            --bg: #d4edda;
+            --bg-secondary: #e8f5e9;
+            --text: #1e3c2c;
+            --text-secondary: #2d4a3a;
+            --border: #b8dfc6;
+            --message-out: #98c1a9;
+            --message-in: #ffffff;
+            --accent: #4caf7f;
+            --accent-gradient: linear-gradient(135deg, #4caf7f 0%, #98c1a9 100%);
+            --chart-bg: #e8f5e9;
+        }
 
         /* ФОНЫ ДЛЯ NFT */
         .nft-bg-blue { background: linear-gradient(135deg, #1e3c72, #2a5298); }
@@ -89,10 +126,22 @@
 
         /* УВЕДОМЛЕНИЯ */
         .notification {
-            position: fixed; top: 20px; right: 20px; background: var(--notification-bg); color: var(--text);
-            padding: 12px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 4000; display: flex; align-items: center; gap: 12px; max-width: 320px;
-            animation: slideInRight 0.3s ease forwards; cursor: pointer; backdrop-filter: blur(10px);
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--notification-bg);
+            color: var(--text);
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 320px;
+            animation: slideInRight 0.3s ease forwards;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
             border-left: 4px solid var(--accent);
         }
         .notification-icon { font-size: 28px; }
@@ -103,9 +152,20 @@
 
         /* ГРАФИК СВЕЧЕЙ */
         .chart-container {
-            background: var(--chart-bg); border-radius: 16px; padding: 15px; margin: 10px 0; box-shadow: var(--shadow);
+            background: var(--chart-bg);
+            border-radius: 16px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: var(--shadow);
         }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
         .chart-price { font-size: 28px; font-weight: bold; }
         .chart-change { font-size: 14px; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
         .chart-change.up { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
@@ -150,8 +210,16 @@
 
         /* КАРТОЧКА ПОДАРКА */
         .message.gift-card { 
-            padding: 16px; border-radius: 20px; cursor: pointer; transition: all 0.3s; position: relative; overflow: visible;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 220px; max-width: 280px; width: auto;
+            padding: 16px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            position: relative; 
+            overflow: visible;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            min-width: 220px; 
+            max-width: 280px;
+            width: auto;
         }
         .gift-card-content { text-align: center; position: relative; z-index: 2; }
         .gift-emoji-big { font-size: 56px; margin-bottom: 8px; display: inline-block; }
@@ -193,14 +261,19 @@
         .avatar-option:hover, .avatar-option.selected { transform: scale(1.1); background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
         /* Детальная информация */
-        .detail-card { background: var(--bg); border-radius: 20px; padding: 20px; text-align: center; }
+        .detail-card {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+        }
         .detail-emoji { font-size: 80px; margin-bottom: 15px; }
         .detail-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
         .detail-info { margin: 15px 0; padding: 10px; background: var(--bg-secondary); border-radius: 12px; }
         .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
         .detail-row:last-child { border-bottom: none; }
 
-        /* ========== НОВЫЕ СТИЛИ ДЛЯ ЗВОНКОВ ========== */
+        /* ОКНО ЗВОНКА */
         .call-overlay {
             position: fixed;
             top: 0;
@@ -211,10 +284,9 @@
             z-index: 5000;
             display: none;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            animation: fadeInUp 0.3s;
         }
-        .call-overlay.active { display: flex; animation: fadeInUp 0.3s; }
+        .call-overlay.active { display: flex; }
         .call-video-container {
             flex: 1;
             width: 100%;
@@ -272,7 +344,6 @@
         .call-btn:active { transform: scale(0.95); }
         .call-btn.end-call { background: #ff3b30; color: white; }
         .call-btn.mute-btn { background: #4a4a4a; color: white; }
-        .call-btn.mute-btn.active { background: #ff9500; }
         .call-info {
             position: absolute;
             top: 20px;
@@ -283,11 +354,7 @@
             text-shadow: 0 1px 2px black;
             z-index: 10;
         }
-        .call-timer {
-            font-size: 24px;
-            font-family: monospace;
-            margin-top: 5px;
-        }
+        .call-timer { font-size: 24px; font-family: monospace; margin-top: 5px; }
 
         @media (min-width: 769px) { #sidebar { position: relative; left: 0 !important; width: 320px; } #menu-btn { display: none !important; } .sidebar-overlay { display: none !important; } }
         @media (max-width: 768px) { .message.gift-card { max-width: 90%; min-width: 200px; } .gift-emoji-big { font-size: 48px; } canvas { height: 200px; } .local-video { width: 80px; height: 120px; } }
@@ -345,7 +412,7 @@
         </div>
     </div>
 
-    <!-- Модалки (все существующие) -->
+    <!-- МОДАЛКИ -->
     <div id="auth-modal" class="modal active">
         <div class="modal-content">
             <div class="modal-header">🔐 Вход / Регистрация</div>
@@ -371,14 +438,14 @@
     <div id="marketplace-modal" class="modal"><div class="modal-content"><div class="modal-header">🏪 Маркетплейс NFT</div><div id="marketplace-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('marketplace-modal')">Закрыть</button></div></div>
     <div id="sell-nft-modal" class="modal"><div class="modal-content"><div class="modal-header">💰 Продать NFT</div><div id="sell-nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('sell-nft-modal')">Закрыть</button></div></div>
     <div id="set-price-modal" class="modal"><div class="modal-content"><div class="modal-header">💰 Установить цену</div><div id="sell-nft-info"></div><input type="number" id="sell-price" class="modal-input" placeholder="Цена в NIX"><button class="modal-btn" onclick="confirmSellNFT()">Выставить на продажу</button><button class="modal-btn secondary" onclick="closeModal('set-price-modal')">Отмена</button></div></div>
-    <div id="settings-modal" class="modal"><div class="modal-content"><div class="modal-header">⚙️ Настройки</div><h3>🎨 Тема</h3><div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 8px;"><button class="modal-btn secondary" onclick="setTheme('light')">☀️ Светлая</button><button class="modal-btn secondary" onclick="setTheme('dark')">🌙 Темная</button></div><h3 style="margin-top:15px;">💎 Промокод</h3><input type="text" id="promo-code" class="modal-input" placeholder="Введите промокод"><button class="modal-btn" onclick="activatePromo()">Активировать</button><button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button></div></div>
+    <div id="settings-modal" class="modal"><div class="modal-content"><div class="modal-header">⚙️ Настройки</div><h3>🎨 Тема</h3><div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 8px;"><button class="modal-btn secondary" onclick="setTheme('light')">☀️ Светлая</button><button class="modal-btn secondary" onclick="setTheme('dark')">🌙 Темная</button><button class="modal-btn secondary" onclick="setTheme('ocean')">🌊 Океан</button><button class="modal-btn secondary" onclick="setTheme('desert')">🏜️ Пустыня</button><button class="modal-btn secondary" onclick="setTheme('mint')">🌱 Мятная</button></div><h3 style="margin-top:15px;">💎 Промокод</h3><input type="text" id="promo-code" class="modal-input" placeholder="Введите промокод"><button class="modal-btn" onclick="activatePromo()">Активировать</button><button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button></div></div>
     <div id="crystals-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 Кристаллы</div><button class="modal-btn" onclick="buyCrystals(100)">100 💎 - 199₽</button><button class="modal-btn" onclick="buyCrystals(500)">500 💎 - 470₽</button><button class="modal-btn" onclick="buyCrystals(1000)">1000 💎 - 700₽</button><button class="modal-btn secondary" onclick="closeModal('crystals-shop')">Закрыть</button></div></div>
     <div id="nixcoin-shop" class="modal"><div class="modal-content"><div class="modal-header">🪙 Купить NixCoin</div><div>1 NIX = $<span id="nixcoin-rate-modal">2.50</span> | 1 NIX = ₽<span id="nixcoin-rub-modal">175</span></div><button class="modal-btn" onclick="buyNixCoin(10)">10 NIX - $<span id="nix-price-10">25.00</span> / ₽<span id="nix-price-10-rub">1750</span></button><button class="modal-btn" onclick="buyNixCoin(50)">50 NIX - $<span id="nix-price-50">125.00</span> / ₽<span id="nix-price-50-rub">8750</span></button><button class="modal-btn" onclick="buyNixCoin(100)">100 NIX - $<span id="nix-price-100">250.00</span> / ₽<span id="nix-price-100-rub">17500</span></button><button class="modal-btn secondary" onclick="closeModal('nixcoin-shop')">Закрыть</button></div></div>
     <div id="gifts-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Обычные подарки (30 шт)</div><div id="gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('gifts-modal')">Закрыть</button></div></div>
     <div id="nft-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 NFT Подарки (16 шт)</div><div id="nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('nft-shop')">Закрыть</button></div></div>
     <div id="send-gift-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Подарок другу</div><div id="send-gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('send-gift-modal')">Отмена</button></div></div>
 
-    <!-- ========== НОВОЕ ОКНО ЗВОНКА ========== -->
+    <!-- ОКНО ЗВОНКА -->
     <div id="call-overlay" class="call-overlay">
         <div class="call-info">
             <div id="call-status">Соединение...</div>
@@ -424,14 +491,18 @@
         let currentCallDoc = null;
         let callTimerInterval = null;
         let callStartTime = null;
-        
+        let isCallActive = false;
+
         // WebRTC конфигурация
         const configuration = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
                 { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' }
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' },
+                { urls: 'stun:stun.ekiga.net' },
+                { urls: 'stun:stun.ideasip.com' }
             ]
         };
 
@@ -452,130 +523,156 @@
             id: 116, name: '🐸 ПЕПА', basePrice: 12098, emoji: '🐸', rarity: 'Легендарный', 
             animation: 'nft-croak', desc: 'Легендарная лягушка удачи! Ква-ква!', bgClass: 'nft-bg-pepe'
         };
+
+        // ========== ФУНКЦИИ ЗВОНКОВ (ИСПРАВЛЕННЫЕ) ==========
         
-        // ========== ФУНКЦИИ ЗВОНКОВ ==========
-        
-        // Захват медиа (камера/микрофон)
         async function getMedia() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 const localVideo = document.getElementById('localVideo');
-                if (localVideo) localVideo.srcObject = localStream;
+                if (localVideo) {
+                    localVideo.srcObject = localStream;
+                    localVideo.muted = true;
+                }
+                console.log('✅ Медиа получены');
                 return true;
             } catch (err) {
-                console.error('Ошибка доступа к медиа:', err);
-                showToast('❌ Не удалось получить доступ к камере/микрофону');
-                return false;
+                console.error('❌ Ошибка доступа к медиа:', err);
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    showToast('🎤 Только аудио (камера не доступна)');
+                    return true;
+                } catch (e) {
+                    showToast('❌ Не удалось получить доступ к микрофону');
+                    return false;
+                }
             }
         }
-        
-        // Начать звонок
+
         async function startCall() {
             if (!currentChat || !currentUser) {
                 showToast('❌ Выберите чат');
                 return;
             }
             
+            if (isCallActive) {
+                showToast('❌ Звонок уже активен');
+                return;
+            }
+            
             const mediaOk = await getMedia();
             if (!mediaOk) return;
             
-            // Показываем окно звонка
             document.getElementById('call-overlay').classList.add('active');
             document.getElementById('call-status').textContent = 'Звонок...';
+            document.getElementById('call-timer').textContent = '00:00';
+            isCallActive = true;
             
-            // Создаем peer connection
             peerConnection = new RTCPeerConnection(configuration);
             
             // Добавляем локальные треки
             localStream.getTracks().forEach(track => {
+                console.log('Добавлен трек:', track.kind);
                 peerConnection.addTrack(track, localStream);
             });
             
-            // Получаем удаленный поток
+            // Получаем удаленные треки
             peerConnection.ontrack = (event) => {
+                console.log('Получен удаленный трек:', event.track.kind);
                 const remoteVideo = document.getElementById('remoteVideo');
                 if (remoteVideo && event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
                 }
             };
             
-            // Собираем ICE кандидаты
+            // ICE кандидаты
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate && currentCallDoc) {
                     db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
                         candidate: event.candidate,
-                        type: 'candidate',
-                        senderId: currentUser.uid
+                        senderId: currentUser.uid,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
             };
             
-            // Создаем offer
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            
-            // Сохраняем информацию о звонке в Firestore
-            const callData = {
-                from: currentUser.uid,
-                fromName: userData.name,
-                to: currentChat.userId,
-                offer: offer,
-                status: 'calling',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            const callRef = await db.collection('calls').add(callData);
-            currentCallDoc = { id: callRef.id };
-            document.getElementById('call-status').textContent = 'Ожидание ответа...';
-            
-            // Слушаем ответ
-            const unsubscribe = db.collection('calls').doc(callRef.id).onSnapshot(async (snapshot) => {
-                const data = snapshot.data();
-                if (data && data.answer && peerConnection.signalingState !== 'stable') {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            peerConnection.onconnectionstatechange = () => {
+                console.log('Состояние соединения:', peerConnection.connectionState);
+                if (peerConnection.connectionState === 'connected') {
+                    document.getElementById('call-status').textContent = 'В разговоре';
                     startCallTimer();
-                    unsubscribe();
-                }
-                if (data && data.status === 'rejected') {
-                    showToast('❌ Звонок отклонен');
+                } else if (peerConnection.connectionState === 'failed') {
+                    showToast('❌ Соединение разорвано');
                     endCall();
-                    unsubscribe();
                 }
-            });
+            };
             
-            // Слушаем ICE кандидаты от собеседника
-            db.collection('calls').doc(callRef.id).collection('candidates')
-                .where('senderId', '!=', currentUser.uid)
-                .onSnapshot((snapshot) => {
-                    snapshot.forEach(async (doc) => {
-                        const data = doc.data();
-                        if (data.candidate && peerConnection) {
-                            try {
-                                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                            } catch (e) { console.log('Ошибка добавления кандидата:', e); }
-                        }
-                    });
-                });
-            
-            // Таймаут если не ответили
-            setTimeout(() => {
-                if (peerConnection && peerConnection.signalingState !== 'stable') {
-                    if (currentCallDoc) {
-                        db.collection('calls').doc(currentCallDoc.id).update({ status: 'missed' });
+            try {
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                const callData = {
+                    from: currentUser.uid,
+                    fromName: userData.name,
+                    to: currentChat.userId,
+                    offer: offer,
+                    status: 'calling',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const callRef = await db.collection('calls').add(callData);
+                currentCallDoc = { id: callRef.id };
+                
+                // Слушаем ответ
+                const unsubscribe = db.collection('calls').doc(callRef.id).onSnapshot(async (snapshot) => {
+                    const data = snapshot.data();
+                    if (data && data.answer && peerConnection && peerConnection.signalingState === 'have-local-offer') {
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                        unsubscribe();
                     }
-                    showToast('❌ Собеседник не ответил');
-                    endCall();
-                }
-            }, 30000);
+                    if (data && data.status === 'rejected') {
+                        showToast('❌ Звонок отклонен');
+                        endCall();
+                        unsubscribe();
+                    }
+                });
+                
+                // Слушаем ICE кандидаты
+                db.collection('calls').doc(callRef.id).collection('candidates')
+                    .where('senderId', '!=', currentUser.uid)
+                    .onSnapshot((snapshot) => {
+                        snapshot.forEach(async (doc) => {
+                            const data = doc.data();
+                            if (data.candidate && peerConnection) {
+                                try {
+                                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                                } catch (e) { console.log('Ошибка добавления кандидата:', e); }
+                            }
+                        });
+                    });
+                
+                setTimeout(() => {
+                    if (peerConnection && peerConnection.signalingState !== 'stable' && isCallActive) {
+                        showToast('❌ Собеседник не ответил');
+                        endCall();
+                    }
+                }, 30000);
+                
+            } catch (err) {
+                console.error('Ошибка создания offer:', err);
+                showToast('❌ Ошибка при звонке');
+                endCall();
+            }
         }
-        
-        // Ответ на звонок
+
         async function answerCall(callId, fromId, offer) {
             const mediaOk = await getMedia();
             if (!mediaOk) return;
             
             document.getElementById('call-overlay').classList.add('active');
             document.getElementById('call-status').textContent = 'Соединение...';
+            document.getElementById('call-timer').textContent = '00:00';
+            isCallActive = true;
             
             peerConnection = new RTCPeerConnection(configuration);
             
@@ -594,46 +691,55 @@
                 if (event.candidate && currentCallDoc) {
                     db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
                         candidate: event.candidate,
-                        type: 'candidate',
-                        senderId: currentUser.uid
+                        senderId: currentUser.uid,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
             };
             
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
+            peerConnection.onconnectionstatechange = () => {
+                if (peerConnection.connectionState === 'connected') {
+                    document.getElementById('call-status').textContent = 'В разговоре';
+                    startCallTimer();
+                }
+            };
             
-            await db.collection('calls').doc(callId).update({
-                answer: answer,
-                status: 'connected',
-                answeredAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            currentCallDoc = { id: callId };
-            startCallTimer();
-            
-            // Слушаем ICE кандидаты
-            db.collection('calls').doc(callId).collection('candidates')
-                .where('senderId', '!=', currentUser.uid)
-                .onSnapshot((snapshot) => {
-                    snapshot.forEach(async (doc) => {
-                        const data = doc.data();
-                        if (data.candidate && peerConnection) {
-                            try {
-                                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                            } catch (e) { console.log('Ошибка добавления кандидата:', e); }
-                        }
-                    });
+            try {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                await db.collection('calls').doc(callId).update({
+                    answer: answer,
+                    status: 'connected',
+                    answeredAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-        }
-        
-        // Завершить звонок
-        function endCall() {
-            if (callTimerInterval) {
-                clearInterval(callTimerInterval);
-                callTimerInterval = null;
+                
+                currentCallDoc = { id: callId };
+                
+                db.collection('calls').doc(callId).collection('candidates')
+                    .where('senderId', '!=', currentUser.uid)
+                    .onSnapshot((snapshot) => {
+                        snapshot.forEach(async (doc) => {
+                            const data = doc.data();
+                            if (data.candidate && peerConnection) {
+                                try {
+                                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                                } catch (e) { console.log('Ошибка добавления кандидата:', e); }
+                            }
+                        });
+                    });
+                    
+            } catch (err) {
+                console.error('Ошибка ответа на звонок:', err);
+                showToast('❌ Не удалось ответить на звонок');
+                endCall();
             }
+        }
+
+        function endCall() {
+            isCallActive = false;
+            if (callTimerInterval) clearInterval(callTimerInterval);
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
@@ -643,25 +749,22 @@
                 peerConnection = null;
             }
             if (currentCallDoc) {
-                db.collection('calls').doc(currentCallDoc.id).update({ status: 'ended', endedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                db.collection('calls').doc(currentCallDoc.id).update({ status: 'ended' }).catch(e => console.log(e));
             }
             document.getElementById('call-overlay').classList.remove('active');
             currentCallDoc = null;
             
-            // Очищаем видео элементы
             const remoteVideo = document.getElementById('remoteVideo');
             const localVideo = document.getElementById('localVideo');
             if (remoteVideo) remoteVideo.srcObject = null;
             if (localVideo) localVideo.srcObject = null;
         }
-        
-        // Таймер звонка
+
         function startCallTimer() {
             callStartTime = Date.now();
-            document.getElementById('call-status').textContent = 'В разговоре';
             if (callTimerInterval) clearInterval(callTimerInterval);
             callTimerInterval = setInterval(() => {
-                if (callStartTime) {
+                if (callStartTime && isCallActive) {
                     const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
                     const mins = Math.floor(elapsed / 60);
                     const secs = elapsed % 60;
@@ -669,8 +772,7 @@
                 }
             }, 1000);
         }
-        
-        // Отключить/включить микрофон
+
         function toggleMute() {
             if (localStream) {
                 const audioTrack = localStream.getAudioTracks()[0];
@@ -679,13 +781,12 @@
                     const muteBtn = document.getElementById('muteBtn');
                     if (muteBtn) {
                         muteBtn.textContent = audioTrack.enabled ? '🎤' : '🔇';
-                        muteBtn.classList.toggle('active', !audioTrack.enabled);
+                        muteBtn.style.background = audioTrack.enabled ? '#4a4a4a' : '#ff3b30';
                     }
                 }
             }
         }
-        
-        // Отключить/включить камеру
+
         function toggleCamera() {
             if (localStream) {
                 const videoTrack = localStream.getVideoTracks()[0];
@@ -694,23 +795,20 @@
                     const cameraBtn = document.getElementById('cameraBtn');
                     if (cameraBtn) {
                         cameraBtn.textContent = videoTrack.enabled ? '📷' : '🚫';
-                        cameraBtn.style.opacity = videoTrack.enabled ? '1' : '0.5';
+                        cameraBtn.style.background = videoTrack.enabled ? '#4a4a4a' : '#ff3b30';
                     }
                 }
             }
         }
-        
-        // Слушаем входящие звонки
+
         function listenForIncomingCalls() {
             if (!currentUser) return;
-            
             db.collection('calls')
                 .where('to', '==', currentUser.uid)
                 .where('status', '==', 'calling')
                 .onSnapshot((snapshot) => {
                     snapshot.forEach(async (doc) => {
                         const call = doc.data();
-                        // Показываем уведомление о входящем звонке
                         const accept = confirm(`📞 Входящий звонок от ${call.fromName || 'Пользователя'}\n\nПринять?`);
                         if (accept) {
                             await answerCall(doc.id, call.from, call.offer);
@@ -720,8 +818,8 @@
                     });
                 });
         }
-        
-        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ (без изменений) ==========
+
+        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
         
         function showRegisterForm() {
             document.getElementById('login-form').style.display = 'none';
@@ -746,13 +844,11 @@
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-                
                 await db.collection('users').doc(user.uid).set({
                     name: name, email: email, username: username || '', bio: '', avatar: '👤',
                     crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
                 showToast('✅ Регистрация успешна! Добро пожаловать!');
                 closeModal('auth-modal');
             } catch (error) {
@@ -1604,11 +1700,10 @@
                 document.getElementById('input-area').style.display = 'block';
                 loadContacts();
                 startRateUpdates();
-                listenForIncomingCalls(); // Запускаем прослушивание входящих звонков
+                listenForIncomingCalls();
             }
         });
 
-        // Глобальные функции
         window.toggleSidebar = toggleSidebar; window.closeSidebar = closeSidebar; window.openProfileModal = openProfileModal;
         window.openSettings = openSettings; window.switchTab = switchTab; window.findUserByUsername = findUserByUsername;
         window.openGiftsModal = openGiftsModal; window.openNFTShop = openNFTShop; window.openCrystalsShop = openCrystalsShop;
@@ -1625,423 +1720,10 @@
         window.register = register; window.login = login;
         
         // Функции звонков
-       // ========== ПОЛНОСТЬЮ ПЕРЕПИСАННЫЕ ФУНКЦИИ ЗВОНКОВ ==========
-
-// Глобальные переменные для звонков
-let localStream = null;
-let peerConnection = null;
-let currentCallDoc = null;
-let callTimerInterval = null;
-let callStartTime = null;
-let isCallActive = false;
-
-// WebRTC конфигурация с TURN серверами (для работы через интернет)
-const configuration = {
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun3.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:19302' },
-        // Публичные STUN серверы
-        { urls: 'stun:stun.ekiga.net' },
-        { urls: 'stun:stun.ideasip.com' },
-        { urls: 'stun:stun.voipbuster.com' }
-    ]
-};
-
-// Захват медиа с проверкой
-async function getMedia() {
-    try {
-        // Запрашиваем и видео, и аудио
-        localStream = await navigator.mediaDevices.getUserMedia({ 
-            video: true, 
-            audio: true 
-        });
-        
-        const localVideo = document.getElementById('localVideo');
-        if (localVideo) {
-            localVideo.srcObject = localStream;
-            localVideo.muted = true; // Чтобы не было эха
-            localVideo.playsInline = true;
-            localVideo.autoplay = true;
-        }
-        
-        console.log('✅ Медиа получены');
-        return true;
-    } catch (err) {
-        console.error('❌ Ошибка доступа к медиа:', err);
-        showToast('❌ Не удалось получить доступ к камере/микрофону');
-        
-        // Пробуем только аудио если видео не доступно
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            showToast('🎤 Только аудио (камера не доступна)');
-            return true;
-        } catch (e) {
-            showToast('❌ Не удалось получить доступ к микрофону');
-            return false;
-        }
-    }
-}
-
-// НАЧАТЬ ЗВОНОК (исправленная версия)
-async function startCall() {
-    if (!currentChat || !currentUser) {
-        showToast('❌ Выберите чат');
-        return;
-    }
-    
-    if (isCallActive) {
-        showToast('❌ Звонок уже активен');
-        return;
-    }
-    
-    const mediaOk = await getMedia();
-    if (!mediaOk) return;
-    
-    // Показываем окно звонка
-    document.getElementById('call-overlay').classList.add('active');
-    document.getElementById('call-status').textContent = 'Звонок...';
-    document.getElementById('call-timer').textContent = '00:00';
-    isCallActive = true;
-    
-    // Создаем peer connection
-    peerConnection = new RTCPeerConnection(configuration);
-    
-    // ДОБАВЛЯЕМ ЛОКАЛЬНЫЕ ТРЕКИ (ВАЖНО!)
-    localStream.getTracks().forEach(track => {
-        console.log('Добавлен трек:', track.kind);
-        peerConnection.addTrack(track, localStream);
-    });
-    
-    // ПОЛУЧАЕМ УДАЛЕННЫЕ ТРЕКИ (звук и видео собеседника)
-    peerConnection.ontrack = (event) => {
-        console.log('Получен удаленный трек:', event.track.kind);
-        const remoteVideo = document.getElementById('remoteVideo');
-        if (remoteVideo && event.streams[0]) {
-            remoteVideo.srcObject = event.streams[0];
-            remoteVideo.playsInline = true;
-            remoteVideo.autoplay = true;
-            console.log('✅ Удаленное видео/аудио подключено');
-        }
-    };
-    
-    // ОБРАБОТКА ICE КАНДИДАТОВ
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate && currentCallDoc) {
-            console.log('ICE кандидат отправлен');
-            db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
-                candidate: event.candidate,
-                type: 'candidate',
-                senderId: currentUser.uid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-    };
-    
-    // Статус соединения
-    peerConnection.onconnectionstatechange = () => {
-        console.log('Состояние соединения:', peerConnection.connectionState);
-        if (peerConnection.connectionState === 'connected') {
-            document.getElementById('call-status').textContent = 'В разговоре';
-            startCallTimer();
-        } else if (peerConnection.connectionState === 'failed') {
-            showToast('❌ Соединение разорвано');
-            endCall();
-        }
-    };
-    
-    // СОЗДАЕМ OFFER
-    try {
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        console.log('Offer создан:', offer);
-        
-        // Сохраняем в Firestore
-        const callData = {
-            from: currentUser.uid,
-            fromName: userData.name,
-            to: currentChat.userId,
-            offer: offer,
-            status: 'calling',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        const callRef = await db.collection('calls').add(callData);
-        currentCallDoc = { id: callRef.id };
-        
-        // Слушаем ответ
-        const unsubscribe = db.collection('calls').doc(callRef.id).onSnapshot(async (snapshot) => {
-            const data = snapshot.data();
-            if (data && data.answer && peerConnection && peerConnection.signalingState === 'have-local-offer') {
-                console.log('Получен ответ');
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                unsubscribe();
-            }
-            if (data && data.status === 'rejected') {
-                showToast('❌ Звонок отклонен');
-                endCall();
-                unsubscribe();
-            }
-        });
-        
-        // Слушаем ICE кандидаты от собеседника
-        db.collection('calls').doc(callRef.id).collection('candidates')
-            .where('senderId', '!=', currentUser.uid)
-            .onSnapshot((snapshot) => {
-                snapshot.forEach(async (doc) => {
-                    const data = doc.data();
-                    if (data.candidate && peerConnection) {
-                        try {
-                            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                            console.log('ICE кандидат добавлен');
-                        } catch (e) { 
-                            console.log('Ошибка добавления кандидата:', e); 
-                        }
-                    }
-                });
-            });
-        
-        // Таймаут если не ответили
-        setTimeout(() => {
-            if (peerConnection && peerConnection.signalingState !== 'stable') {
-                if (currentCallDoc) {
-                    db.collection('calls').doc(currentCallDoc.id).update({ status: 'missed' });
-                }
-                if (isCallActive) {
-                    showToast('❌ Собеседник не ответил');
-                    endCall();
-                }
-            }
-        }, 30000);
-        
-    } catch (err) {
-        console.error('Ошибка создания offer:', err);
-        showToast('❌ Ошибка при звонке');
-        endCall();
-    }
-}
-
-// ОТВЕТ НА ЗВОНОК (исправленная версия)
-async function answerCall(callId, fromId, offer) {
-    const mediaOk = await getMedia();
-    if (!mediaOk) return;
-    
-    document.getElementById('call-overlay').classList.add('active');
-    document.getElementById('call-status').textContent = 'Соединение...';
-    document.getElementById('call-timer').textContent = '00:00';
-    isCallActive = true;
-    
-    peerConnection = new RTCPeerConnection(configuration);
-    
-    // Добавляем локальные треки
-    localStream.getTracks().forEach(track => {
-        console.log('Добавлен трек:', track.kind);
-        peerConnection.addTrack(track, localStream);
-    });
-    
-    // Получаем удаленные треки
-    peerConnection.ontrack = (event) => {
-        console.log('Получен удаленный трек:', event.track.kind);
-        const remoteVideo = document.getElementById('remoteVideo');
-        if (remoteVideo && event.streams[0]) {
-            remoteVideo.srcObject = event.streams[0];
-            remoteVideo.playsInline = true;
-            remoteVideo.autoplay = true;
-        }
-    };
-    
-    // ICE кандидаты
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate && currentCallDoc) {
-            db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
-                candidate: event.candidate,
-                type: 'candidate',
-                senderId: currentUser.uid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-    };
-    
-    peerConnection.onconnectionstatechange = () => {
-        console.log('Состояние соединения:', peerConnection.connectionState);
-        if (peerConnection.connectionState === 'connected') {
-            document.getElementById('call-status').textContent = 'В разговоре';
-            startCallTimer();
-        }
-    };
-    
-    try {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        console.log('Remote description установлен');
-        
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        console.log('Answer создан');
-        
-        await db.collection('calls').doc(callId).update({
-            answer: answer,
-            status: 'connected',
-            answeredAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        currentCallDoc = { id: callId };
-        
-        // Слушаем ICE кандидаты
-        db.collection('calls').doc(callId).collection('candidates')
-            .where('senderId', '!=', currentUser.uid)
-            .onSnapshot((snapshot) => {
-                snapshot.forEach(async (doc) => {
-                    const data = doc.data();
-                    if (data.candidate && peerConnection) {
-                        try {
-                            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        } catch (e) { console.log('Ошибка добавления кандидата:', e); }
-                    }
-                });
-            });
-            
-    } catch (err) {
-        console.error('Ошибка ответа на звонок:', err);
-        showToast('❌ Не удалось ответить на звонок');
-        endCall();
-    }
-}
-
-// Завершить звонок
-function endCall() {
-    console.log('Завершение звонка');
-    isCallActive = false;
-    
-    if (callTimerInterval) {
-        clearInterval(callTimerInterval);
-        callTimerInterval = null;
-    }
-    
-    if (localStream) {
-        localStream.getTracks().forEach(track => {
-            track.stop();
-            console.log('Остановлен трек:', track.kind);
-        });
-        localStream = null;
-    }
-    
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
-    }
-    
-    if (currentCallDoc) {
-        db.collection('calls').doc(currentCallDoc.id).update({ 
-            status: 'ended', 
-            endedAt: firebase.firestore.FieldValue.serverTimestamp() 
-        }).catch(e => console.log('Ошибка обновления статуса:', e));
-    }
-    
-    document.getElementById('call-overlay').classList.remove('active');
-    currentCallDoc = null;
-    
-    // Очищаем видео элементы
-    const remoteVideo = document.getElementById('remoteVideo');
-    const localVideo = document.getElementById('localVideo');
-    if (remoteVideo) remoteVideo.srcObject = null;
-    if (localVideo) localVideo.srcObject = null;
-}
-
-// Таймер звонка
-function startCallTimer() {
-    callStartTime = Date.now();
-    if (callTimerInterval) clearInterval(callTimerInterval);
-    callTimerInterval = setInterval(() => {
-        if (callStartTime && isCallActive) {
-            const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-            const mins = Math.floor(elapsed / 60);
-            const secs = elapsed % 60;
-            const timer = document.getElementById('call-timer');
-            if (timer) timer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-    }, 1000);
-}
-
-// Отключить/включить микрофон
-function toggleMute() {
-    if (localStream) {
-        const audioTrack = localStream.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.enabled = !audioTrack.enabled;
-            const muteBtn = document.getElementById('muteBtn');
-            if (muteBtn) {
-                muteBtn.textContent = audioTrack.enabled ? '🎤' : '🔇';
-                muteBtn.style.background = audioTrack.enabled ? '#4a4a4a' : '#ff3b30';
-            }
-            showToast(audioTrack.enabled ? '🎤 Микрофон включен' : '🔇 Микрофон выключен');
-        }
-    }
-}
-
-// Отключить/включить камеру
-function toggleCamera() {
-    if (localStream) {
-        const videoTrack = localStream.getVideoTracks()[0];
-        if (videoTrack) {
-            videoTrack.enabled = !videoTrack.enabled;
-            const cameraBtn = document.getElementById('cameraBtn');
-            if (cameraBtn) {
-                cameraBtn.textContent = videoTrack.enabled ? '📷' : '🚫';
-                cameraBtn.style.background = videoTrack.enabled ? '#4a4a4a' : '#ff3b30';
-            }
-            showToast(videoTrack.enabled ? '📷 Камера включена' : '🚫 Камера выключена');
-        }
-    }
-}
-
-// Слушаем входящие звонки
-function listenForIncomingCalls() {
-    if (!currentUser) return;
-    
-    console.log('Слушаем входящие звонки...');
-    
-    db.collection('calls')
-        .where('to', '==', currentUser.uid)
-        .where('status', '==', 'calling')
-        .onSnapshot((snapshot) => {
-            snapshot.forEach(async (doc) => {
-                const call = doc.data();
-                console.log('Входящий звонок от:', call.fromName);
-                
-                // Показываем уведомление
-                const accept = confirm(`📞 Входящий звонок от ${call.fromName || 'Пользователя'}\n\nПринять?`);
-                
-                if (accept) {
-                    await answerCall(doc.id, call.from, call.offer);
-                } else {
-                    await db.collection('calls').doc(doc.id).update({ status: 'rejected' });
-                }
-            });
-        });
-}
+        window.startCall = startCall;
+        window.endCall = endCall;
+        window.toggleMute = toggleMute;
+        window.toggleCamera = toggleCamera;
     </script>
-<!-- Добавьте это после всех модалок, перед закрывающим body -->
-<div id="call-overlay" class="call-overlay">
-    <div class="call-info">
-        <div id="call-status">Соединение...</div>
-        <div id="call-timer" class="call-timer">00:00</div>
-    </div>
-    <div class="call-video-container">
-        <div class="remote-video">
-            <video id="remoteVideo" autoplay playsinline></video>
-        </div>
-        <div class="local-video">
-            <video id="localVideo" autoplay playsinline muted></video>
-        </div>
-    </div>
-    <div class="call-controls">
-        <button class="call-btn" id="muteBtn" onclick="toggleMute()">🎤</button>
-        <button class="call-btn end-call" onclick="endCall()">📞</button>
-        <button class="call-btn" id="cameraBtn" onclick="toggleCamera()">📷</button>
-    </div>
-</div>
-    
 </body>
 </html>
