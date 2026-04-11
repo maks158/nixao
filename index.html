@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Нихауу - NFT подарки и NixCoin | Видеозвонки WebRTC</title>
+    <title>Нихауу - Мессенджер</title>
     <style>
         * {
             margin: 0;
@@ -17,347 +17,445 @@
             height: 100vh;
             height: -webkit-fill-available;
             overflow: hidden;
-            transition: background 0.5s;
             position: fixed;
             width: 100%;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* ТЕМЫ */
+        /* СВЕТЛАЯ ТЕМА (синий с белым) */
         body.theme-light {
-            --bg: #f0f2f5;
+            --bg: #e8f0fe;
             --bg-secondary: #ffffff;
             --text: #1a1a1a;
-            --text-secondary: #666;
-            --border: #e9edf0;
-            --message-out: #dcf8c6;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+            --message-out: #e3f2fd;
             --message-in: #ffffff;
-            --accent: #667eea;
-            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow: 0 2px 8px rgba(0,0,0,0.08);
-            --chart-bg: #ffffff;
-            --chart-grid: #e9edf0;
-            --candle-up: #4caf50;
-            --candle-down: #f44336;
-            --notification-bg: #2d2d2d;
+            --accent: #1a73e8;
+            --accent-light: #e8f0fe;
+            --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+            --card-bg: #ffffff;
+            --header-bg: #ffffff;
+            --unread-bg: #1a73e8;
         }
+
+        /* ТЕМНАЯ ТЕМА (синий с черным) */
         body.theme-dark {
-            --bg: #1a1a1a;
-            --bg-secondary: #2d2d2d;
+            --bg: #0a0a0a;
+            --bg-secondary: #1a1a1a;
             --text: #ffffff;
-            --text-secondary: #aaa;
-            --border: #404040;
-            --message-out: #2b5b4c;
+            --text-secondary: #9aa0a6;
+            --border: #2d2d2d;
+            --message-out: #1e3a5f;
             --message-in: #2d2d2d;
-            --accent: #667eea;
-            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --shadow: 0 2px 8px rgba(0,0,0,0.3);
-            --chart-bg: #2d2d2d;
-            --chart-grid: #404040;
-            --candle-up: #4caf50;
-            --candle-down: #f44336;
-            --notification-bg: #ffffff;
-        }
-        body.theme-ocean {
-            --bg: #1a3b5c;
-            --bg-secondary: #2c4c6b;
-            --text: #ffffff;
-            --text-secondary: #b8d8f0;
-            --border: #4a6a88;
-            --message-out: #ff6b6b;
-            --message-in: #4ecdc4;
-            --accent: #ffd93d;
-            --accent-gradient: linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%);
-            --chart-bg: #2c4c6b;
-            --candle-up: #4caf50;
-            --candle-down: #f44336;
-        }
-        body.theme-desert {
-            --bg: #e6d5b8;
-            --bg-secondary: #f4e4c1;
-            --text: #5a3e2b;
-            --text-secondary: #8b6e4b;
-            --border: #d4b68a;
-            --message-out: #e6b89c;
-            --message-in: #faf0e6;
-            --accent: #b45f3b;
-            --accent-gradient: linear-gradient(135deg, #b45f3b 0%, #e6b89c 100%);
-            --chart-bg: #f4e4c1;
-        }
-        body.theme-mint {
-            --bg: #d4edda;
-            --bg-secondary: #e8f5e9;
-            --text: #1e3c2c;
-            --text-secondary: #2d4a3a;
-            --border: #b8dfc6;
-            --message-out: #98c1a9;
-            --message-in: #ffffff;
-            --accent: #4caf7f;
-            --accent-gradient: linear-gradient(135deg, #4caf7f 0%, #98c1a9 100%);
-            --chart-bg: #e8f5e9;
+            --accent: #1a73e8;
+            --accent-light: #1a1a2e;
+            --shadow: 0 1px 2px rgba(0,0,0,0.2);
+            --card-bg: #1e1e1e;
+            --header-bg: #0a0a0a;
+            --unread-bg: #1a73e8;
         }
 
-        /* ФОНЫ ДЛЯ NFT */
-        .nft-bg-blue { background: linear-gradient(135deg, #1e3c72, #2a5298); }
-        .nft-bg-green { background: linear-gradient(135deg, #134e5e, #71b280); }
-        .nft-bg-yellow { background: linear-gradient(135deg, #f7971e, #ffd200); }
-        .nft-bg-orange { background: linear-gradient(135deg, #ff8008, #ffc837); }
-        .nft-bg-red { background: linear-gradient(135deg, #c31432, #ff4b2b); }
-        .nft-bg-pink { background: linear-gradient(135deg, #f857a6, #ff5858); }
-        .nft-bg-cyan { background: linear-gradient(135deg, #00c6fb, #005bea); }
-        .nft-bg-black { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
-        .nft-bg-purple { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
-        .nft-bg-pepe { background: linear-gradient(135deg, #2ecc71, #27ae60, #1e8449); position: relative; overflow: hidden; }
-        .nft-bg-pepe::before { content: "🐸"; position: absolute; font-size: 80px; opacity: 0.2; bottom: -20px; right: -20px; transform: rotate(-15deg); pointer-events: none; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* АНИМАЦИИ */
-        @keyframes nft-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes nft-bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
-        @keyframes nft-pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
-        @keyframes nft-float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);} }
-        @keyframes nft-croak { 0%,100%{transform:scale(1);} 25%{transform:scale(1.05) rotate(2deg);} 75%{transform:scale(0.98) rotate(-2deg);} }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        #app { display: flex; height: 100%; width: 100%; background: var(--bg); color: var(--text); }
         
-        .nft-spin { animation: nft-spin 3s linear infinite; display: inline-block; }
-        .nft-bounce { animation: nft-bounce 1s ease-in-out infinite; display: inline-block; }
-        .nft-pulse { animation: nft-pulse 1.5s ease-in-out infinite; display: inline-block; }
-        .nft-float { animation: nft-float 2s ease-in-out infinite; display: inline-block; }
-        .nft-croak { animation: nft-croak 2s ease-in-out infinite; display: inline-block; }
-
-        /* УВЕДОМЛЕНИЯ */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--notification-bg);
-            color: var(--text);
-            padding: 12px 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 4000;
+        #sidebar {
+            width: 85%;
+            max-width: 360px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
             display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 320px;
-            animation: slideInRight 0.3s ease forwards;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            border-left: 4px solid var(--accent);
-        }
-        .notification-icon { font-size: 28px; }
-        .notification-content { flex: 1; }
-        .notification-title { font-weight: bold; font-size: 14px; }
-        .notification-text { font-size: 12px; opacity: 0.8; }
-        .notification-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary); }
-
-        /* ГРАФИК СВЕЧЕЙ */
-        .chart-container {
-            background: var(--chart-bg);
-            border-radius: 16px;
-            padding: 15px;
-            margin: 10px 0;
+            flex-direction: column;
+            position: fixed;
+            left: -85%;
+            top: 0;
+            height: 100%;
+            z-index: 1000;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: var(--shadow);
         }
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .chart-price { font-size: 28px; font-weight: bold; }
-        .chart-change { font-size: 14px; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
-        .chart-change.up { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
-        .chart-change.down { background: rgba(244, 67, 54, 0.2); color: #f44336; }
-        canvas { width: 100%; height: 280px; background: var(--chart-bg); border-radius: 12px; display: block; }
-        .chart-stats { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary); }
-
-        /* ОСНОВНОЙ ИНТЕРФЕЙС */
-        #app { display: flex; height: 100%; width: 100%; background: var(--bg); color: var(--text); }
-        #sidebar { width: 85%; max-width: 320px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; left: -85%; top: 0; height: 100%; z-index: 1000; transition: left 0.4s; box-shadow: var(--shadow); }
         #sidebar.open { left: 0; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(4px); }
-        .sidebar-overlay.active { display: block; }
-        #sidebar-header { padding: 18px 15px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        #user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
-        #user-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 22px; }
-        .balance-container { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
-        #crystals { background: linear-gradient(135deg, gold, #ffd700); color: #000; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        #nixcoin-balance { background: linear-gradient(135deg, #00c6fb, #005bea); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: var(--text); font-size: 22px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-        .icon-btn:active { transform: scale(0.92); }
-        #tabs { display: flex; border-bottom: 1px solid var(--border); }
-        .tab { flex: 1; padding: 14px 12px; text-align: center; cursor: pointer; color: var(--text-secondary); transition: all 0.3s; font-size: 14px; font-weight: 500; }
-        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-        #items-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .chat-item { padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 12px; transition: all 0.3s; }
-        .chat-item:active { background: var(--border); }
-        .item-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
-
-        /* ЧАТ */
-        #main { flex: 1; display: flex; flex-direction: column; background: var(--bg); width: 100%; }
-        #chat-header { padding: 10px 12px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
-        #menu-btn { display: flex; }
-        #chat-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; cursor: pointer; }
-        #chat-info { flex: 1; cursor: pointer; }
-        #chat-name { font-weight: 600; font-size: 16px; }
-        .chat-actions { display: flex; gap: 5px; }
-        #messages-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .message { max-width: 85%; margin-bottom: 4px; padding: 10px 14px; border-radius: 18px; animation: fadeInUp 0.4s; position: relative; word-wrap: break-word; }
-        .message.out { background: var(--message-out); margin-left: auto; border-bottom-right-radius: 4px; }
-        .message.in { background: var(--message-in); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: var(--shadow); }
-
-        /* КАРТОЧКА ПОДАРКА */
-        .message.gift-card { 
-            padding: 16px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            position: relative; 
-            overflow: visible;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            min-width: 220px; 
-            max-width: 280px;
-            width: auto;
-        }
-        .gift-card-content { text-align: center; position: relative; z-index: 2; }
-        .gift-emoji-big { font-size: 56px; margin-bottom: 8px; display: inline-block; }
-        .gift-name-big { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-        .gift-price-big { font-size: 13px; background: rgba(0,0,0,0.4); display: inline-block; padding: 4px 12px; border-radius: 20px; margin-top: 5px; color: white; }
-        .gift-sender { font-size: 10px; margin-top: 6px; opacity: 0.9; color: white; }
-        .gift-timer { font-size: 11px; background: rgba(0,0,0,0.6); display: inline-block; padding: 3px 10px; border-radius: 20px; margin-top: 6px; font-weight: bold; color: white; }
-        .nft-badge { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 12px; font-size: 9px; font-weight: bold; backdrop-filter: blur(4px); color: white; }
-        .on-sale-badge { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, gold, orange); padding: 3px 8px; border-radius: 12px; font-size: 9px; font-weight: bold; color: #000; }
-        .bg-emoji { position: absolute; bottom: 5px; left: 5px; font-size: 40px; opacity: 0.3; z-index: 1; pointer-events: none; }
-        .delete-message-btn { position: absolute; top: -8px; right: -8px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; cursor: pointer; opacity: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; z-index: 10; }
-        .message:hover .delete-message-btn { opacity: 1; }
-        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 12px 24px; border-radius: 30px; z-index: 3000; font-size: 14px; backdrop-filter: blur(10px); animation: fadeInUp 0.4s ease forwards, fadeOut 0.4s ease 2.6s forwards; }
-        @keyframes fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(0); } }
-        #input-area { padding: 10px 12px; background: var(--bg-secondary); border-top: 1px solid var(--border); }
-        #message-input-wrapper { display: flex; gap: 8px; background: var(--bg); border-radius: 25px; padding: 4px 12px; align-items: center; }
-        #message-input { flex: 1; padding: 10px 0; border: none; background: transparent; color: var(--text); outline: none; font-size: 16px; }
-
-        /* МОДАЛКИ */
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 15px; backdrop-filter: blur(4px); }
-        .modal.active { display: flex; animation: fadeInUp 0.3s; }
-        .modal-content { background: var(--bg-secondary); border-radius: 24px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 20px; animation: fadeInUp 0.4s; }
-        .modal-header { font-size: 22px; font-weight: 700; margin-bottom: 20px; text-align: center; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .modal-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); color: var(--text); font-size: 16px; }
-        .modal-btn { width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 16px; cursor: pointer; background: var(--accent-gradient); color: white; font-size: 16px; font-weight: 600; transition: all 0.2s; }
-        .modal-btn:active { transform: scale(0.96); }
-        .modal-btn.secondary { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
-        .modal-btn.redeem { background: linear-gradient(135deg, gold, orange); color: #000; }
-        .gifts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 15px 0; }
-        .gift-card-shop { border-radius: 16px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: var(--shadow); position: relative; }
-        .gift-card-shop:active { transform: scale(0.96); }
-        .gift-emoji { font-size: 48px; margin-bottom: 10px; display: inline-block; }
-        .gift-name { font-weight: 700; margin-bottom: 6px; font-size: 14px; }
-        .gift-price { background: rgba(0,0,0,0.4); display: inline-block; padding: 4px 8px; border-radius: 20px; margin-top: 6px; font-size: 12px; color: white; }
-        .nixcoin-rate { background: linear-gradient(135deg, #00c6fb, #005bea); padding: 8px 12px; border-radius: 20px; color: white; font-size: 14px; margin: 5px 10px; text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        .profile-view { display: flex; align-items: center; gap: 15px; padding: 15px; background: var(--bg); border-radius: 16px; margin-bottom: 15px; }
-        .avatar-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
-        .avatar-option { font-size: 40px; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s; background: var(--bg); }
-        .avatar-option:hover, .avatar-option.selected { transform: scale(1.1); background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-
-        /* Детальная информация */
-        .detail-card {
-            background: var(--bg);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-        }
-        .detail-emoji { font-size: 80px; margin-bottom: 15px; }
-        .detail-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .detail-info { margin: 15px 0; padding: 10px; background: var(--bg-secondary); border-radius: 12px; }
-        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
-        .detail-row:last-child { border-bottom: none; }
-
-        /* ОКНО ЗВОНКА */
-        .call-overlay {
+        
+        .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: #1a1a1a;
-            z-index: 5000;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
             display: none;
-            flex-direction: column;
-            animation: fadeInUp 0.3s;
+            backdrop-filter: blur(4px);
         }
-        .call-overlay.active { display: flex; }
-        .call-video-container {
-            flex: 1;
-            width: 100%;
+        .sidebar-overlay.active { display: block; }
+
+        #sidebar-header {
+            padding: 16px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        #user-info {
             display: flex;
-            flex-direction: column;
-            position: relative;
-            background: #000;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
         }
-        .remote-video {
-            flex: 1;
-            width: 100%;
-            background: #333;
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .balance-container { display: flex; gap: 8px; margin-top: 8px; }
+        .balance-badge { background: var(--accent-light); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .remote-video video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .local-video {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 160px;
-            background: #333;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .local-video video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .call-controls {
+        .icon-btn:active { transform: scale(0.92); background: var(--border); }
+
+        #tabs {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            background: #2a2a2a;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
         }
-        .call-btn {
-            width: 60px;
-            height: 60px;
+        .tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        #items-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .chat-item {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-radius: 16px;
+            transition: all 0.2s;
+            background: var(--bg-secondary);
+            margin-bottom: 4px;
+        }
+        .chat-item:active { background: var(--border); transform: scale(0.98); }
+        .chat-item.unread { background: var(--accent-light); }
+        
+        .item-avatar {
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
+            object-fit: cover;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .item-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .unread-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: var(--unread-bg); border-radius: 50%; border: 2px solid var(--bg-secondary); }
+        .unread-count { position: absolute; top: -4px; right: -4px; background: #ff4444; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .item-info { flex: 1; min-width: 0; }
+        .item-name { font-weight: 600; margin-bottom: 4px; }
+        .item-last-message { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-time { font-size: 10px; color: var(--text-secondary); flex-shrink: 0; }
+
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            width: 100%;
+        }
+
+        #chat-header {
+            padding: 12px 16px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #chat-info { flex: 1; cursor: pointer; }
+        #chat-name { font-weight: 600; font-size: 16px; }
+        #chat-status { font-size: 11px; color: var(--text-secondary); }
+
+        .chat-actions { display: flex; gap: 8px; }
+
+        #messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 4px;
+            padding: 10px 14px;
+            border-radius: 20px;
+            animation: fadeInUp 0.3s;
+            position: relative;
+        }
+        .message.out { background: var(--message-out); margin-left: auto; border-bottom-right-radius: 4px; }
+        .message.in { background: var(--message-in); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: var(--shadow); }
+
+        .message-media {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-top: 6px;
+            cursor: pointer;
+        }
+        .message-audio {
+            width: 200px;
+            height: 36px;
+            border-radius: 18px;
+            margin-top: 6px;
+        }
+        .preview-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 0.3s;
+        }
+        .preview-img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 16px;
+        }
+
+        .delete-message-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
             border: none;
-            font-size: 28px;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 10px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .message:hover .delete-message-btn { opacity: 1; }
+
+        #input-area {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+        #message-input-wrapper {
+            display: flex;
+            gap: 8px;
+            background: var(--bg);
+            border-radius: 28px;
+            padding: 6px 12px;
+            align-items: center;
+        }
+        #message-input {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            outline: none;
+            font-size: 16px;
+        }
+        .attach-btn, .record-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 6px;
+            color: var(--text-secondary);
+        }
+        .recording-active { animation: pulse 1s infinite; color: #ff4444; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; animation: fadeInUp 0.3s; }
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 28px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .modal-header {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--accent);
+        }
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            background: var(--accent);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .modal-btn:active { transform: scale(0.98); }
+        .modal-btn.secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .modal-btn.danger { background: #ff4444; }
+
+        .settings-section { margin: 20px 0; }
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .settings-item:active { opacity: 0.7; }
+
+        .device-item {
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 16px;
+            margin: 8px 0;
+        }
+
+        .gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .gift-item {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .call-btn:active { transform: scale(0.95); }
-        .call-btn.end-call { background: #ff3b30; color: white; }
-        .call-btn.mute-btn { background: #4a4a4a; color: white; }
-        .call-info {
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            color: white;
-            text-shadow: 0 1px 2px black;
-            z-index: 10;
-        }
-        .call-timer { font-size: 24px; font-family: monospace; margin-top: 5px; }
+        .gift-item:active { transform: scale(0.96); }
 
-        @media (min-width: 769px) { #sidebar { position: relative; left: 0 !important; width: 320px; } #menu-btn { display: none !important; } .sidebar-overlay { display: none !important; } }
-        @media (max-width: 768px) { .message.gift-card { max-width: 90%; min-width: 200px; } .gift-emoji-big { font-size: 48px; } canvas { height: 200px; } .local-video { width: 80px; height: 120px; } }
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            z-index: 3000;
+            font-size: 14px;
+            animation: fadeInUp 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards;
+        }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(20px); } }
+
+        @media (min-width: 769px) {
+            #sidebar { position: relative; left: 0 !important; width: 360px; }
+            #menu-btn { display: none !important; }
+            .sidebar-overlay { display: none !important; }
+        }
     </style>
 </head>
 <body class="theme-light">
@@ -365,13 +463,13 @@
         <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
         <div id="sidebar">
             <div id="sidebar-header">
-                <div id="user-info" onclick="openProfileModal(currentUser?.uid)">
-                    <div id="user-avatar">Н</div>
+                <div id="user-info" onclick="openProfileModal()">
+                    <div id="user-avatar" class="avatar">👤</div>
                     <div>
                         <div id="user-name">Загрузка...</div>
                         <div class="balance-container">
-                            <span id="crystals">💎 0</span>
-                            <span id="nixcoin-balance">🪙 0 NIX</span>
+                            <span class="balance-badge">💎 <span id="crystals">0</span></span>
+                            <span class="balance-badge">🪙 <span id="nixcoin-balance">0</span> NIX</span>
                         </div>
                     </div>
                 </div>
@@ -380,32 +478,39 @@
             <div id="tabs">
                 <div class="tab active" onclick="switchTab('chats')">Чаты</div>
                 <div class="tab" onclick="switchTab('contacts')">Контакты</div>
-                <div class="tab" onclick="switchTab('shop')">Магазин</div>
-                <div class="tab" onclick="switchTab('marketplace')">🏪 Маркет</div>
+                <div class="tab" onclick="switchTab('channels')">Каналы</div>
             </div>
-            <div style="padding: 10px;"><button class="modal-btn" onclick="findUserByUsername()" style="width: 100%;">🔍 Найти пользователя</button></div>
-            <div id="nixcoin-rate" class="nixcoin-rate" onclick="openChartModal()">🪙 1 NIX = $<span id="nixcoin-usd">2.50</span> | 1 NIX = ₽<span id="nixcoin-rub">175</span> 📈</div>
+            <div style="padding: 10px;">
+                <button class="modal-btn" onclick="findUser()" style="width: 100%;">🔍 Найти пользователя/канал</button>
+            </div>
             <div id="items-list"></div>
+            <div style="padding: 12px; border-top: 1px solid var(--border);">
+                <div class="settings-item" onclick="showCreateMenu()">
+                    <span>➕ Создать</span>
+                    <span style="font-size: 12px; color: var(--text-secondary);">группу, канал</span>
+                </div>
+            </div>
         </div>
 
         <div id="main">
             <div id="chat-header">
                 <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()">☰</button>
-                <div id="chat-avatar" onclick="openProfileModal(currentChat?.userId)">#</div>
-                <div id="chat-info" onclick="openProfileModal(currentChat?.userId)">
+                <div id="chat-avatar" class="avatar" onclick="openChatInfo()">#</div>
+                <div id="chat-info" onclick="openChatInfo()">
                     <div id="chat-name">Нихауу</div>
                     <div id="chat-status"></div>
                 </div>
                 <div class="chat-actions">
                     <button class="icon-btn" onclick="startCall()">📞</button>
-                    <button class="icon-btn" onclick="openGiftSelectionModal()" style="background: linear-gradient(135deg, gold, orange); color: white;">🎁</button>
-                    <button class="icon-btn" onclick="openNFTShop()" style="background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white;">💎</button>
+                    <button class="icon-btn" onclick="openGiftModal()" style="background: var(--accent-light);">🎁</button>
                 </div>
             </div>
-            <div id="messages-area"><div style="text-align: center; color: var(--text-secondary); margin-top: 50px;">Добро пожаловать в Нихауу!</div></div>
+            <div id="messages-area"><div style="text-align: center; color: var(--text-secondary); margin-top: 50px;">✨ Добро пожаловать в Нихауу! ✨</div></div>
             <div id="input-area" style="display: none;">
                 <div id="message-input-wrapper">
+                    <button class="attach-btn" onclick="openAttachMenu()">📎</button>
                     <input type="text" id="message-input" placeholder="Сообщение..." onkeypress="handleKeyPress(event)">
+                    <button class="record-btn" id="recordBtn" onclick="toggleRecording()">🎙️</button>
                     <button class="icon-btn" onclick="sendMessage()">📤</button>
                 </div>
             </div>
@@ -417,58 +522,128 @@
         <div class="modal-content">
             <div class="modal-header">🔐 Вход / Регистрация</div>
             <div id="login-form">
-                <input type="email" id="login-email" class="modal-input" placeholder="Email">
-                <input type="password" id="login-password" class="modal-input" placeholder="Пароль">
+                <input type="email" id="login-email" class="modal-input" placeholder="Email" value="test@test.com">
+                <input type="password" id="login-password" class="modal-input" placeholder="Пароль" value="123456">
                 <button class="modal-btn" onclick="login()">Войти</button>
                 <button class="modal-btn secondary" onclick="showRegisterForm()">Нет аккаунта? Зарегистрироваться</button>
             </div>
             <div id="register-form" style="display: none;">
                 <input type="text" id="reg-name" class="modal-input" placeholder="Ваше имя *">
                 <input type="email" id="reg-email" class="modal-input" placeholder="Email *">
-                <input type="password" id="reg-password" class="modal-input" placeholder="Пароль (мин. 6 символов) *">
-                <input type="text" id="reg-username" class="modal-input" placeholder="@username (необязательно)">
+                <input type="password" id="reg-password" class="modal-input" placeholder="Пароль (мин. 6) *">
+                <input type="text" id="reg-username" class="modal-input" placeholder="@username">
                 <button class="modal-btn" onclick="register()">Зарегистрироваться</button>
                 <button class="modal-btn secondary" onclick="showLoginForm()">Уже есть аккаунт? Войти</button>
             </div>
         </div>
     </div>
-    <div id="profile-modal" class="modal"><div class="modal-content"><div class="modal-header" id="profile-modal-title">👤 Мой профиль</div><div id="profile-view"></div><div id="profile-edit-area" style="display: none;"><input type="text" id="edit-name" class="modal-input" placeholder="Имя"><input type="text" id="edit-username" class="modal-input" placeholder="@username"><textarea id="edit-bio" class="modal-input" rows="3" placeholder="О себе"></textarea><div class="avatar-selector" id="avatar-selector"></div><button class="modal-btn" onclick="saveProfileEdit()">Сохранить</button><button class="modal-btn secondary" onclick="cancelProfileEdit()">Отмена</button></div><button class="modal-btn" id="edit-profile-btn" onclick="startProfileEdit()">✏️ Редактировать профиль</button><button class="modal-btn secondary" onclick="closeModal('profile-modal')">Закрыть</button></div></div>
-    <div id="gift-detail-modal" class="modal"><div class="modal-content" id="gift-detail-content"></div></div>
-    <div id="chart-modal" class="modal"><div class="modal-content"><div class="modal-header">📊 График NixCoin (свечной)</div><div id="chart-container" class="chart-container"><div class="chart-header"><div><span class="chart-price">$<span id="chart-current-price">2.50</span></span><span id="chart-change" class="chart-change up">+0.00%</span></div><div>🪙 NIX/USD</div></div><canvas id="priceChart" width="400" height="280"></canvas><div class="chart-stats"><span>📊 Объем: <span id="volume-24h">0</span> NIX</span><span>📈 Макс: $<span id="high-24h">2.50</span></span><span>📉 Мин: $<span id="low-24h">2.50</span></span></div></div><button class="modal-btn secondary" onclick="closeModal('chart-modal')">Закрыть</button></div></div>
-    <div id="marketplace-modal" class="modal"><div class="modal-content"><div class="modal-header">🏪 Маркетплейс NFT</div><div id="marketplace-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('marketplace-modal')">Закрыть</button></div></div>
-    <div id="sell-nft-modal" class="modal"><div class="modal-content"><div class="modal-header">💰 Продать NFT</div><div id="sell-nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('sell-nft-modal')">Закрыть</button></div></div>
-    <div id="set-price-modal" class="modal"><div class="modal-content"><div class="modal-header">💰 Установить цену</div><div id="sell-nft-info"></div><input type="number" id="sell-price" class="modal-input" placeholder="Цена в NIX"><button class="modal-btn" onclick="confirmSellNFT()">Выставить на продажу</button><button class="modal-btn secondary" onclick="closeModal('set-price-modal')">Отмена</button></div></div>
-    <div id="settings-modal" class="modal"><div class="modal-content"><div class="modal-header">⚙️ Настройки</div><h3>🎨 Тема</h3><div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 8px;"><button class="modal-btn secondary" onclick="setTheme('light')">☀️ Светлая</button><button class="modal-btn secondary" onclick="setTheme('dark')">🌙 Темная</button><button class="modal-btn secondary" onclick="setTheme('ocean')">🌊 Океан</button><button class="modal-btn secondary" onclick="setTheme('desert')">🏜️ Пустыня</button><button class="modal-btn secondary" onclick="setTheme('mint')">🌱 Мятная</button></div><h3 style="margin-top:15px;">💎 Промокод</h3><input type="text" id="promo-code" class="modal-input" placeholder="Введите промокод"><button class="modal-btn" onclick="activatePromo()">Активировать</button><button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button></div></div>
-    <div id="crystals-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 Кристаллы</div><button class="modal-btn" onclick="buyCrystals(100)">100 💎 - 199₽</button><button class="modal-btn" onclick="buyCrystals(500)">500 💎 - 470₽</button><button class="modal-btn" onclick="buyCrystals(1000)">1000 💎 - 700₽</button><button class="modal-btn secondary" onclick="closeModal('crystals-shop')">Закрыть</button></div></div>
-    <div id="nixcoin-shop" class="modal"><div class="modal-content"><div class="modal-header">🪙 Купить NixCoin</div><div>1 NIX = $<span id="nixcoin-rate-modal">2.50</span> | 1 NIX = ₽<span id="nixcoin-rub-modal">175</span></div><button class="modal-btn" onclick="buyNixCoin(10)">10 NIX - $<span id="nix-price-10">25.00</span> / ₽<span id="nix-price-10-rub">1750</span></button><button class="modal-btn" onclick="buyNixCoin(50)">50 NIX - $<span id="nix-price-50">125.00</span> / ₽<span id="nix-price-50-rub">8750</span></button><button class="modal-btn" onclick="buyNixCoin(100)">100 NIX - $<span id="nix-price-100">250.00</span> / ₽<span id="nix-price-100-rub">17500</span></button><button class="modal-btn secondary" onclick="closeModal('nixcoin-shop')">Закрыть</button></div></div>
-    <div id="gifts-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Обычные подарки (30 шт)</div><div id="gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('gifts-modal')">Закрыть</button></div></div>
-    <div id="nft-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 NFT Подарки (16 шт)</div><div id="nft-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('nft-shop')">Закрыть</button></div></div>
-    <div id="send-gift-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Подарок другу</div><div id="send-gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('send-gift-modal')">Отмена</button></div></div>
 
-    <!-- ОКНО ЗВОНКА -->
-    <div id="call-overlay" class="call-overlay">
-        <div class="call-info">
-            <div id="call-status">Соединение...</div>
-            <div id="call-timer" class="call-timer">00:00</div>
-        </div>
-        <div class="call-video-container">
-            <div class="remote-video">
-                <video id="remoteVideo" autoplay playsinline></video>
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">👤 Мой профиль</div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div id="profile-avatar" class="avatar" style="width: 100px; height: 100px; font-size: 40px; margin: 0 auto;">👤</div>
+                <button class="modal-btn secondary" onclick="changeAvatar()" style="margin-top: 10px;">📸 Сменить аватар</button>
             </div>
-            <div class="local-video">
-                <video id="localVideo" autoplay playsinline muted></video>
+            <input type="text" id="profile-name" class="modal-input" placeholder="Имя">
+            <input type="text" id="profile-username" class="modal-input" placeholder="@username">
+            <textarea id="profile-bio" class="modal-input" rows="3" placeholder="О себе"></textarea>
+            <div class="settings-section">
+                <div class="settings-item" onclick="openCrystalsShop()"><span>💎 Кристаллы: <span id="profile-crystals">0</span></span><span>➡️</span></div>
+                <div class="settings-item" onclick="openNixCoinShop()"><span>🪙 NixCoin: <span id="profile-nixcoin">0</span></span><span>➡️</span></div>
             </div>
-        </div>
-        <div class="call-controls">
-            <button class="call-btn mute-btn" id="muteBtn" onclick="toggleMute()">🎤</button>
-            <button class="call-btn end-call" onclick="endCall()">📞</button>
-            <button class="call-btn" id="cameraBtn" onclick="toggleCamera()">📷</button>
+            <button class="modal-btn" onclick="saveProfile()">Сохранить</button>
+            <button class="modal-btn secondary" onclick="closeModal('profile-modal')">Закрыть</button>
         </div>
     </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">⚙️ Настройки</div>
+            <div class="settings-section">
+                <div class="settings-item" onclick="openThemeSettings()"><span>🎨 Тема</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openProfileModal()"><span>👤 Мой профиль</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openDevices()"><span>📱 Устройства</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openNotificationsSettings()"><span>🔔 Уведомления и звуки</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openDataSettings()"><span>💾 Данные и память</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openLanguageSettings()"><span>🌐 Язык</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openPremium()"><span>💎 Nixao Premium</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openPrivacy()"><span>🔒 Политика конфиденциальности</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openHelp()"><span>❓ Помощь</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openAbout()"><span>ℹ️ О Нихауу</span><span>➡️</span></div>
+            </div>
+            <button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="theme-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🎨 Тема</div>
+            <button class="modal-btn" onclick="setTheme('light')">☀️ Светлая (синий/белый)</button>
+            <button class="modal-btn" onclick="setTheme('dark')">🌙 Темная (синий/черный)</button>
+            <button class="modal-btn secondary" onclick="closeModal('theme-modal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="language-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🌐 Язык</div>
+            <button class="modal-btn" onclick="setLanguage('ru')">🇷🇺 Русский</button>
+            <button class="modal-btn" onclick="setLanguage('en')">🇬🇧 English</button>
+            <button class="modal-btn" onclick="setLanguage('be')">🇧🇾 Беларуская</button>
+            <button class="modal-btn secondary" onclick="closeModal('language-modal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="devices-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">📱 Устройства</div>
+            <div id="devices-list"></div>
+            <button class="modal-btn secondary" onclick="closeModal('devices-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="privacy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🔒 Политика конфиденциальности</div>
+            <div id="privacy-text" style="padding: 10px; line-height: 1.5;"></div>
+            <button class="modal-btn secondary" onclick="closeModal('privacy-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="create-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">➕ Создать</div>
+            <button class="modal-btn" onclick="createGroup()">👥 Создать группу</button>
+            <button class="modal-btn" onclick="createChannel()">📢 Создать канал</button>
+            <button class="modal-btn secondary" onclick="closeModal('create-modal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="attach-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">📎 Прикрепить</div>
+            <button class="modal-btn" onclick="attachPhoto()">📷 Фото</button>
+            <button class="modal-btn" onclick="attachVideo()">🎥 Видео</button>
+            <button class="modal-btn secondary" onclick="closeModal('attach-modal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="gift-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">🎁 Подарки</div>
+            <div id="gifts-list" class="gifts-grid"></div>
+            <button class="modal-btn secondary" onclick="closeModal('gift-modal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="crystals-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 Кристаллы</div><button class="modal-btn" onclick="buyCrystals(100)">100 💎 - 199₽</button><button class="modal-btn" onclick="buyCrystals(500)">500 💎 - 470₽</button><button class="modal-btn" onclick="buyCrystals(1000)">1000 💎 - 700₽</button><button class="modal-btn secondary" onclick="closeModal('crystals-shop')">Закрыть</button></div></div>
+    <div id="nixcoin-shop" class="modal"><div class="modal-content"><div class="modal-header">🪙 Купить NixCoin</div><div>1 NIX = 200₽</div><button class="modal-btn" onclick="buyNixCoin(10)">10 NIX - 2000₽</button><button class="modal-btn" onclick="buyNixCoin(50)">50 NIX - 10000₽</button><button class="modal-btn" onclick="buyNixCoin(100)">100 NIX - 20000₽</button><button class="modal-btn secondary" onclick="closeModal('nixcoin-shop')">Закрыть</button></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script>
         // Firebase config
@@ -484,1196 +659,561 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        // ========== ПЕРЕМЕННЫЕ ДЛЯ ЗВОНКОВ ==========
-        let localStream = null;
-        let peerConnection = null;
-        let currentCallDoc = null;
-        let callTimerInterval = null;
-        let callStartTime = null;
-        let isCallActive = false;
-
-        // WebRTC конфигурация
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' },
-                { urls: 'stun:stun.ekiga.net' },
-                { urls: 'stun:stun.ideasip.com' }
-            ]
-        };
+        const storage = firebase.storage();
 
         let currentUser = null;
-        let userData = { crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], name: 'Пользователь', nftCollection: [], nftForSale: [], avatar: '👤', username: '', bio: '' };
+        let userData = { crystals: 500, nixcoin: 0, name: 'Пользователь', avatar: null, username: '', bio: '' };
         let currentChat = null;
-        let nixcoinRate = 2.50;
-        let usdToRub = 70;
-        let rateUpdateInterval = null;
-        
-        // Данные для свечного графика
-        let candleData = [];
-        let currentCandle = null;
-        let priceHistoryRef = null;
-        
-        // NFT ПЕПА
-        const pepeNFT = { 
-            id: 116, name: '🐸 ПЕПА', basePrice: 12098, emoji: '🐸', rarity: 'Легендарный', 
-            animation: 'nft-croak', desc: 'Легендарная лягушка удачи! Ква-ква!', bgClass: 'nft-bg-pepe'
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let notificationsEnabled = true;
+
+        // Тексты для языков
+        const translations = {
+            ru: {
+                welcome: '✨ Добро пожаловать в Нихауу! ✨',
+                noMessages: '💬 Нет сообщений',
+                loading: 'Загрузка...',
+                privacy: 'Нихауу заботится о вашей конфиденциальности. Мы собираем только необходимые данные: ваше имя, email и аватар. Ваши сообщения защищены шифрованием. Мы не передаем ваши данные третьим лицам. Вы можете удалить свой аккаунт в любой момент. Все голосовые сообщения, фото и видео хранятся в зашифрованном виде. Ваши устройства видны только вам. Мы используем Firebase для хранения данных, что обеспечивает высокий уровень безопасности. Политика конфиденциальности может обновляться, о чем мы уведомим вас заранее.',
+                about: 'Нихауу v2.0 - современный мессенджер с поддержкой голосовых сообщений, фото, видео, групп и каналов. Разработан для удобного общения. Версия: 2.0.0'
+            },
+            en: {
+                welcome: '✨ Welcome to Nixao! ✨',
+                noMessages: '💬 No messages',
+                loading: 'Loading...',
+                privacy: 'Nixao cares about your privacy. We only collect necessary data: your name, email and avatar. Your messages are encrypted. We do not share your data with third parties. You can delete your account at any time. All voice messages, photos and videos are stored encrypted. Your devices are only visible to you. We use Firebase for data storage, which ensures a high level of security.',
+                about: 'Nixao v2.0 - a modern messenger with support for voice messages, photos, videos, groups and channels. Developed for convenient communication. Version: 2.0.0'
+            },
+            be: {
+                welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨',
+                noMessages: '💬 Няма паведамленняў',
+                loading: 'Загрузка...',
+                privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Мы збіраем толькі неабходныя даныя: ваша імя, email і аватар. Вашы паведамленні абаронены шыфраваннем. Мы не перадаем вашы даныя трэцім асобам. Вы можаце выдаліць свой акаўнт у любы момант. Усе галасавыя паведамленні, фота і відэа захоўваюцца ў зашыфраваным выглядзе. Вашы прылады бачны толькі вам.',
+                about: 'Ніхауу v2.0 - сучасны месенджар з падтрымкай галасавых паведамленняў, фота, відэа, груп і каналаў. Распрацаваны для зрубнага зносін. Версія: 2.0.0'
+            }
         };
+        let currentLang = 'ru';
 
-        // ========== ФУНКЦИИ ЗВОНКОВ (ИСПРАВЛЕННЫЕ) ==========
-        
-        async function getMedia() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                const localVideo = document.getElementById('localVideo');
-                if (localVideo) {
-                    localVideo.srcObject = localStream;
-                    localVideo.muted = true;
-                }
-                console.log('✅ Медиа получены');
-                return true;
-            } catch (err) {
-                console.error('❌ Ошибка доступа к медиа:', err);
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    showToast('🎤 Только аудио (камера не доступна)');
-                    return true;
-                } catch (e) {
-                    showToast('❌ Не удалось получить доступ к микрофону');
-                    return false;
-                }
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('language', lang);
+            updateUITexts();
+            closeModal('language-modal');
+            showToast(`🌐 Язык изменен на ${lang === 'ru' ? 'Русский' : lang === 'en' ? 'English' : 'Беларуская'}`);
+        }
+
+        function updateUITexts() {
+            const t = translations[currentLang];
+            if (document.getElementById('messages-area').innerHTML.includes('Добро пожаловать')) {
+                document.getElementById('messages-area').innerHTML = `<div style="text-align: center; color: var(--text-secondary); margin-top: 50px;">${t.welcome}</div>`;
             }
         }
 
-        async function startCall() {
-            if (!currentChat || !currentUser) {
-                showToast('❌ Выберите чат');
-                return;
-            }
-            
-            if (isCallActive) {
-                showToast('❌ Звонок уже активен');
-                return;
-            }
-            
-            const mediaOk = await getMedia();
-            if (!mediaOk) return;
-            
-            document.getElementById('call-overlay').classList.add('active');
-            document.getElementById('call-status').textContent = 'Звонок...';
-            document.getElementById('call-timer').textContent = '00:00';
-            isCallActive = true;
-            
-            peerConnection = new RTCPeerConnection(configuration);
-            
-            // Добавляем локальные треки
-            localStream.getTracks().forEach(track => {
-                console.log('Добавлен трек:', track.kind);
-                peerConnection.addTrack(track, localStream);
-            });
-            
-            // Получаем удаленные треки
-            peerConnection.ontrack = (event) => {
-                console.log('Получен удаленный трек:', event.track.kind);
-                const remoteVideo = document.getElementById('remoteVideo');
-                if (remoteVideo && event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                }
-            };
-            
-            // ICE кандидаты
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate && currentCallDoc) {
-                    db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
-                        candidate: event.candidate,
-                        senderId: currentUser.uid,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-            };
-            
-            peerConnection.onconnectionstatechange = () => {
-                console.log('Состояние соединения:', peerConnection.connectionState);
-                if (peerConnection.connectionState === 'connected') {
-                    document.getElementById('call-status').textContent = 'В разговоре';
-                    startCallTimer();
-                } else if (peerConnection.connectionState === 'failed') {
-                    showToast('❌ Соединение разорвано');
-                    endCall();
-                }
-            };
-            
-            try {
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                
-                const callData = {
-                    from: currentUser.uid,
-                    fromName: userData.name,
-                    to: currentChat.userId,
-                    offer: offer,
-                    status: 'calling',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                const callRef = await db.collection('calls').add(callData);
-                currentCallDoc = { id: callRef.id };
-                
-                // Слушаем ответ
-                const unsubscribe = db.collection('calls').doc(callRef.id).onSnapshot(async (snapshot) => {
-                    const data = snapshot.data();
-                    if (data && data.answer && peerConnection && peerConnection.signalingState === 'have-local-offer') {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                        unsubscribe();
-                    }
-                    if (data && data.status === 'rejected') {
-                        showToast('❌ Звонок отклонен');
-                        endCall();
-                        unsubscribe();
-                    }
-                });
-                
-                // Слушаем ICE кандидаты
-                db.collection('calls').doc(callRef.id).collection('candidates')
-                    .where('senderId', '!=', currentUser.uid)
-                    .onSnapshot((snapshot) => {
-                        snapshot.forEach(async (doc) => {
-                            const data = doc.data();
-                            if (data.candidate && peerConnection) {
-                                try {
-                                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                                } catch (e) { console.log('Ошибка добавления кандидата:', e); }
-                            }
-                        });
-                    });
-                
-                setTimeout(() => {
-                    if (peerConnection && peerConnection.signalingState !== 'stable' && isCallActive) {
-                        showToast('❌ Собеседник не ответил');
-                        endCall();
-                    }
-                }, 30000);
-                
-            } catch (err) {
-                console.error('Ошибка создания offer:', err);
-                showToast('❌ Ошибка при звонке');
-                endCall();
-            }
-        }
+        // Подарки (30 штук)
+        const gifts = [
+            { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹' }, { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻' },
+            { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸' }, { id: 4, name: '🌺 Гибискус', price: 35, emoji: '🌺' },
+            { id: 5, name: '🌷 Тюльпан', price: 40, emoji: '🌷' }, { id: 6, name: '🌼 Ромашка', price: 45, emoji: '🌼' },
+            { id: 7, name: '💐 Букет', price: 60, emoji: '💐' }, { id: 8, name: '🎂 Торт', price: 80, emoji: '🎂' },
+            { id: 9, name: '🧸 Мишка', price: 100, emoji: '🧸' }, { id: 10, name: '💍 Кольцо', price: 150, emoji: '💍' },
+            { id: 11, name: '👑 Корона', price: 200, emoji: '👑' }, { id: 12, name: '💎 Бриллиант', price: 300, emoji: '💎' },
+            { id: 13, name: '⭐ Золотая звезда', price: 400, emoji: '⭐' }, { id: 14, name: '🌙 Лунный камень', price: 500, emoji: '🌙' },
+            { id: 15, name: '🔥 Вечный огонь', price: 600, emoji: '🔥' }, { id: 16, name: '❄️ Снежинка', price: 700, emoji: '❄️' },
+            { id: 17, name: '🌈 Единорог', price: 800, emoji: '🦄' }, { id: 18, name: '🐉 Дракон', price: 1000, emoji: '🐉' },
+            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚' }, { id: 20, name: '👾 Космос', price: 2000, emoji: '👾' },
+            { id: 21, name: '⚡ Молния', price: 2500, emoji: '⚡' }, { id: 22, name: '🌋 Вулкан', price: 3000, emoji: '🌋' },
+            { id: 23, name: '🏝️ Райский остров', price: 4000, emoji: '🏝️' }, { id: 24, name: '🎭 Маска', price: 5000, emoji: '🎭' },
+            { id: 25, name: '🗡️ Меч', price: 6000, emoji: '🗡️' }, { id: 26, name: '🛡️ Щит', price: 7000, emoji: '🛡️' },
+            { id: 27, name: '🏆 Кубок', price: 8000, emoji: '🏆' }, { id: 28, name: '👁️ Всевидящее око', price: 10000, emoji: '👁️' },
+            { id: 29, name: '🌀 Бесконечность', price: 12000, emoji: '🌀' }, { id: 30, name: '💫 Дракон Времени', price: 15000, emoji: '🐉✨' }
+        ];
 
-        async function answerCall(callId, fromId, offer) {
-            const mediaOk = await getMedia();
-            if (!mediaOk) return;
-            
-            document.getElementById('call-overlay').classList.add('active');
-            document.getElementById('call-status').textContent = 'Соединение...';
-            document.getElementById('call-timer').textContent = '00:00';
-            isCallActive = true;
-            
-            peerConnection = new RTCPeerConnection(configuration);
-            
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
-            
-            peerConnection.ontrack = (event) => {
-                const remoteVideo = document.getElementById('remoteVideo');
-                if (remoteVideo && event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                }
-            };
-            
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate && currentCallDoc) {
-                    db.collection('calls').doc(currentCallDoc.id).collection('candidates').add({
-                        candidate: event.candidate,
-                        senderId: currentUser.uid,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-            };
-            
-            peerConnection.onconnectionstatechange = () => {
-                if (peerConnection.connectionState === 'connected') {
-                    document.getElementById('call-status').textContent = 'В разговоре';
-                    startCallTimer();
-                }
-            };
-            
-            try {
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                
-                await db.collection('calls').doc(callId).update({
-                    answer: answer,
-                    status: 'connected',
-                    answeredAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                currentCallDoc = { id: callId };
-                
-                db.collection('calls').doc(callId).collection('candidates')
-                    .where('senderId', '!=', currentUser.uid)
-                    .onSnapshot((snapshot) => {
-                        snapshot.forEach(async (doc) => {
-                            const data = doc.data();
-                            if (data.candidate && peerConnection) {
-                                try {
-                                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                                } catch (e) { console.log('Ошибка добавления кандидата:', e); }
-                            }
-                        });
-                    });
-                    
-            } catch (err) {
-                console.error('Ошибка ответа на звонок:', err);
-                showToast('❌ Не удалось ответить на звонок');
-                endCall();
-            }
-        }
+        // ========== АВТОРИЗАЦИЯ ==========
+        function showRegisterForm() { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; }
+        function showLoginForm() { document.getElementById('login-form').style.display = 'block'; document.getElementById('register-form').style.display = 'none'; }
 
-        function endCall() {
-            isCallActive = false;
-            if (callTimerInterval) clearInterval(callTimerInterval);
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if (currentCallDoc) {
-                db.collection('calls').doc(currentCallDoc.id).update({ status: 'ended' }).catch(e => console.log(e));
-            }
-            document.getElementById('call-overlay').classList.remove('active');
-            currentCallDoc = null;
-            
-            const remoteVideo = document.getElementById('remoteVideo');
-            const localVideo = document.getElementById('localVideo');
-            if (remoteVideo) remoteVideo.srcObject = null;
-            if (localVideo) localVideo.srcObject = null;
-        }
-
-        function startCallTimer() {
-            callStartTime = Date.now();
-            if (callTimerInterval) clearInterval(callTimerInterval);
-            callTimerInterval = setInterval(() => {
-                if (callStartTime && isCallActive) {
-                    const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-                    const mins = Math.floor(elapsed / 60);
-                    const secs = elapsed % 60;
-                    document.getElementById('call-timer').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                }
-            }, 1000);
-        }
-
-        function toggleMute() {
-            if (localStream) {
-                const audioTrack = localStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    audioTrack.enabled = !audioTrack.enabled;
-                    const muteBtn = document.getElementById('muteBtn');
-                    if (muteBtn) {
-                        muteBtn.textContent = audioTrack.enabled ? '🎤' : '🔇';
-                        muteBtn.style.background = audioTrack.enabled ? '#4a4a4a' : '#ff3b30';
-                    }
-                }
-            }
-        }
-
-        function toggleCamera() {
-            if (localStream) {
-                const videoTrack = localStream.getVideoTracks()[0];
-                if (videoTrack) {
-                    videoTrack.enabled = !videoTrack.enabled;
-                    const cameraBtn = document.getElementById('cameraBtn');
-                    if (cameraBtn) {
-                        cameraBtn.textContent = videoTrack.enabled ? '📷' : '🚫';
-                        cameraBtn.style.background = videoTrack.enabled ? '#4a4a4a' : '#ff3b30';
-                    }
-                }
-            }
-        }
-
-        function listenForIncomingCalls() {
-            if (!currentUser) return;
-            db.collection('calls')
-                .where('to', '==', currentUser.uid)
-                .where('status', '==', 'calling')
-                .onSnapshot((snapshot) => {
-                    snapshot.forEach(async (doc) => {
-                        const call = doc.data();
-                        const accept = confirm(`📞 Входящий звонок от ${call.fromName || 'Пользователя'}\n\nПринять?`);
-                        if (accept) {
-                            await answerCall(doc.id, call.from, call.offer);
-                        } else {
-                            await db.collection('calls').doc(doc.id).update({ status: 'rejected' });
-                        }
-                    });
-                });
-        }
-
-        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
-        
-        function showRegisterForm() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
-        }
-        
-        function showLoginForm() {
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('register-form').style.display = 'none';
-        }
-        
         async function register() {
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
             const username = document.getElementById('reg-username').value.trim();
-            
-            if (!name) { alert('❌ Введите ваше имя'); return; }
-            if (!email) { alert('❌ Введите email'); return; }
-            if (!password || password.length < 6) { alert('❌ Пароль должен быть не менее 6 символов'); return; }
-            
+            if (!name || !email || !password || password.length < 6) { alert('Заполните все поля (пароль мин. 6 символов)'); return; }
             try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                await db.collection('users').doc(user.uid).set({
-                    name: name, email: email, username: username || '', bio: '', avatar: '👤',
-                    crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [],
+                const user = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(user.user.uid).set({
+                    name, email, username, crystals: 500, nixcoin: 0, avatar: null, bio: '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                showToast('✅ Регистрация успешна! Добро пожаловать!');
+                showToast('✅ Регистрация успешна!');
                 closeModal('auth-modal');
-            } catch (error) {
-                if (error.code === 'auth/email-already-in-use') alert('❌ Этот email уже зарегистрирован');
-                else if (error.code === 'auth/weak-password') alert('❌ Пароль слишком слабый');
-                else alert('❌ Ошибка регистрации: ' + error.message);
-            }
+            } catch (e) { alert('Ошибка: ' + e.message); }
         }
-        
+
         async function login() {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
-            if (!email || !password) { alert('❌ Введите email и пароль'); return; }
+            if (!email || !password) { alert('Введите email и пароль'); return; }
             try {
                 await auth.signInWithEmailAndPassword(email, password);
                 closeModal('auth-modal');
                 showToast('✅ Вход выполнен!');
-            } catch (error) {
-                if (error.code === 'auth/user-not-found') alert('❌ Пользователь не найден');
-                else if (error.code === 'auth/wrong-password') alert('❌ Неверный пароль');
-                else alert('❌ Ошибка входа: ' + error.message);
-            }
-        }
-        
-        function showNotification(title, message, icon = '🔔') {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.innerHTML = `
-                <div class="notification-icon">${icon}</div>
-                <div class="notification-content">
-                    <div class="notification-title">${title}</div>
-                    <div class="notification-text">${message}</div>
-                </div>
-                <button class="notification-close" onclick="this.parentElement.remove()">✕</button>
-            `;
-            notification.onclick = (e) => { if (e.target.className !== 'notification-close') notification.remove(); };
-            document.body.appendChild(notification);
-            setTimeout(() => { if (notification.parentElement) notification.remove(); }, 5000);
-        }
-        
-        let lastMessageCount = {};
-        function setupMessageNotifications(chatId, chatName) {
-            if (!currentUser) return;
-            db.collection('messages').where('chatId', '==', chatId).orderBy('timestamp', 'desc').limit(1).onSnapshot((snapshot) => {
-                snapshot.forEach((doc) => {
-                    const msg = doc.data();
-                    const isNotMine = msg.senderId !== currentUser?.uid;
-                    const isNew = !lastMessageCount[chatId] || lastMessageCount[chatId] !== doc.id;
-                    if (isNotMine && isNew && (!currentChat || currentChat.id !== chatId)) {
-                        lastMessageCount[chatId] = doc.id;
-                        const messageText = msg.type === 'gift' ? `🎁 Подарок: ${msg.gift.name}` : msg.text;
-                        showNotification(chatName, messageText, msg.type === 'gift' ? '🎁' : '💬');
-                    }
-                });
-            });
-        }
-        
-        function setActiveChat(chatId) { activeChatId = chatId; }
-
-        // Фоны для NFT
-        const bgColors = [
-            { name: "Синий", class: "nft-bg-blue", chance: 25, bonus: 5, rarity: "Обычный" },
-            { name: "Зеленый", class: "nft-bg-green", chance: 20, bonus: 9, rarity: "Обычный" },
-            { name: "Желтый", class: "nft-bg-yellow", chance: 15, bonus: 14, rarity: "Необычный" },
-            { name: "Оранжевый", class: "nft-bg-orange", chance: 12, bonus: 20, rarity: "Редкий" },
-            { name: "Красный", class: "nft-bg-red", chance: 10, bonus: 30, rarity: "Эпический" },
-            { name: "Розовый", class: "nft-bg-pink", chance: 8, bonus: 45, rarity: "Легендарный" },
-            { name: "Голубой", class: "nft-bg-cyan", chance: 5, bonus: 60, rarity: "Мифический" },
-            { name: "Черный", class: "nft-bg-black", chance: 3, bonus: 80, rarity: "Божественный" },
-            { name: "Фиолетовый", class: "nft-bg-purple", chance: 2, bonus: 100, rarity: "Трансцендентный" }
-        ];
-
-        const bgEmojis = [
-            { emoji: "✨", chance: 30, bonus: 5, name: "Искры" }, { emoji: "⭐", chance: 25, bonus: 10, name: "Звезда" },
-            { emoji: "💫", chance: 18, bonus: 15, name: "Комета" }, { emoji: "🌟", chance: 12, bonus: 20, name: "Сияние" },
-            { emoji: "🔥", chance: 8, bonus: 30, name: "Пламя" }, { emoji: "💎", chance: 5, bonus: 50, name: "Кристалл" },
-            { emoji: "👑", chance: 2, bonus: 100, name: "Корона" }
-        ];
-
-        // NFT Подарки
-        const nftGifts = [
-            { id: 101, name: '🍜 Лопша', basePrice: 45, emoji: '🍜', rarity: 'Редкий', animation: 'nft-spin', desc: 'Волшебная лапша удачи' },
-            { id: 102, name: '🥄 Чайная ложка', basePrice: 35, emoji: '🥄', rarity: 'Обычный', animation: 'nft-float', desc: 'Ложка размешивает счастье' },
-            { id: 103, name: '🍬 Фантик', basePrice: 25, emoji: '🍬', rarity: 'Обычный', animation: 'nft-pulse', desc: 'Сладкая магия' },
-            { id: 104, name: '🐉 Бумажный дракон', basePrice: 80, emoji: '🐉', rarity: 'Легендарный', animation: 'nft-bounce', desc: 'Дракон удачи' },
-            { id: 105, name: '✨ Звездная пыль', basePrice: 60, emoji: '✨', rarity: 'Эпический', animation: 'nft-spin', desc: 'Космическая энергия' },
-            { id: 106, name: '🍀 Четырехлистник', basePrice: 40, emoji: '🍀', rarity: 'Редкий', animation: 'nft-float', desc: 'Символ удачи' },
-            { id: 107, name: '🎭 Карнавальная маска', basePrice: 70, emoji: '🎭', rarity: 'Эпический', animation: 'nft-pulse', desc: 'Маска перемен' },
-            { id: 108, name: '⚡ Молния удачи', basePrice: 55, emoji: '⚡', rarity: 'Редкий', animation: 'nft-bounce', desc: 'Вспышка везения' },
-            { id: 109, name: '🌙 Лунный камень', basePrice: 90, emoji: '🌙', rarity: 'Легендарный', animation: 'nft-float', desc: 'Свет луны' },
-            { id: 110, name: '🔥 Искра вдохновения', basePrice: 50, emoji: '🔥', rarity: 'Редкий', animation: 'nft-spin', desc: 'Творческая энергия' },
-            { id: 111, name: '💎 Кристалл судьбы', basePrice: 120, emoji: '💎', rarity: 'Мифический', animation: 'nft-pulse', desc: 'Предсказывает будущее' },
-            { id: 112, name: '🦋 Бабочка счастья', basePrice: 45, emoji: '🦋', rarity: 'Редкий', animation: 'nft-float', desc: 'Приносит радость' },
-            { id: 113, name: '🌟 Падающая звезда', basePrice: 65, emoji: '🌟', rarity: 'Эпический', animation: 'nft-bounce', desc: 'Загадай желание' },
-            { id: 114, name: '🎵 Музыкальная нота', basePrice: 30, emoji: '🎵', rarity: 'Обычный', animation: 'nft-pulse', desc: 'Мелодия удачи' },
-            { id: 115, name: '👑 Корона судьбы', basePrice: 150, emoji: '👑', rarity: 'Трансцендентный', animation: 'nft-spin', desc: 'Власть над фортуной' },
-            pepeNFT
-        ];
-
-        // Обычные подарки
-        const regularGifts = [
-            { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹', rarity: 'Обычный' }, { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻', rarity: 'Обычный' },
-            { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸', rarity: 'Обычный' }, { id: 4, name: '🌺 Гибискус', price: 35, emoji: '🌺', rarity: 'Обычный' },
-            { id: 5, name: '🌷 Тюльпан', price: 40, emoji: '🌷', rarity: 'Обычный' }, { id: 6, name: '🌼 Ромашка', price: 45, emoji: '🌼', rarity: 'Обычный' },
-            { id: 7, name: '💐 Букет', price: 60, emoji: '💐', rarity: 'Необычный' }, { id: 8, name: '🎂 Торт', price: 80, emoji: '🎂', rarity: 'Необычный' },
-            { id: 9, name: '🧸 Мишка', price: 100, emoji: '🧸', rarity: 'Необычный' }, { id: 10, name: '💍 Кольцо', price: 150, emoji: '💍', rarity: 'Редкий' },
-            { id: 11, name: '👑 Корона', price: 200, emoji: '👑', rarity: 'Редкий' }, { id: 12, name: '💎 Бриллиант', price: 300, emoji: '💎', rarity: 'Редкий' },
-            { id: 13, name: '⭐ Золотая звезда', price: 400, emoji: '⭐', rarity: 'Эпический' }, { id: 14, name: '🌙 Лунный камень', price: 500, emoji: '🌙', rarity: 'Эпический' },
-            { id: 15, name: '🔥 Вечный огонь', price: 600, emoji: '🔥', rarity: 'Эпический' }, { id: 16, name: '❄️ Снежинка', price: 700, emoji: '❄️', rarity: 'Эпический' },
-            { id: 17, name: '🌈 Единорог', price: 800, emoji: '🦄', rarity: 'Легендарный' }, { id: 18, name: '🐉 Дракон', price: 1000, emoji: '🐉', rarity: 'Легендарный' },
-            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚', rarity: 'Легендарный' }, { id: 20, name: '👾 Космос', price: 2000, emoji: '👾', rarity: 'Мифический' },
-            { id: 21, name: '⚡ Молния', price: 2500, emoji: '⚡', rarity: 'Мифический' }, { id: 22, name: '🌋 Вулкан', price: 3000, emoji: '🌋', rarity: 'Мифический' },
-            { id: 23, name: '🏝️ Райский остров', price: 4000, emoji: '🏝️', rarity: 'Мифический' }, { id: 24, name: '🎭 Маска', price: 5000, emoji: '🎭', rarity: 'Божественный' },
-            { id: 25, name: '🗡️ Меч', price: 6000, emoji: '🗡️', rarity: 'Божественный' }, { id: 26, name: '🛡️ Щит', price: 7000, emoji: '🛡️', rarity: 'Божественный' },
-            { id: 27, name: '🏆 Кубок', price: 8000, emoji: '🏆', rarity: 'Божественный' }, { id: 28, name: '👁️ Всевидящее око', price: 10000, emoji: '👁️', rarity: 'Трансцендентный' },
-            { id: 29, name: '🌀 Бесконечность', price: 12000, emoji: '🌀', rarity: 'Трансцендентный' }, { id: 30, name: '💫 Дракон Времени', price: 15000, emoji: '🐉✨', rarity: 'Трансцендентный' }
-        ];
-
-        const avatars = ['👤', '😀', '😎', '🥳', '🐱', '🐶', '🦊', '🐼', '🐨', '🐸', '🦄', '🐉', '⭐', '💎', '🌸', '🌙'];
-
-        function getRandomNFTBackground() {
-            const totalBg = bgColors.reduce((s, c) => s + c.chance, 0);
-            let rand = Math.random() * totalBg;
-            let selectedBg = bgColors[0];
-            for (const bg of bgColors) { if (rand < bg.chance) { selectedBg = bg; break; } rand -= bg.chance; }
-            const totalEmoji = bgEmojis.reduce((s, e) => s + e.chance, 0);
-            rand = Math.random() * totalEmoji;
-            let selectedEmoji = bgEmojis[0];
-            for (const emoji of bgEmojis) { if (rand < emoji.chance) { selectedEmoji = emoji; break; } rand -= emoji.chance; }
-            return { bg: selectedBg, emoji: selectedEmoji };
-        }
-
-        function getCurrentNFTPrice(nft) {
-            const nixPrice = Math.floor(nft.basePrice * nixcoinRate);
-            const usdValue = (nixPrice * nixcoinRate).toFixed(2);
-            const rubValue = Math.floor(nixPrice * nixcoinRate * usdToRub);
-            return { nix: nixPrice, usd: usdValue, rub: rubValue };
-        }
-
-        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); }
-
-        // Синхронизация графика через Firebase
-        function initPriceSync() {
-            priceHistoryRef = db.collection('global').doc('priceHistory');
-            priceHistoryRef.onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    if (data.currentRate) nixcoinRate = data.currentRate;
-                    if (data.candleData) candleData = data.candleData;
-                    if (data.currentCandle) currentCandle = data.currentCandle;
-                    updateUI();
-                    if (document.getElementById('chart-modal').classList.contains('active')) drawCandlestickChart();
-                } else {
-                    priceHistoryRef.set({
-                        currentRate: nixcoinRate,
-                        candleData: [],
-                        currentCandle: { open: nixcoinRate, high: nixcoinRate, low: nixcoinRate, close: nixcoinRate, time: Date.now() },
-                        lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-            });
-        }
-        
-        function updateUI() {
-            const rubValue = Math.floor(nixcoinRate * usdToRub);
-            document.getElementById('nixcoin-usd').textContent = nixcoinRate.toFixed(2);
-            document.getElementById('nixcoin-rub').textContent = rubValue;
-            document.getElementById('nixcoin-rate-modal').textContent = nixcoinRate.toFixed(2);
-            document.getElementById('nixcoin-rub-modal').textContent = rubValue;
-            [10, 50, 100].forEach(amount => {
-                const usdPrice = (amount * nixcoinRate).toFixed(2);
-                const rubPrice = Math.floor(amount * nixcoinRate * usdToRub);
-                const usdEl = document.getElementById(`nix-price-${amount}`);
-                const rubEl = document.getElementById(`nix-price-${amount}-rub`);
-                if (usdEl) usdEl.textContent = usdPrice;
-                if (rubEl) rubEl.textContent = rubPrice;
-            });
-        }
-        
-        async function updateNixCoinRateGlobal() {
-            const changeType = Math.random();
-            let changePercent = 0, isUp = true;
-            if (changeType < 0.005) { changePercent = 15; isUp = true; }
-            else if (changeType < 0.02) { changePercent = 8; isUp = true; }
-            else if (changeType < 0.05) { changePercent = 5; isUp = true; }
-            else if (changeType < 0.12) { changePercent = 2; isUp = true; }
-            else if (changeType < 0.25) { changePercent = 1; isUp = true; }
-            else if (changeType < 0.40) { changePercent = 1; isUp = false; }
-            else if (changeType < 0.60) { changePercent = 2; isUp = false; }
-            else if (changeType < 0.78) { changePercent = 5; isUp = false; }
-            else if (changeType < 0.92) { changePercent = 8; isUp = false; }
-            else { changePercent = 0; }
-            
-            if (changePercent > 0) {
-                const change = isUp ? changePercent : -changePercent;
-                let newRate = nixcoinRate * (1 + change / 100);
-                newRate = Math.max(0.50, Math.min(10, Math.round(newRate * 100) / 100));
-                nixcoinRate = newRate;
-            }
-            
-            const now = Date.now();
-            const candleDuration = 10000;
-            let newCandleData = [...candleData];
-            let newCurrentCandle = currentCandle ? {...currentCandle} : null;
-            
-            if (!newCurrentCandle || (now - newCurrentCandle.time) >= candleDuration) {
-                if (newCurrentCandle) { newCandleData.push(newCurrentCandle); if (newCandleData.length > 30) newCandleData.shift(); }
-                newCurrentCandle = { open: nixcoinRate, high: nixcoinRate, low: nixcoinRate, close: nixcoinRate, time: now };
-            } else {
-                newCurrentCandle.high = Math.max(newCurrentCandle.high, nixcoinRate);
-                newCurrentCandle.low = Math.min(newCurrentCandle.low, nixcoinRate);
-                newCurrentCandle.close = nixcoinRate;
-            }
-            
-            candleData = newCandleData;
-            currentCandle = newCurrentCandle;
-            
-            await priceHistoryRef.set({ currentRate: nixcoinRate, candleData: candleData, currentCandle: currentCandle, lastUpdate: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-            updateUI();
-            if (document.getElementById('chart-modal').classList.contains('active')) drawCandlestickChart();
-        }
-        
-        function drawCandlestickChart() {
-            const canvas = document.getElementById('priceChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const width = canvas.clientWidth;
-            const height = canvas.clientHeight;
-            canvas.width = width;
-            canvas.height = height;
-            ctx.clearRect(0, 0, width, height);
-            
-            const allCandles = [...candleData];
-            if (currentCandle) allCandles.push(currentCandle);
-            if (allCandles.length === 0) {
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary').trim();
-                ctx.font = '14px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Загрузка данных...', width/2, height/2);
-                return;
-            }
-            
-            let minPrice = Infinity, maxPrice = -Infinity;
-            allCandles.forEach(c => { minPrice = Math.min(minPrice, c.low); maxPrice = Math.max(maxPrice, c.high); });
-            const range = maxPrice - minPrice || 0.01;
-            const padding = 20;
-            const chartHeight = height - padding * 2;
-            const chartWidth = width - padding * 2;
-            const candleWidth = Math.max(6, Math.min(20, (chartWidth / allCandles.length) - 2));
-            const startX = padding;
-            
-            ctx.beginPath();
-            ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--chart-grid').trim();
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i <= 4; i++) {
-                const y = padding + (chartHeight * (1 - i / 4));
-                ctx.moveTo(padding, y);
-                ctx.lineTo(width - padding, y);
-                ctx.stroke();
-                const priceLabel = minPrice + (maxPrice - minPrice) * (i / 4);
-                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary').trim();
-                ctx.font = '10px monospace';
-                ctx.fillText(priceLabel.toFixed(2), 2, y - 2);
-            }
-            
-            for (let i = 0; i < allCandles.length; i++) {
-                const candle = allCandles[i];
-                const x = startX + i * (candleWidth + 2);
-                const centerX = x + candleWidth / 2;
-                const yOpen = padding + chartHeight * (1 - (candle.open - minPrice) / range);
-                const yClose = padding + chartHeight * (1 - (candle.close - minPrice) / range);
-                const yHigh = padding + chartHeight * (1 - (candle.high - minPrice) / range);
-                const yLow = padding + chartHeight * (1 - (candle.low - minPrice) / range);
-                const isUp = candle.close >= candle.open;
-                const color = isUp ? getComputedStyle(document.body).getPropertyValue('--candle-up').trim() : getComputedStyle(document.body).getPropertyValue('--candle-down').trim();
-                
-                ctx.beginPath();
-                ctx.moveTo(centerX, yHigh);
-                ctx.lineTo(centerX, yLow);
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-                
-                const bodyTop = Math.min(yOpen, yClose);
-                const bodyBottom = Math.max(yOpen, yClose);
-                const bodyHeight = Math.max(2, bodyBottom - bodyTop);
-                ctx.fillStyle = color;
-                ctx.fillRect(x, bodyTop, candleWidth, bodyHeight);
-            }
-            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent').trim();
-            ctx.font = 'bold 12px monospace';
-            ctx.fillText(`$${nixcoinRate.toFixed(2)}`, width - 60, padding - 5);
-        }
-
-        function openChartModal() {
-            const modal = document.getElementById('chart-modal');
-            document.getElementById('chart-current-price').textContent = nixcoinRate.toFixed(2);
-            const firstPrice = candleData[0]?.open || nixcoinRate;
-            const change24h = ((nixcoinRate - firstPrice) / firstPrice * 100).toFixed(2);
-            const changeEl = document.getElementById('chart-change');
-            changeEl.textContent = (change24h >= 0 ? '+' : '') + change24h + '%';
-            changeEl.className = 'chart-change ' + (change24h >= 0 ? 'up' : 'down');
-            let high = nixcoinRate, low = nixcoinRate;
-            [...candleData, currentCandle].forEach(c => { if (c) { high = Math.max(high, c.high); low = Math.min(low, c.low); } });
-            document.getElementById('high-24h').textContent = high.toFixed(2);
-            document.getElementById('low-24h').textContent = low.toFixed(2);
-            document.getElementById('volume-24h').textContent = Math.floor(Math.random() * 10000);
-            drawCandlestickChart();
-            modal.classList.add('active');
-        }
-        
-        function startRateUpdates() { 
-            initPriceSync();
-            if (rateUpdateInterval) clearInterval(rateUpdateInterval); 
-            rateUpdateInterval = setInterval(updateNixCoinRateGlobal, 3000);
+            } catch (e) { alert('Ошибка: ' + e.message); }
         }
 
         // ========== ПРОФИЛЬ ==========
-        async function openProfileModal(userId) {
-            const targetId = userId || currentUser?.uid;
-            if (!targetId) return;
-            const doc = await db.collection('users').doc(targetId).get();
-            if (!doc.exists) return;
-            const data = doc.data();
-            const isOwn = targetId === currentUser?.uid;
+        async function openProfileModal() {
             const modal = document.getElementById('profile-modal');
-            document.getElementById('profile-modal-title').textContent = isOwn ? '👤 Мой профиль' : `👤 ${data.name}`;
-            
-            const myGifts = data.collection || [];
-            const myNFTs = data.nftCollection || [];
-            const received = data.receivedGifts || [];
-            const allGifts = [...myGifts, ...myNFTs, ...received];
-            
-            document.getElementById('profile-view').innerHTML = `
-                <div class="profile-view">
-                    <div style="font-size: 60px;">${data.avatar || '👤'}</div>
-                    <div>
-                        <div style="font-size: 20px; font-weight: bold;">${data.name}</div>
-                        <div>@${data.username || 'username'}</div>
-                        <div>${data.bio || 'Нет описания'}</div>
-                        <div class="balance-container" style="margin-top: 8px;">
-                            <span style="background:gold; padding:2px 8px; border-radius:15px;">💎 ${Math.floor(data.crystals || 0)}</span>
-                            <span style="background:#00c6fb; padding:2px 8px; border-radius:15px;">🪙 ${Math.floor(data.nixcoin || 0)} NIX</span>
-                        </div>
-                    </div>
-                </div>
-                <h3>🎁 Мои подарки (${allGifts.length})</h3>
-                <div class="gifts-grid">
-                    ${allGifts.map(g => {
-                        const isNFT = g.bgClass && (g.bgClass.includes('nft') || g.finalPrice || g.id === 116);
-                        const bgClass = isNFT ? (g.bgClass || 'nft-bg-purple') : 'regular-gift-bg';
-                        const price = isNFT ? (g.finalPrice || Math.floor(g.basePrice * nixcoinRate)) : g.price;
-                        const currency = isNFT ? 'NIX' : '💎';
-                        return `
-                            <div class="gift-card-shop ${bgClass}" style="position: relative; ${!isNFT ? 'background: var(--card-bg); color: var(--text);' : 'color: white;'}" onclick="showGiftDetail('${g.id}', ${isNFT}, '${g.name}', ${price}, '${g.emoji}', '${g.rarity}', '${g.from || ''}', '${isNFT ? g.bgClass : ''}', '${isNFT ? (g.bgEmoji || '✨') : ''}', ${isNFT ? (g.bonus || 0) : 0})">
-                                <div class="gift-emoji ${g.animation || ''}" style="font-size: 48px;">${g.emoji}</div>
-                                <div class="gift-name">${g.name}</div>
-                                <div style="font-size: 11px;">${g.from ? 'от ' + g.from : 'в коллекции'}</div>
-                                <div class="gift-price">${Math.floor(price)} ${currency}</div>
-                                ${isNFT && !g.onSale ? `<button class="modal-btn" style="margin-top: 8px; padding: 6px; font-size: 11px; background: linear-gradient(135deg, #00c6fb, #005bea);" onclick="event.stopPropagation(); openSellNFT('${g.id}')">💰 Продать</button>` : ''}
-                                ${g.onSale ? '<div class="on-sale-badge">🔥 В ПРОДАЖЕ</div>' : ''}
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                ${allGifts.length === 0 ? '<p style="text-align:center;">Нет подарков. Купите в магазине!</p>' : ''}
-            `;
-            document.getElementById('profile-edit-area').style.display = 'none';
-            const editBtn = document.getElementById('edit-profile-btn');
-            if (editBtn) editBtn.style.display = isOwn ? 'block' : 'none';
-            modal.classList.add('active');
-        }
-
-        function showGiftDetail(id, isNFT, name, price, emoji, rarity, from, bgClass, bgEmoji, bonus) {
-            const redeemPercent = isNFT ? 1.0 : 0.6;
-            const redeemValue = Math.floor(price * redeemPercent);
-            const currency = isNFT ? 'NIX' : '💎';
-            
-            let bonusHtml = '';
-            let currentPriceHtml = '';
-            
-            if (isNFT) {
-                const currentPrice = getCurrentNFTPrice({ basePrice: price / nixcoinRate });
-                currentPriceHtml = `
-                    <div class="detail-row"><span>💰 Актуальная цена:</span><span><strong>${Math.floor(price)} NIX</strong></span></div>
-                    <div class="detail-row"><span>💵 В долларах:</span><span>$${currentPrice.usd}</span></div>
-                    <div class="detail-row"><span>💵 В рублях:</span><span>₽${currentPrice.rub}</span></div>
-                `;
-                if (bonus > 0) {
-                    const bgName = bgColors.find(b => b.class === bgClass)?.name || 'Фиолетовый';
-                    bonusHtml = `<div class="detail-row"><span>🎨 Цвет фона:</span><span><strong>${bgName}</strong> (+${bonus}%)</span></div>`;
-                } else if (bgClass === 'nft-bg-pepe') {
-                    bonusHtml = `<div class="detail-row"><span>🎨 Специальный фон:</span><span><strong>🐸 Лягушачий рай!</strong></span></div>`;
-                }
-            }
-            
-            const modal = document.getElementById('gift-detail-modal');
-            document.getElementById('gift-detail-content').innerHTML = `
-                <div class="detail-card">
-                    <div class="detail-emoji">${emoji}</div>
-                    <div class="detail-name">${name}</div>
-                    <div class="detail-info">
-                        <div class="detail-row"><span>🎨 Редкость:</span><span><strong>${rarity}</strong></span></div>
-                        ${bonusHtml}
-                        ${currentPriceHtml}
-                        ${from ? `<div class="detail-row"><span>🎁 Получен от:</span><span>${from}</span></div>` : '<div class="detail-row"><span>📦 Статус:</span><span>В коллекции</span></div>'}
-                        <div class="detail-row"><span>🔄 Обмен дает:</span><span><strong style="color: gold;">${redeemValue} ${currency}</strong> (${redeemPercent*100}%)</span></div>
-                    </div>
-                    ${from ? `<button class="modal-btn redeem" onclick="redeemGiftFromDetail('${id}', ${isNFT}, ${price})">🔄 Обменять на ${redeemValue} ${currency}</button>` : '<div style="text-align:center; padding:10px; color:var(--text-secondary);">🔒 Этот подарок нельзя обменять</div>'}
-                </div>
-                <button class="modal-btn secondary" onclick="closeModal('gift-detail-modal')">Закрыть</button>
-            `;
-            modal.classList.add('active');
-        }
-
-        async function redeemGiftFromDetail(giftId, isNFT, price) {
-            const redeemPercent = isNFT ? 1.0 : 0.6;
-            const redeemValue = Math.floor(price * redeemPercent);
-            if (!confirm(`Обменять подарок на ${redeemValue} ${isNFT ? 'NIX' : '💎'}?`)) return;
-            
-            if (isNFT) {
-                let nft = userData.nftCollection?.find(n => n.id == giftId);
-                if (nft) {
-                    userData.nftCollection = userData.nftCollection.filter(n => n.id != giftId);
-                    userData.nixcoin += redeemValue;
-                    await db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin, nftCollection: userData.nftCollection });
-                    showToast(`✅ +${redeemValue} NIX!`);
-                } else {
-                    let receivedNFT = userData.receivedGifts?.find(g => g.id == giftId);
-                    if (receivedNFT) {
-                        userData.receivedGifts = userData.receivedGifts.filter(g => g.id != giftId);
-                        userData.nixcoin += redeemValue;
-                        await db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin, receivedGifts: userData.receivedGifts });
-                        showToast(`✅ +${redeemValue} NIX!`);
-                    } else {
-                        showToast('❌ Подарок не найден');
-                        return;
-                    }
-                }
-                document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
+            document.getElementById('profile-name').value = userData.name || '';
+            document.getElementById('profile-username').value = userData.username || '';
+            document.getElementById('profile-bio').value = userData.bio || '';
+            document.getElementById('profile-crystals').textContent = userData.crystals || 0;
+            document.getElementById('profile-nixcoin').textContent = userData.nixcoin || 0;
+            if (userData.avatar) {
+                document.getElementById('profile-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
             } else {
-                let gift = userData.collection?.find(g => g.id == giftId);
-                if (gift) {
-                    userData.collection = userData.collection.filter(g => g.id != giftId);
-                    userData.crystals += redeemValue;
-                    await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals, collection: userData.collection });
-                    showToast(`✅ +${redeemValue} кристаллов!`);
-                } else {
-                    let receivedGift = userData.receivedGifts?.find(g => g.id == giftId);
-                    if (receivedGift) {
-                        userData.receivedGifts = userData.receivedGifts.filter(g => g.id != giftId);
-                        userData.crystals += redeemValue;
-                        await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals, receivedGifts: userData.receivedGifts });
-                        showToast(`✅ +${redeemValue} кристаллов!`);
-                    } else {
-                        showToast('❌ Подарок не найден');
-                        return;
-                    }
-                }
-                document.getElementById('crystals').innerHTML = `💎 ${Math.floor(userData.crystals)}`;
+                document.getElementById('profile-avatar').innerHTML = '👤';
+                document.getElementById('profile-avatar').style.background = 'var(--accent)';
             }
-            closeModal('gift-detail-modal');
-            openProfileModal(currentUser.uid);
+            modal.classList.add('active');
         }
 
-        function startProfileEdit() {
-            document.getElementById('profile-view').style.display = 'none';
-            document.getElementById('edit-profile-btn').style.display = 'none';
-            document.getElementById('profile-edit-area').style.display = 'block';
-            document.getElementById('edit-name').value = userData.name || '';
-            document.getElementById('edit-username').value = userData.username || '';
-            document.getElementById('edit-bio').value = userData.bio || '';
-            const selector = document.getElementById('avatar-selector');
-            selector.innerHTML = avatars.map(a => `<div class="avatar-option ${userData.avatar === a ? 'selected' : ''}" onclick="selectAvatar('${a}')">${a}</div>`).join('');
-        }
-
-        function selectAvatar(avatar) { userData.avatar = avatar; document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected')); event.target.classList.add('selected'); }
-        async function saveProfileEdit() {
-            const name = document.getElementById('edit-name').value;
-            const username = document.getElementById('edit-username').value;
-            const bio = document.getElementById('edit-bio').value;
-            if (!name) { alert('Введите имя'); return; }
+        async function saveProfile() {
+            const name = document.getElementById('profile-name').value;
+            const username = document.getElementById('profile-username').value;
+            const bio = document.getElementById('profile-bio').value;
+            await db.collection('users').doc(currentUser.uid).update({ name, username, bio });
             userData.name = name; userData.username = username; userData.bio = bio;
-            await db.collection('users').doc(currentUser.uid).update({ name, username, bio, avatar: userData.avatar });
             document.getElementById('user-name').textContent = name;
-            document.getElementById('user-avatar').textContent = (name || 'Н')[0];
-            cancelProfileEdit();
-            openProfileModal(currentUser.uid);
             showToast('✅ Профиль сохранен');
-        }
-        function cancelProfileEdit() { document.getElementById('profile-view').style.display = 'block'; document.getElementById('edit-profile-btn').style.display = 'block'; document.getElementById('profile-edit-area').style.display = 'none'; }
-
-        // ========== ПОКУПКИ ==========
-        function buyCrystals(amount) { userData.crystals += amount; db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals }); document.getElementById('crystals').innerHTML = `💎 ${Math.floor(userData.crystals)}`; showToast(`💎 +${amount} кристаллов`); closeModal('crystals-shop'); }
-        function buyNixCoin(amount) { 
-            if (confirm(`Купить ${amount} NIX за $${(amount * nixcoinRate).toFixed(2)} / ₽${Math.floor(amount * nixcoinRate * usdToRub)}?`)) { 
-                userData.nixcoin = (userData.nixcoin || 0) + amount; 
-                db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin }); 
-                document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`; 
-                showToast(`✅ +${amount} NIX!`); 
-                closeModal('nixcoin-shop'); 
-            } 
-        }
-        function openCrystalsShop() { document.getElementById('crystals-shop').classList.add('active'); }
-        function openNixCoinShop() { document.getElementById('nixcoin-shop').classList.add('active'); }
-
-        function activatePromo() {
-            const promo = document.getElementById('promo-code').value;
-            if (promo === 'TAGAN2024') {
-                userData.nixcoin = (userData.nixcoin || 0) + 100;
-                db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin });
-                document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
-                showToast('✅ Промокод активирован! +100 NIX');
-            } else if (promo === 'NIXPOWER') {
-                userData.nixcoin = (userData.nixcoin || 0) + 500;
-                db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin });
-                document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
-                showToast('✅ Промокод активирован! +500 NIX');
-            } else if (promo === 'ULTIMATE2024') {
-                userData.nixcoin = (userData.nixcoin || 0) + 5000;
-                db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin });
-                document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
-                showToast('✅ Промокод активирован! +5000 NIX');
-            } else if (promo === 'vantuz') {
-                const pepeNft = { ...pepeNFT, from: 'Система', receivedAt: Date.now(), finalPrice: pepeNFT.basePrice, isGift: true };
-                if (!userData.receivedGifts) userData.receivedGifts = [];
-                userData.receivedGifts.push(pepeNft);
-                db.collection('users').doc(currentUser.uid).update({ receivedGifts: userData.receivedGifts });
-                showToast('🐸 Секретный промокод активирован! Вы получили NFT "ПЕПА"!');
-            } else {
-                alert('❌ Неверный промокод');
-                return;
-            }
-            closeModal('settings-modal');
+            closeModal('profile-modal');
         }
 
-        // ========== МАГАЗИНЫ ==========
-        function openGiftsModal() {
-            document.getElementById('gifts-list').innerHTML = regularGifts.map(g => {
-                return `<div class="gift-card-shop regular-gift-bg" style="background: var(--card-bg); color: var(--text);" onclick="buyRegularGift(${g.id})"><div class="gift-emoji">${g.emoji}</div><div class="gift-name">${g.name}</div><div class="gift-price">${g.price} 💎</div></div>`;
-            }).join('');
-            document.getElementById('gifts-modal').classList.add('active');
-        }
-
-        function buyRegularGift(id) {
-            const gift = regularGifts.find(g => g.id === id);
-            if (userData.crystals < gift.price) { alert(`❌ Нужно ${gift.price} 💎`); openCrystalsShop(); return; }
-            userData.crystals -= gift.price;
-            if (!userData.collection) userData.collection = [];
-            const newGift = { ...gift, purchasedAt: Date.now(), from: null };
-            userData.collection.push(newGift);
-            db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals, collection: userData.collection });
-            document.getElementById('crystals').innerHTML = `💎 ${Math.floor(userData.crystals)}`;
-            showToast(`✅ "${gift.name}" добавлен в коллекцию!`);
-            closeModal('gifts-modal');
-            if (confirm('🎁 Подарить другу?')) openGiftSelectionModal();
-        }
-
-        function openNFTShop() {
-            document.getElementById('nft-list').innerHTML = nftGifts.map(g => {
-                const currentPrice = getCurrentNFTPrice(g);
-                const isPepe = g.id === 116;
-                return `<div class="gift-card-shop ${g.bgClass || 'nft-bg-purple'}" style="color: white;" onclick="buyNFTGift(${g.id})"><div class="gift-emoji ${g.animation}">${g.emoji}</div><div class="gift-name">${g.name}</div><div class="gift-price">${currentPrice.nix} NIX</div><div style="font-size: 10px;">≈ $${currentPrice.usd} / ₽${currentPrice.rub}</div><div style="font-size: 9px;">✨ ${g.desc}</div>${isPepe ? '<div style="font-size: 8px; margin-top: 5px;">🐸 Ква-ква! Редчайший NFT!</div>' : ''}</div>`;
-            }).join('');
-            document.getElementById('nft-shop').classList.add('active');
-        }
-
-        function buyNFTGift(id) {
-            const gift = nftGifts.find(g => g.id === id);
-            const currentPrice = getCurrentNFTPrice(gift);
-            if ((userData.nixcoin || 0) < currentPrice.nix) { alert(`❌ Нужно ${currentPrice.nix} NIX (1 NIX = $${nixcoinRate})`); openNixCoinShop(); return; }
-            
-            let bgClass, bgEmoji, bonus, finalPrice;
-            if (gift.id === 116) {
-                bgClass = 'nft-bg-pepe';
-                bgEmoji = '🐸';
-                bonus = 0;
-                finalPrice = currentPrice.nix;
-            } else {
-                const nftStyle = getRandomNFTBackground();
-                bgClass = nftStyle.bg.class;
-                bgEmoji = nftStyle.emoji.emoji;
-                bonus = nftStyle.bg.bonus + nftStyle.emoji.bonus;
-                finalPrice = Math.floor(currentPrice.nix * (1 + bonus / 100));
-            }
-            
-            const nftGift = { ...gift, bgClass: bgClass, bgEmoji: bgEmoji, bonus: bonus, finalPrice: finalPrice, purchasedAt: Date.now(), from: null };
-            userData.nixcoin -= currentPrice.nix;
-            if (!userData.nftCollection) userData.nftCollection = [];
-            userData.nftCollection.push(nftGift);
-            db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin, nftCollection: userData.nftCollection });
-            document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
-            showToast(`✅ NFT "${gift.name}" куплен! ${gift.id === 116 ? '🐸 Ква-ква!' : `Бонус: +${bonus}%!`}`);
-            closeModal('nft-shop');
-            if (confirm('🎁 Подарить NFT другу?')) openNFTSelectionModal();
-        }
-
-        // ========== МАРКЕТПЛЕЙС ==========
-        function openMarketplace() {
-            const marketplaceList = document.getElementById('marketplace-list');
-            const allNFTs = [];
-            db.collection('users').get().then(snapshot => {
-                snapshot.forEach(doc => {
-                    const user = doc.data();
-                    if (user.nftForSale) {
-                        user.nftForSale.forEach(nft => {
-                            allNFTs.push({ ...nft, sellerId: doc.id, sellerName: user.name });
-                        });
-                    }
-                });
-                if (allNFTs.length === 0) {
-                    marketplaceList.innerHTML = '<div style="text-align:center; padding:20px;">Нет NFT в продаже</div>';
-                } else {
-                    marketplaceList.innerHTML = allNFTs.map(nft => {
-                        const usdValue = (nft.salePrice * nixcoinRate).toFixed(2);
-                        const rubValue = Math.floor(nft.salePrice * nixcoinRate * usdToRub);
-                        return `
-                            <div class="gift-card-shop ${nft.bgClass}" style="color: white; position: relative;">
-                                <div class="gift-emoji ${nft.animation}">${nft.emoji}</div>
-                                <div class="gift-name">${nft.name}</div>
-                                <div class="gift-price">${nft.salePrice} NIX</div>
-                                <div style="font-size: 10px;">≈ $${usdValue} / ₽${rubValue}</div>
-                                <div style="font-size: 10px;">продавец: ${nft.sellerName}</div>
-                                <button class="modal-btn" style="margin-top: 8px; padding: 8px; background: linear-gradient(135deg, gold, orange);" onclick="buyFromMarketplace('${nft.id}', ${nft.salePrice}, '${nft.sellerId}', '${nft.name}', '${JSON.stringify(nft).replace(/"/g, '&quot;')}')">💰 Купить</button>
-                            </div>
-                        `;
-                    }).join('');
+        async function changeAvatar() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const storageRef = storage.ref(`avatars/${currentUser.uid}`);
+                    await storageRef.put(file);
+                    const url = await storageRef.getDownloadURL();
+                    await db.collection('users').doc(currentUser.uid).update({ avatar: url });
+                    userData.avatar = url;
+                    document.getElementById('user-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                    openProfileModal();
+                    showToast('✅ Аватар обновлен');
                 }
+            };
+            input.click();
+        }
+
+        // ========== ТЕМЫ ==========
+        function setTheme(theme) {
+            document.body.className = `theme-${theme}`;
+            localStorage.setItem('theme', theme);
+            closeModal('theme-modal');
+        }
+
+        function openThemeSettings() { closeModal('settings-modal'); document.getElementById('theme-modal').classList.add('active'); }
+        function openLanguageSettings() { closeModal('settings-modal'); document.getElementById('language-modal').classList.add('active'); }
+
+        // ========== УСТРОЙСТВА ==========
+        async function openDevices() {
+            const devicesList = document.getElementById('devices-list');
+            const sessions = await db.collection('sessions').where('userId', '==', currentUser.uid).get();
+            const devices = [];
+            sessions.forEach(doc => devices.push({ id: doc.id, ...doc.data() }));
+            
+            // Добавляем текущее устройство если его нет
+            const userAgent = navigator.userAgent;
+            let deviceName = 'Неизвестное устройство';
+            if (userAgent.includes('iPhone')) deviceName = 'iPhone ' + (userAgent.includes('iPhone14') ? '13 Pro' : userAgent.includes('iPhone15') ? '14 Pro' : '');
+            else if (userAgent.includes('Android')) deviceName = 'Android ' + (userAgent.includes('SM-') ? 'Samsung Galaxy' : '');
+            else if (userAgent.includes('Windows')) deviceName = 'Windows PC';
+            else if (userAgent.includes('Mac')) deviceName = 'MacBook';
+            
+            if (devices.length === 0) {
+                await db.collection('sessions').add({ userId: currentUser.uid, device: deviceName, userAgent: userAgent, lastActive: new Date() });
+                devices.push({ device: deviceName, userAgent: userAgent, lastActive: new Date() });
+            }
+            
+            devicesList.innerHTML = devices.map(d => `<div class="device-item"><div>📱 ${d.device || d.userAgent?.substring(0, 30) || 'Неизвестное устройство'}</div><div style="font-size: 11px;">Активно: ${new Date(d.lastActive?.toDate()).toLocaleString()}</div></div>`).join('');
+            closeModal('settings-modal');
+            document.getElementById('devices-modal').classList.add('active');
+        }
+
+        // ========== НАСТРОЙКИ ==========
+        function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
+        function openCrystalsShop() { closeModal('profile-modal'); document.getElementById('crystals-shop').classList.add('active'); }
+        function openNixCoinShop() { closeModal('profile-modal'); document.getElementById('nixcoin-shop').classList.add('active'); }
+        function openNotificationsSettings() {
+            notificationsEnabled = !notificationsEnabled;
+            showToast(notificationsEnabled ? '🔔 Уведомления включены' : '🔕 Уведомления выключены');
+        }
+        function openDataSettings() { if (confirm('Очистить кеш сообщений?')) { localStorage.clear(); showToast('✅ Кеш очищен'); } }
+        function openPremium() { showToast('💎 Premium - скоро!'); }
+        function openPrivacy() {
+            document.getElementById('privacy-text').innerHTML = translations[currentLang].privacy;
+            closeModal('settings-modal');
+            document.getElementById('privacy-modal').classList.add('active');
+        }
+        function openHelp() { showToast('❓ Помощь: напишите в поддержку @nixao_support'); }
+        function openAbout() {
+            alert(translations[currentLang].about);
+        }
+        function openChatInfo() { showToast(`ℹ️ Чат: ${currentChat?.name}`); }
+
+        // ========== СОЗДАНИЕ ГРУПП/КАНАЛОВ ==========
+        function showCreateMenu() { closeModal('settings-modal'); document.getElementById('create-modal').classList.add('active'); }
+
+        async function createGroup() {
+            const name = prompt('Введите название группы:');
+            if (!name) return;
+            const groupId = 'group_' + Date.now();
+            await db.collection('chats').doc(groupId).set({
+                id: groupId,
+                type: 'group',
+                name: name,
+                creator: currentUser.uid,
+                participants: [currentUser.uid],
+                admins: [currentUser.uid],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            document.getElementById('marketplace-modal').classList.add('active');
+            showToast(`✅ Группа "${name}" создана!`);
+            closeModal('create-modal');
+            loadChats();
         }
 
-        async function buyFromMarketplace(nftId, price, sellerId, nftName, nftDataStr) {
-            if (userData.nixcoin < price) { alert(`❌ Недостаточно NIX! Нужно ${price} NIX`); return; }
-            if (!confirm(`Купить "${nftName}" за ${price} NIX?`)) return;
-            const nftData = JSON.parse(nftDataStr);
-            userData.nixcoin -= price;
-            await db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin });
-            if (!userData.nftCollection) userData.nftCollection = [];
-            userData.nftCollection.push({ ...nftData, from: nftData.sellerName, purchasedFromMarket: true });
-            await db.collection('users').doc(currentUser.uid).update({ nftCollection: userData.nftCollection });
-            const sellerRef = db.collection('users').doc(sellerId);
-            const sellerDoc = await sellerRef.get();
-            const sellerData = sellerDoc.data();
-            const updatedForSale = (sellerData.nftForSale || []).filter(n => n.id != nftId);
-            await sellerRef.update({ nftForSale: updatedForSale });
-            await sellerRef.update({ nixcoin: (sellerData.nixcoin || 0) + price });
-            document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin)} NIX`;
-            showToast(`✅ Вы купили "${nftName}" за ${price} NIX!`);
-            closeModal('marketplace-modal');
-            openProfileModal(currentUser.uid);
+        async function createChannel() {
+            const name = prompt('Введите название канала:');
+            const channelUsername = prompt('Введите @username канала:');
+            if (!name || !channelUsername) return;
+            const channelId = 'channel_' + Date.now();
+            await db.collection('chats').doc(channelId).set({
+                id: channelId,
+                type: 'channel',
+                name: name,
+                username: channelUsername,
+                creator: currentUser.uid,
+                subscribers: [currentUser.uid],
+                admins: [currentUser.uid],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showToast(`✅ Канал "${name}" создан!`);
+            closeModal('create-modal');
+            loadChats();
         }
 
-        function openSellNFT(nftId) {
-            const nft = userData.nftCollection.find(n => n.id == nftId);
-            if (!nft) return;
-            if (nft.onSale) { alert('❌ Этот NFT уже выставлен на продажу'); return; }
-            const currentValue = Math.floor(nft.basePrice * nixcoinRate);
-            document.getElementById('sell-nft-info').innerHTML = `
-                <div style="text-align:center;">
-                    <div style="font-size: 48px;">${nft.emoji}</div>
-                    <div><strong>${nft.name}</strong></div>
-                    <div>Текущая стоимость: ${currentValue} NIX</div>
-                    <div style="font-size: 12px;">≈ $${(currentValue * nixcoinRate).toFixed(2)} / ₽${Math.floor(currentValue * nixcoinRate * usdToRub)}</div>
-                </div>
-            `;
-            document.getElementById('sell-price').value = Math.floor(currentValue * 1.2);
-            document.getElementById('set-price-modal').dataset.nftId = nftId;
-            document.getElementById('set-price-modal').classList.add('active');
-        }
-
-        async function confirmSellNFT() {
-            const nftId = document.getElementById('set-price-modal').dataset.nftId;
-            const price = parseInt(document.getElementById('sell-price').value);
-            if (!price || price < 1) { alert('Введите корректную цену'); return; }
-            const nft = userData.nftCollection.find(n => n.id == nftId);
-            if (!nft) return;
-            userData.nftCollection = userData.nftCollection.filter(n => n.id != nftId);
-            if (!userData.nftForSale) userData.nftForSale = [];
-            userData.nftForSale.push({ ...nft, salePrice: price, onSale: true });
-            await db.collection('users').doc(currentUser.uid).update({ nftCollection: userData.nftCollection, nftForSale: userData.nftForSale });
-            showToast(`✅ NFT "${nft.name}" выставлен на продажу за ${price} NIX`);
-            closeModal('set-price-modal');
-            openProfileModal(currentUser.uid);
-        }
-
-        function openGiftSelectionModal() {
-            if (!currentChat) { showToast('❌ Выберите чат'); return; }
-            if (!userData.collection?.length) { alert('🎁 Нет подарков! Купите в магазине.'); openGiftsModal(); return; }
-            document.getElementById('send-gifts-list').innerHTML = userData.collection.map(g => `<div class="gift-card-shop regular-gift-bg" style="background: var(--card-bg); color: var(--text);" onclick="sendGiftToFriend(${g.id})"><div class="gift-emoji">${g.emoji}</div><div class="gift-name">${g.name}</div><div class="gift-price">${g.price} 💎</div></div>`).join('');
-            document.getElementById('send-gift-modal').classList.add('active');
-        }
-
-        function openNFTSelectionModal() {
-            if (!currentChat) { showToast('❌ Выберите чат'); return; }
-            if (!userData.nftCollection?.length) { alert('💎 Нет NFT! Купите в магазине.'); openNFTShop(); return; }
-            document.getElementById('send-gifts-list').innerHTML = userData.nftCollection.filter(n => !n.onSale).map(n => `<div class="gift-card-shop ${n.bgClass}" style="color: white;" onclick="sendNFTToFriend(${n.id})"><div class="gift-emoji ${n.animation}">${n.emoji}</div><div class="gift-name">${n.name}</div><div class="gift-price">${n.finalPrice} NIX</div><div style="font-size: 10px;">🎨 ${n.bgEmoji} +${n.bonus}%</div></div>`).join('');
-            document.getElementById('send-gift-modal').classList.add('active');
-        }
-
-        async function sendGiftToFriend(id) {
-            const gift = userData.collection.find(g => g.id === id);
-            if (!gift) return;
-            userData.collection = userData.collection.filter(g => g.id !== id);
-            const parts = currentChat.id.split('_');
-            const friendId = parts.find(p => p !== currentUser.uid);
-            const friend = await db.collection('users').doc(friendId).get();
-            const giftToSend = { ...gift, from: userData.name, receivedAt: Date.now() };
-            await db.collection('messages').add({ type: 'gift', gift: giftToSend, senderId: currentUser.uid, senderName: userData.name, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp(), redeemUntil: Date.now() + 60000, redeemed: false });
-            const friendGifts = friend.data().receivedGifts || [];
-            friendGifts.push(giftToSend);
-            await db.collection('users').doc(friendId).update({ receivedGifts: friendGifts });
-            await db.collection('users').doc(currentUser.uid).update({ collection: userData.collection });
-            showNotification(`Новый подарок!`, `${userData.name} подарил(а) вам ${gift.name}`, '🎁');
-            showToast(`✅ Подарок отправлен ${friend.data().name}!`);
-            closeModal('send-gift-modal');
-        }
-
-        async function sendNFTToFriend(id) {
-            const nft = userData.nftCollection.find(n => n.id === id);
-            if (!nft) return;
-            userData.nftCollection = userData.nftCollection.filter(n => n.id !== id);
-            const parts = currentChat.id.split('_');
-            const friendId = parts.find(p => p !== currentUser.uid);
-            const friend = await db.collection('users').doc(friendId).get();
-            const nftToSend = { ...nft, from: userData.name, receivedAt: Date.now() };
-            await db.collection('messages').add({ type: 'nft', gift: nftToSend, senderId: currentUser.uid, senderName: userData.name, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp(), redeemUntil: Date.now() + 60000, redeemed: false });
-            const friendNFTs = friend.data().receivedGifts || [];
-            friendNFTs.push(nftToSend);
-            await db.collection('users').doc(friendId).update({ receivedGifts: friendNFTs });
-            await db.collection('users').doc(currentUser.uid).update({ nftCollection: userData.nftCollection });
-            showNotification(`Новый NFT!`, `${userData.name} подарил(а) вам NFT "${nft.name}"`, '💎');
-            showToast(`✅ NFT отправлен ${friend.data().name}!`);
-            closeModal('send-gift-modal');
-        }
-
+        // ========== ОТПРАВКА СООБЩЕНИЙ ==========
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if (!text || !currentChat) return;
-            await db.collection('messages').add({ text, type: 'text', senderId: currentUser.uid, senderName: userData.name, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            await db.collection('messages').add({
+                text, type: 'text', senderId: currentUser.uid, senderName: userData.name, senderAvatar: userData.avatar,
+                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
             input.value = '';
         }
-        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
-        async function deleteMessage(msgId, el) { if (!confirm('Удалить у всех?')) return; if (el) el.classList.add('message-deleting'); await db.collection('messages').doc(msgId).delete(); showToast('✅ Удалено'); }
 
+        // ========== ГОЛОСОВЫЕ СООБЩЕНИЯ ==========
+        async function toggleRecording() {
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            if (isRecording) {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+                isRecording = false;
+                document.getElementById('recordBtn').classList.remove('recording-active');
+                document.getElementById('recordBtn').innerHTML = '🎙️';
+                showToast('⏹️ Запись остановлена');
+            } else {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioRef = storage.ref(`audio/${Date.now()}_${currentUser.uid}`);
+                        await audioRef.put(audioBlob);
+                        const url = await audioRef.getDownloadURL();
+                        await db.collection('messages').add({
+                            type: 'audio', audioUrl: url, senderId: currentUser.uid, senderName: userData.name,
+                            chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        stream.getTracks().forEach(t => t.stop());
+                        showToast('✅ Голосовое отправлено');
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    document.getElementById('recordBtn').classList.add('recording-active');
+                    document.getElementById('recordBtn').innerHTML = '⏹️';
+                    showToast('🔴 Запись...');
+                } catch (e) { showToast('❌ Нет доступа к микрофону'); }
+            }
+        }
+
+        // ========== ФОТО/ВИДЕО С ПРЕДПРОСМОТРОМ ==========
+        function openAttachMenu() {
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            document.getElementById('attach-modal').classList.add('active');
+        }
+
+        function showPreview(url, type, file) {
+            const preview = document.createElement('div');
+            preview.className = 'preview-container';
+            if (type === 'image') {
+                preview.innerHTML = `<img src="${url}" class="preview-img" onclick="this.parentElement.remove()"><div style="position:absolute; bottom:20px; display:flex; gap:10px;"><button class="modal-btn" onclick="sendMedia('${url}', 'image')">📤 Отправить</button><button class="modal-btn secondary" onclick="this.parentElement.parentElement.remove()">❌ Отмена</button></div>`;
+            } else {
+                preview.innerHTML = `<video src="${url}" class="preview-img" controls autoplay style="max-width:90%; max-height:90%;"></video><div style="position:absolute; bottom:20px; display:flex; gap:10px;"><button class="modal-btn" onclick="sendMedia('${url}', 'video')">📤 Отправить</button><button class="modal-btn secondary" onclick="this.parentElement.parentElement.remove()">❌ Отмена</button></div>`;
+            }
+            document.body.appendChild(preview);
+        }
+
+        let pendingFile = null;
+        let pendingFileType = null;
+
+        async function attachPhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    pendingFile = file;
+                    pendingFileType = 'image';
+                    showPreview(url, 'image', file);
+                }
+            };
+            input.click();
+            closeModal('attach-modal');
+        }
+
+        async function attachVideo() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    pendingFile = file;
+                    pendingFileType = 'video';
+                    showPreview(url, 'video', file);
+                }
+            };
+            input.click();
+            closeModal('attach-modal');
+        }
+
+        async function sendMedia(url, type) {
+            if (!pendingFile) return;
+            const storageRef = storage.ref(`${type}s/${Date.now()}_${currentUser.uid}`);
+            await storageRef.put(pendingFile);
+            const downloadUrl = await storageRef.getDownloadURL();
+            await db.collection('messages').add({
+                type: type, [`${type}Url`]: downloadUrl, senderId: currentUser.uid, senderName: userData.name,
+                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showToast(`📷 ${type === 'image' ? 'Фото' : 'Видео'} отправлено`);
+            document.querySelector('.preview-container')?.remove();
+            pendingFile = null;
+        }
+
+        // ========== ПОДАРКИ ==========
+        function openGiftModal() {
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            document.getElementById('gifts-list').innerHTML = gifts.map(g => `
+                <div class="gift-item" onclick="sendGift(${g.id})">
+                    <div style="font-size: 48px;">${g.emoji}</div>
+                    <div>${g.name}</div>
+                    <div>${g.price} 💎</div>
+                </div>
+            `).join('');
+            document.getElementById('gift-modal').classList.add('active');
+        }
+
+        async function sendGift(id) {
+            const gift = gifts.find(g => g.id === id);
+            if (userData.crystals < gift.price) { showToast('❌ Недостаточно кристаллов'); return; }
+            userData.crystals -= gift.price;
+            await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
+            await db.collection('messages').add({
+                type: 'gift', gift: gift, senderId: currentUser.uid, senderName: userData.name,
+                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('crystals').innerHTML = userData.crystals;
+            document.getElementById('profile-crystals').textContent = userData.crystals;
+            showToast(`✅ Подарок "${gift.name}" отправлен!`);
+            closeModal('gift-modal');
+        }
+
+        function buyCrystals(amount) { userData.crystals += amount; db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals }); document.getElementById('crystals').innerHTML = userData.crystals; closeModal('crystals-shop'); showToast(`💎 +${amount} кристаллов`); }
+        function buyNixCoin(amount) { userData.nixcoin += amount; db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin }); document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin; closeModal('nixcoin-shop'); showToast(`🪙 +${amount} NIX`); }
+
+        // ========== ЗАГРУЗКА СООБЩЕНИЙ ==========
         function loadMessages(chatId) {
             const area = document.getElementById('messages-area');
             db.collection('messages').where('chatId', '==', chatId).orderBy('timestamp', 'asc').onSnapshot(snap => {
-                if (snap.empty) { area.innerHTML = '<div style="text-align: center;">💬 Нет сообщений</div>'; return; }
+                if (snap.empty) { area.innerHTML = `<div style="text-align: center;">${translations[currentLang].noMessages}</div>`; return; }
                 area.innerHTML = '';
                 snap.forEach(doc => {
                     const m = doc.data();
                     const isMine = m.senderId === currentUser?.uid;
                     const div = document.createElement('div');
-                    if (m.type === 'gift' || m.type === 'nft') {
-                        const isNFT = m.type === 'nft';
-                        const gift = m.gift;
-                        const bgClass = isNFT ? (gift.bgClass || 'nft-bg-purple') : 'regular-gift-bg';
-                        const animation = isNFT && gift.animation ? gift.animation : '';
-                        const bgEmoji = isNFT && gift.bgEmoji ? gift.bgEmoji : '';
-                        const canRedeem = !m.redeemed && !isMine && Date.now() < m.redeemUntil;
-                        const left = Math.max(0, Math.floor((m.redeemUntil - Date.now()) / 1000));
-                        div.className = `message ${isMine ? 'out' : 'in'} gift-card ${bgClass}`;
-                        div.innerHTML = `${bgEmoji ? `<div class="bg-emoji">${bgEmoji}</div>` : ''}<div class="gift-card-content"><div class="gift-emoji-big ${animation}">${gift.emoji}</div><div class="gift-name-big">${gift.name}</div><div class="gift-price-big">${isNFT ? gift.finalPrice + ' NIX' : gift.price + ' 💎'}</div><div class="gift-sender">от ${m.senderName}</div>${canRedeem ? `<div class="gift-timer">⏱️ ${Math.floor(left/60)}:${(left%60).toString().padStart(2,'0')}</div>` : ''}${m.redeemed ? '<div>✅ Обменян</div>' : ''}</div>${isNFT ? '<div class="nft-badge">💎 NFT</div>' : ''}`;
-                        if (canRedeem) div.onclick = () => {
-                            showGiftDetail(doc.id, isNFT, gift.name, isNFT ? gift.finalPrice : gift.price, gift.emoji, gift.rarity, m.senderName, bgClass, bgEmoji, gift.bonus || 0);
-                        };
-                    } else {
-                        div.className = `message ${isMine ? 'out' : 'in'}`;
+                    div.className = `message ${isMine ? 'out' : 'in'}`;
+                    
+                    if (m.type === 'text') {
                         div.innerHTML = `<div>${m.text}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                    } else if (m.type === 'image') {
+                        div.innerHTML = `<div><img src="${m.imageUrl}" class="message-media" onclick="window.open('${m.imageUrl}')"></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                    } else if (m.type === 'video') {
+                        div.innerHTML = `<div><video src="${m.videoUrl}" class="message-media" controls></video></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                    } else if (m.type === 'audio') {
+                        div.innerHTML = `<div><audio src="${m.audioUrl}" class="message-audio" controls></audio></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                    } else if (m.type === 'gift') {
+                        div.innerHTML = `<div style="text-align:center;"><div style="font-size: 48px;">${m.gift.emoji}</div><div><strong>${m.gift.name}</strong></div><div>Подарок от ${m.senderName}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div></div>`;
                     }
-                    if (isMine) { const del = document.createElement('button'); del.className = 'delete-message-btn'; del.innerHTML = '🗑️'; del.onclick = (e) => { e.stopPropagation(); deleteMessage(doc.id, div); }; div.appendChild(del); }
+                    
+                    if (isMine) {
+                        const del = document.createElement('button');
+                        del.className = 'delete-message-btn';
+                        del.innerHTML = '🗑️';
+                        del.onclick = async () => { if (confirm('Удалить?')) await db.collection('messages').doc(doc.id).delete(); };
+                        div.appendChild(del);
+                    }
                     area.appendChild(div);
                 });
                 area.scrollTop = area.scrollHeight;
             });
-            setupMessageNotifications(chatId, document.getElementById('chat-name').textContent);
         }
 
-        async function findUserByUsername() {
-            const un = prompt('Введите @username:');
-            if (!un) return;
-            const snap = await db.collection('users').where('username', '==', un).get();
-            if (snap.empty) { alert('❌ Не найден'); return; }
-            const user = snap.docs[0];
-            if (user.id === currentUser.uid) { alert('Это вы'); return; }
-            const chatId = currentUser.uid < user.id ? currentUser.uid + '_' + user.id : user.id + '_' + currentUser.uid;
-            await db.collection('chats').doc(chatId).set({ participants: [currentUser.uid, user.id], updatedAt: Date.now() }, { merge: true });
-            showToast(`✅ Чат с ${user.data().name} создан`);
-            loadContacts();
+        // ========== ЧАТЫ ==========
+        async function loadChats() {
+            const chatsRef = db.collection('chats').where('participants', 'array-contains', currentUser.uid);
+            chatsRef.onSnapshot(async (snapshot) => {
+                const chats = [];
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    let name = data.name;
+                    let avatar = null;
+                    if (data.type === 'group') {
+                        name = data.name;
+                    } else if (data.type === 'channel') {
+                        name = data.name;
+                    } else {
+                        const otherId = data.participants.find(p => p !== currentUser.uid);
+                        const user = await db.collection('users').doc(otherId).get();
+                        name = user.data()?.name;
+                        avatar = user.data()?.avatar;
+                    }
+                    const lastMsg = await db.collection('messages').where('chatId', '==', doc.id).orderBy('timestamp', 'desc').limit(1).get();
+                    let lastMessage = '', lastTime = '';
+                    if (!lastMsg.empty) {
+                        const msg = lastMsg.docs[0].data();
+                        lastMessage = msg.type === 'gift' ? `🎁 Подарок: ${msg.gift.name}` : msg.text || (msg.type === 'image' ? '📷 Фото' : msg.type === 'video' ? '🎥 Видео' : msg.type === 'audio' ? '🎙️ Голосовое' : '');
+                        lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                    }
+                    chats.push({ id: doc.id, name, avatar, lastMessage, lastTime });
+                }
+                renderChatsList(chats);
+            });
+        }
+
+        function renderChatsList(chats) {
+            const container = document.getElementById('items-list');
+            if (!container) return;
+            if (chats.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center;">Нет чатов</div>';
+                return;
+            }
+            container.innerHTML = chats.map(chat => `
+                <div class="chat-item" onclick="openChat('${chat.id}', '${chat.name}')">
+                    <div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.name ? chat.name[0] : '?')}</div>
+                    <div class="item-info"><div class="item-name">${chat.name}</div><div class="item-last-message">${chat.lastMessage || 'Нет сообщений'}</div></div>
+                    <div class="item-time">${chat.lastTime || ''}</div>
+                </div>
+            `).join('');
+        }
+
+        async function openChat(id, name) {
+            currentChat = { id, name };
+            document.getElementById('chat-name').textContent = name;
+            document.getElementById('input-area').style.display = 'block';
+            loadMessages(id);
+            if (window.innerWidth <= 768) closeSidebar();
+        }
+
+        // ========== КОНТАКТЫ ==========
+        async function findUser() {
+            const query = prompt('Введите @username или название канала:');
+            if (!query) return;
+            const users = await db.collection('users').where('username', '==', query).get();
+            if (!users.empty) {
+                const user = users.docs[0];
+                const chatId = currentUser.uid < user.id ? currentUser.uid + '_' + user.id : user.id + '_' + currentUser.uid;
+                await db.collection('chats').doc(chatId).set({ participants: [currentUser.uid, user.id], type: 'private', updatedAt: Date.now() }, { merge: true });
+                showToast(`✅ Чат с ${user.data().name} создан`);
+            } else {
+                const channels = await db.collection('chats').where('username', '==', query).where('type', '==', 'channel').get();
+                if (!channels.empty) {
+                    const channel = channels.docs[0];
+                    const subscribers = channel.data().subscribers || [];
+                    if (!subscribers.includes(currentUser.uid)) subscribers.push(currentUser.uid);
+                    await db.collection('chats').doc(channel.id).update({ subscribers });
+                    showToast(`✅ Вы подписались на канал ${channel.data().name}`);
+                } else {
+                    alert('❌ Не найдено');
+                }
+            }
+            loadChats();
         }
 
         async function loadContacts() {
             const users = await db.collection('users').get();
             const list = users.docs.filter(d => d.id !== currentUser?.uid).map(d => ({ id: d.id, ...d.data() }));
-            const div = document.getElementById('items-list');
-            if (!list.length) { div.innerHTML = '<div style="padding: 20px;">Нет контактов</div>'; return; }
-            div.innerHTML = list.map(c => `<div class="chat-item" onclick="openChatWithContact('${c.id}', '${c.name}')"><div class="item-avatar">${(c.name || '?')[0]}</div><div><div class="item-name">${c.name}</div><div>@${c.username || 'user'}</div></div></div>`).join('');
+            const container = document.getElementById('items-list');
+            container.innerHTML = list.map(c => `
+                <div class="chat-item" onclick="openChatWithContact('${c.id}', '${c.name}')">
+                    <div class="item-avatar">${c.avatar ? `<img src="${c.avatar}" class="item-avatar-img">` : (c.name ? c.name[0] : '?')}</div>
+                    <div><div class="item-name">${c.name}</div><div>@${c.username || 'user'}</div></div>
+                </div>
+            `).join('');
         }
 
         async function openChatWithContact(id, name) {
             const chatId = currentUser.uid < id ? currentUser.uid + '_' + id : id + '_' + currentUser.uid;
-            currentChat = { id: chatId, name, userId: id };
-            document.getElementById('chat-name').textContent = name;
-            document.getElementById('input-area').style.display = 'block';
-            setActiveChat(chatId);
-            loadMessages(chatId);
-            if (window.innerWidth <= 768) closeSidebar();
+            await db.collection('chats').doc(chatId).set({ participants: [currentUser.uid, id], type: 'private', updatedAt: Date.now() }, { merge: true });
+            openChat(chatId, name);
         }
 
-        function setTheme(t) { document.body.className = `theme-${t}`; closeModal('settings-modal'); }
-        function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
+        // ========== ЗВОНКИ ==========
+        function startCall() { showToast('📞 Звонок (WebRTC)'); }
+
+        // ========== ИНТЕРФЕЙС ==========
+        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); }
+        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             if (tab === 'contacts') loadContacts();
-            else if (tab === 'shop') document.getElementById('items-list').innerHTML = `<div style="padding:20px;"><button class="modal-btn" onclick="openGiftsModal()">🎁 Обычные подарки (30 шт)</button><button class="modal-btn" onclick="openNFTShop()">💎 NFT подарки (16 шт)</button><button class="modal-btn" onclick="openCrystalsShop()">💎 Купить кристаллы</button><button class="modal-btn" onclick="openNixCoinShop()">🪙 Купить NixCoin</button></div>`;
-            else if (tab === 'marketplace') openMarketplace();
-            else document.getElementById('items-list').innerHTML = '<div style="padding:20px;">Чаты</div>';
+            else if (tab === 'channels') document.getElementById('items-list').innerHTML = '<div style="padding:20px;">📢 Каналы появятся после подписки</div>';
+            else loadChats();
         }
+
+        // ========== ЗАПУСК ==========
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) document.body.className = `theme-${savedTheme}`;
+        const savedLang = localStorage.getItem('language');
+        if (savedLang) setLanguage(savedLang);
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -1682,48 +1222,49 @@
                 const doc = await db.collection('users').doc(user.uid).get();
                 if (doc.exists) {
                     userData = doc.data();
-                    document.getElementById('user-name').textContent = userData.name || 'Пользователь';
-                    document.getElementById('user-avatar').textContent = (userData.name || 'Н')[0];
-                    document.getElementById('crystals').innerHTML = `💎 ${Math.floor(userData.crystals || 0)}`;
-                    document.getElementById('nixcoin-balance').innerHTML = `🪙 ${Math.floor(userData.nixcoin || 0)} NIX`;
-                } else {
-                    await db.collection('users').doc(user.uid).set({ 
-                        name: user.email?.split('@')[0] || 'Пользователь', email: user.email, crystals: 500, nixcoin: 0,
-                        collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], username: '', bio: '', avatar: '👤' 
-                    });
-                    userData = { name: user.email?.split('@')[0] || 'Пользователь', crystals: 500, nixcoin: 0, collection: [], receivedGifts: [], nftCollection: [], nftForSale: [], avatar: '👤' };
-                    document.getElementById('crystals').innerHTML = `💎 500`;
-                    document.getElementById('nixcoin-balance').innerHTML = `🪙 0 NIX`;
                     document.getElementById('user-name').textContent = userData.name;
-                    document.getElementById('user-avatar').textContent = (userData.name || 'Н')[0];
+                    document.getElementById('crystals').innerHTML = userData.crystals || 0;
+                    document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin || 0;
+                    if (userData.avatar) {
+                        document.getElementById('user-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                    }
+                } else {
+                    await db.collection('users').doc(user.uid).set({ name: user.email?.split('@')[0], email: user.email, crystals: 500, nixcoin: 0 });
+                    userData = { name: user.email?.split('@')[0], crystals: 500, nixcoin: 0 };
                 }
                 document.getElementById('input-area').style.display = 'block';
-                loadContacts();
-                startRateUpdates();
-                listenForIncomingCalls();
+                loadChats();
+                
+                // Сохраняем сессию устройства
+                let userAgent = navigator.userAgent;
+                let deviceName = 'Неизвестное устройство';
+                if (userAgent.includes('iPhone')) deviceName = 'iPhone';
+                else if (userAgent.includes('Android')) deviceName = 'Android';
+                else if (userAgent.includes('Windows')) deviceName = 'Windows PC';
+                else if (userAgent.includes('Mac')) deviceName = 'MacBook';
+                await db.collection('sessions').add({ userId: user.uid, device: deviceName, userAgent: userAgent, lastActive: new Date() });
             }
         });
 
         window.toggleSidebar = toggleSidebar; window.closeSidebar = closeSidebar; window.openProfileModal = openProfileModal;
-        window.openSettings = openSettings; window.switchTab = switchTab; window.findUserByUsername = findUserByUsername;
-        window.openGiftsModal = openGiftsModal; window.openNFTShop = openNFTShop; window.openCrystalsShop = openCrystalsShop;
-        window.openNixCoinShop = openNixCoinShop; window.buyRegularGift = buyRegularGift; window.buyNFTGift = buyNFTGift;
-        window.buyCrystals = buyCrystals; window.buyNixCoin = buyNixCoin; window.openGiftSelectionModal = openGiftSelectionModal;
-        window.sendGiftToFriend = sendGiftToFriend; window.sendNFTToFriend = sendNFTToFriend;
-        window.sendMessage = sendMessage; window.handleKeyPress = handleKeyPress; window.setTheme = setTheme;
-        window.activatePromo = activatePromo; window.closeModal = closeModal; window.startProfileEdit = startProfileEdit;
-        window.saveProfileEdit = saveProfileEdit; window.cancelProfileEdit = cancelProfileEdit; window.selectAvatar = selectAvatar;
-        window.showGiftDetail = showGiftDetail; window.redeemGiftFromDetail = redeemGiftFromDetail;
-        window.openChartModal = openChartModal; window.openMarketplace = openMarketplace; window.openSellNFT = openSellNFT;
-        window.confirmSellNFT = confirmSellNFT; window.buyFromMarketplace = buyFromMarketplace;
-        window.showNotification = showNotification; window.showRegisterForm = showRegisterForm; window.showLoginForm = showLoginForm;
-        window.register = register; window.login = login;
-        
-        // Функции звонков
-        window.startCall = startCall;
-        window.endCall = endCall;
-        window.toggleMute = toggleMute;
-        window.toggleCamera = toggleCamera;
+        window.openSettings = openSettings; window.switchTab = switchTab; window.findUser = findUser;
+        window.openCrystalsShop = openCrystalsShop; window.openNixCoinShop = openNixCoinShop;
+        window.buyCrystals = buyCrystals; window.buyNixCoin = buyNixCoin;
+        window.sendMessage = sendMessage; window.handleKeyPress = handleKeyPress;
+        window.setTheme = setTheme; window.openThemeSettings = openThemeSettings;
+        window.openDevices = openDevices; window.showCreateMenu = showCreateMenu;
+        window.createGroup = createGroup; window.createChannel = createChannel;
+        window.toggleRecording = toggleRecording; window.openAttachMenu = openAttachMenu;
+        window.attachPhoto = attachPhoto; window.attachVideo = attachVideo;
+        window.openGiftModal = openGiftModal; window.sendGift = sendGift;
+        window.openChat = openChat; window.openChatWithContact = openChatWithContact;
+        window.changeAvatar = changeAvatar; window.saveProfile = saveProfile;
+        window.showRegisterForm = showRegisterForm; window.showLoginForm = showLoginForm;
+        window.register = register; window.login = login; window.closeModal = closeModal;
+        window.sendMedia = sendMedia; window.openLanguageSettings = openLanguageSettings;
+        window.setLanguage = setLanguage; window.openPrivacy = openPrivacy; window.openAbout = openAbout;
+        window.openNotificationsSettings = openNotificationsSettings; window.openDataSettings = openDataSettings;
+        window.openPremium = openPremium; window.openHelp = openHelp; window.openChatInfo = openChatInfo;
     </script>
 </body>
 </html>
