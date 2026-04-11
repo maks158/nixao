@@ -117,7 +117,8 @@
         .encrypted-badge { font-size: 10px; opacity: 0.6; margin-left: 5px; }
         .reaction-btn { background: none; border: none; font-size: 16px; cursor: pointer; margin: 0 2px; padding: 2px 6px; border-radius: 20px; transition: 0.2s; }
         .reaction-btn:hover { background: var(--border); }
-        .member-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border); }
+        .member-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .member-item:hover { background: var(--border); }
         .admin-badge { background: gold; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; }
         .remove-member-btn { background: #ff4444; color: white; border: none; border-radius: 20px; padding: 4px 12px; cursor: pointer; font-size: 12px; }
         .subscribe-btn { background: var(--accent); color: white; border: none; border-radius: 20px; padding: 8px 16px; cursor: pointer; margin-top: 10px; }
@@ -335,10 +336,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 
     <script>
-        // ========== ШИФРОВАНИЕ ==========
+        // ========== ШИФРОВАНИЕ AES-256 ==========
         const SECRET_KEY = 'nixao_super_secret_key_2024';
         
         function encryptText(text) {
@@ -379,13 +379,13 @@
         let recordingStartTime = null;
         let recordingTimerInterval = null;
 
-        // Переменные для звонков
-        let peer = null;
-        let currentCall = null;
+        // Переменные для звонков (WebRTC через Firebase)
         let localStream = null;
+        let peerConnection = null;
         let callTimerInterval = null;
         let callStartTime = null;
-        let currentTargetUserId = null;
+        let currentCallDocId = null;
+        let callRingInterval = null;
 
         // Статус собеседника
         let targetUserStatus = { online: false, lastSeen: null };
@@ -508,68 +508,27 @@
         // ========== УДАЛЕНИЕ АККАУНТА ==========
         async function deleteAccount() {
             if (!confirm('⚠️ ВНИМАНИЕ! Это действие необратимо.\n\nВы уверены, что хотите удалить свой аккаунт?\nВсе ваши сообщения, чаты и данные будут безвозвратно удалены.')) return;
-            
-            if (!confirm('Еще раз подтвердите: введите свой email для подтверждения:\n\n' + currentUser.email)) {
-                showToast('❌ Удаление отменено');
-                return;
-            }
-            
+            if (!confirm('Еще раз подтвердите: введите свой email для подтверждения:\n\n' + currentUser.email)) { showToast('❌ Удаление отменено'); return; }
             try {
                 showToast('🗑️ Удаление аккаунта...');
-                
-                // Удаляем все сообщения пользователя
                 const messages = await db.collection('messages').where('senderId', '==', currentUser.uid).get();
-                for (const doc of messages.docs) {
-                    await doc.ref.delete();
-                }
-                
-                // Удаляем все чаты пользователя
+                for (const doc of messages.docs) await doc.ref.delete();
                 const chats1 = await db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
                 const chats2 = await db.collection('chats').where('members', 'array-contains', currentUser.uid).get();
                 const chats3 = await db.collection('chats').where('subscribers', 'array-contains', currentUser.uid).get();
-                
                 for (const doc of [...chats1.docs, ...chats2.docs, ...chats3.docs]) {
                     const data = doc.data();
-                    if (data.type === 'private') {
-                        await doc.ref.delete();
-                    } else if (data.type === 'group') {
-                        // Удаляем пользователя из группы
-                        await doc.ref.update({
-                            members: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
-                        });
-                    } else if (data.type === 'channel') {
-                        // Отписываем от канала
-                        await doc.ref.update({
-                            subscribers: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
-                        });
-                    }
+                    if (data.type === 'private') await doc.ref.delete();
+                    else if (data.type === 'group') await doc.ref.update({ members: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) });
+                    else if (data.type === 'channel') await doc.ref.update({ subscribers: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) });
                 }
-                
-                // Удаляем документ пользователя
                 await db.collection('users').doc(currentUser.uid).delete();
-                
-                // Удаляем сессии
                 const sessions = await db.collection('sessions').where('userId', '==', currentUser.uid).get();
-                for (const doc of sessions.docs) {
-                    await doc.ref.delete();
-                }
-                
-                // Удаляем аккаунт из Firebase Auth
+                for (const doc of sessions.docs) await doc.ref.delete();
                 await currentUser.delete();
-                
                 showToast('✅ Аккаунт успешно удален');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Ошибка удаления:', error);
-                if (error.code === 'auth/requires-recent-login') {
-                    showToast('❌ Для безопасности требуется повторный вход. Выйдите и зайдите снова.');
-                } else {
-                    showToast('❌ Ошибка удаления: ' + error.message);
-                }
-            }
+                setTimeout(() => { window.location.reload(); }, 1500);
+            } catch (error) { console.error(error); showToast('❌ Ошибка удаления: ' + error.message); }
         }
 
         // ========== ОТКРЫТИЕ ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ ==========
@@ -578,28 +537,20 @@
         async function openUserProfile(userId) {
             currentProfileUserId = userId;
             const userDoc = await db.collection('users').doc(userId).get();
-            if (!userDoc.exists) {
-                showToast('❌ Пользователь не найден');
-                return;
-            }
-            
+            if (!userDoc.exists) { showToast('❌ Пользователь не найден'); return; }
             const user = userDoc.data();
             const t = translations[currentLang];
             const isContact = userData.contacts && userData.contacts.includes(user.username);
-            
             document.getElementById('user-profile-name').textContent = user.name || 'Пользователь';
             document.getElementById('user-profile-username').textContent = user.username || '@username';
             document.getElementById('user-profile-bio').textContent = user.bio || 'Нет информации о себе';
-            
             const isOnline = user.onlineStatus === true;
             document.getElementById('user-profile-status').innerHTML = `<span class="${isOnline ? 'online-dot' : 'offline-dot'}"></span> ${isOnline ? t.online : t.offline}`;
-            
             if (user.avatar) {
                 document.getElementById('user-profile-avatar').innerHTML = `<img src="${user.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
             } else {
                 document.getElementById('user-profile-avatar').innerHTML = '👤';
             }
-            
             const addBtn = document.getElementById('add-contact-from-profile');
             if (isContact) {
                 addBtn.textContent = '✅ В контактах';
@@ -613,35 +564,21 @@
                 addBtn.style.opacity = '1';
                 addBtn.style.display = 'block';
             }
-            
             document.getElementById('user-profile-modal').classList.add('active');
         }
         
         async function addContactFromProfile() {
             if (!currentProfileUserId) return;
-            
             const userDoc = await db.collection('users').doc(currentProfileUserId).get();
             if (!userDoc.exists) return;
-            
             const user = userDoc.data();
             const username = user.username;
-            
-            if (!username) {
-                showToast('❌ У пользователя нет username');
-                return;
-            }
-            
+            if (!username) { showToast('❌ У пользователя нет username'); return; }
             const contacts = userData.contacts || [];
-            if (contacts.includes(username)) {
-                showToast('ℹ️ Пользователь уже в контактах');
-                closeModal('user-profile-modal');
-                return;
-            }
-            
+            if (contacts.includes(username)) { showToast('ℹ️ Пользователь уже в контактах'); closeModal('user-profile-modal'); return; }
             contacts.push(username);
             await db.collection('users').doc(currentUser.uid).update({ contacts: contacts });
             userData.contacts = contacts;
-            
             showToast(`✅ ${user.name} добавлен в контакты`);
             closeModal('user-profile-modal');
             loadChats();
@@ -662,7 +599,7 @@
                 const user = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(user.user.uid).set({
                     name, email, username, crystals: 500, nixcoin: 0, avatar: null, bio: '', contacts: [],
-                    onlineStatus: true, readReceipts: true, autoDelete: 0, peerId: user.user.uid,
+                    onlineStatus: true, readReceipts: true, autoDelete: 0,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 showToast('✅ Регистрация успешна!');
@@ -797,7 +734,6 @@
             if (!userQuery.empty) {
                 const user = userQuery.docs[0];
                 if (user.id !== currentUser.uid) {
-                    // Показываем профиль пользователя перед началом чата
                     openUserProfile(user.id);
                 } else {
                     showToast('❌ Это вы');
@@ -833,7 +769,6 @@
         function updateChatStatusDisplay() {
             const statusDiv = document.getElementById('chat-status');
             if (!statusDiv) return;
-            
             const t = translations[currentLang];
             if (targetUserStatus.online) {
                 statusDiv.innerHTML = `<span class="online-dot"></span> ${t.online}`;
@@ -869,7 +804,7 @@
                     <div style="text-align: center; margin-bottom: 20px;"><div class="avatar" style="width: 80px; height: 80px; margin: 0 auto; font-size: 40px;">👥</div><h3>${escapeHtml(currentChatData.name)}</h3><div style="color: var(--text-secondary);">Группа</div></div>
                     <div><strong>📊 Участники (${memberList.length})</strong></div>
                     <div id="members-list" style="max-height: 300px; overflow-y: auto; margin: 10px 0;">
-                        ${memberList.map(m => `<div class="member-item" onclick="openUserProfile('${m.uid}')" style="cursor: pointer;"><span>${escapeHtml(m.name)} ${m.isAdmin ? '<span class="admin-badge">Админ</span>' : ''}</span>${isAdmin && m.uid !== currentUser.uid && m.uid !== currentChatData.creatorId ? `<button class="remove-member-btn" onclick="event.stopPropagation(); removeMemberFromGroup('${m.uid}')">Удалить</button>` : ''}</div>`).join('')}
+                        ${memberList.map(m => `<div class="member-item" onclick="openUserProfile('${m.uid}')"><span>${escapeHtml(m.name)} ${m.isAdmin ? '<span class="admin-badge">Админ</span>' : ''}</span>${isAdmin && m.uid !== currentUser.uid && m.uid !== currentChatData.creatorId ? `<button class="remove-member-btn" onclick="event.stopPropagation(); removeMemberFromGroup('${m.uid}')">Удалить</button>` : ''}</div>`).join('')}
                     </div>
                     ${isAdmin ? `<button class="modal-btn" onclick="openAddMemberModal()">➕ Добавить участника</button>` : ''}
                     ${isAdmin ? `<button class="modal-btn" onclick="changeGroupName()">✏️ Изменить название</button>` : ''}
@@ -976,48 +911,61 @@
             }
         }
 
-        // ========== АУДИОЗВОНКИ (WebRTC) - ИСПРАВЛЕНО ==========
+        // ========== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ID ЧАТА ==========
+        function getPrivateChatId(uid1, uid2) {
+            return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+        }
+
+        // ========== АУДИОЗВОНКИ (WebRTC через Firebase) ==========
         
-        async function initPeer() {
-            if (peer) return;
+        // Конфигурация ICE серверов
+        const iceServers = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' }
+            ]
+        };
+        
+        // Слушатель входящих звонков
+        let callListenerUnsubscribe = null;
+        
+        function startCallListener() {
+            if (callListenerUnsubscribe) callListenerUnsubscribe();
             
-            const peerId = currentUser.uid;
-            
-            peer = new Peer(peerId, {
-                debug: 2,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' },
-                        { urls: 'stun:stun2.l.google.com:19302' }
-                    ]
-                }
-            });
-            
-            peer.on('open', (id) => {
-                console.log('PeerJS подключен, ID:', id);
-                db.collection('users').doc(currentUser.uid).update({ peerId: id });
-            });
-            
-            peer.on('call', async (call) => {
-                console.log('Входящий звонок от:', call.peer);
-                playCallSound();
-                
-                const callerDoc = await db.collection('users').doc(call.peer).get();
-                const callerName = callerDoc.exists ? callerDoc.data().name : 'Пользователь';
-                const callerAvatar = callerDoc.exists ? callerDoc.data().avatar : null;
-                
-                showIncomingCallUI(call, callerName, callerAvatar);
-            });
-            
-            peer.on('error', (err) => {
-                console.error('PeerJS ошибка:', err);
-            });
+            callListenerUnsubscribe = db.collection('calls')
+                .where('to', '==', currentUser.uid)
+                .where('status', '==', 'ringing')
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach(async (change) => {
+                        if (change.type === 'added') {
+                            const callData = change.doc.data();
+                            console.log('Входящий звонок от:', callData.from);
+                            
+                            // Получаем информацию о звонящем
+                            const callerDoc = await db.collection('users').doc(callData.from).get();
+                            const callerName = callerDoc.exists ? callerDoc.data().name : 'Пользователь';
+                            const callerAvatar = callerDoc.exists ? callerDoc.data().avatar : null;
+                            
+                            // Показываем UI входящего звонка
+                            showIncomingCallUI(change.doc.id, callData.from, callerName, callerAvatar);
+                        }
+                    });
+                });
         }
         
-        function showIncomingCallUI(call, callerName, callerAvatar) {
+        function showIncomingCallUI(callId, fromUserId, callerName, callerAvatar) {
+            // Удаляем старый UI если есть
             const oldOverlay = document.querySelector('.call-overlay');
             if (oldOverlay) oldOverlay.remove();
+            
+            // Останавливаем звук звонка через интервал
+            if (callRingInterval) clearInterval(callRingInterval);
+            callRingInterval = setInterval(() => {
+                playCallSound();
+            }, 2000);
             
             const overlay = document.createElement('div');
             overlay.className = 'call-overlay ringing';
@@ -1027,53 +975,125 @@
                     <div class="call-name">${escapeHtml(callerName)}</div>
                     <div class="call-status">📞 Входящий звонок...</div>
                     <div class="call-buttons">
-                        <button class="call-btn call-accept" onclick="acceptCall()">✅</button>
-                        <button class="call-btn call-decline" onclick="declineCall()">❌</button>
+                        <button class="call-btn call-accept" onclick="acceptCall('${callId}', '${fromUserId}')">✅</button>
+                        <button class="call-btn call-decline" onclick="declineCall('${callId}')">❌</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(overlay);
-            window.pendingCall = call;
+            
+            window.currentIncomingCallId = callId;
+            window.currentIncomingCallerId = fromUserId;
         }
         
-        window.acceptCall = async function() {
-            const call = window.pendingCall;
-            if (!call) return;
+        window.acceptCall = async function(callId, fromUserId) {
+            // Останавливаем звук звонка
+            if (callRingInterval) clearInterval(callRingInterval);
             
+            // Убираем UI
             const overlay = document.querySelector('.call-overlay');
             if (overlay) overlay.remove();
             
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                call.answer(localStream);
-                currentCall = call;
-                
-                call.on('stream', (remoteStream) => {
-                    const audio = new Audio();
-                    audio.srcObject = remoteStream;
-                    audio.play().catch(e => console.log('Ошибка воспроизведения', e));
+                // Обновляем статус звонка
+                await db.collection('calls').doc(callId).update({
+                    status: 'connected',
+                    acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                call.on('close', () => { endCallUI(); });
+                // Создаем PeerConnection
+                peerConnection = new RTCPeerConnection(iceServers);
                 
-                showActiveCallUI(call.peer);
+                // Получаем локальный аудиопоток
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+                
+                // Обработка удаленного потока
+                peerConnection.ontrack = (event) => {
+                    const remoteAudio = new Audio();
+                    remoteAudio.srcObject = event.streams[0];
+                    remoteAudio.play().catch(e => console.log('Audio play error:', e));
+                };
+                
+                // Обработка ICE кандидатов
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        db.collection('calls').doc(callId).collection('candidates').add({
+                            candidate: event.candidate,
+                            type: 'answer',
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                };
+                
+                // Слушаем предложения от звонящего
+                const offerSnapshot = await db.collection('calls').doc(callId).collection('offers').get();
+                for (const doc of offerSnapshot.docs) {
+                    const offer = doc.data();
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    await db.collection('calls').doc(callId).collection('answers').add({
+                        answer: answer,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Слушаем ответы
+                const answersListener = db.collection('calls').doc(callId).collection('answers')
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach(async (change) => {
+                            if (change.type === 'added') {
+                                const answer = change.doc.data();
+                                if (answer.answer && !peerConnection.currentRemoteDescription) {
+                                    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer.answer));
+                                }
+                            }
+                        });
+                    });
+                
+                // Слушаем ICE кандидаты
+                const candidatesListener = db.collection('calls').doc(callId).collection('candidates')
+                    .where('type', '==', 'offer')
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach(async (change) => {
+                            if (change.type === 'added') {
+                                const candidate = change.doc.data();
+                                if (candidate.candidate) {
+                                    try {
+                                        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate.candidate));
+                                    } catch(e) { console.log('ICE candidate error:', e); }
+                                }
+                            }
+                        });
+                    });
+                
+                // Показываем UI активного звонка
+                showActiveCallUI();
+                
+                // Сохраняем слушателей для закрытия
+                window.currentCallListeners = { answersListener, candidatesListener };
+                
             } catch (err) {
-                console.error('Ошибка при ответе:', err);
-                showToast('❌ Не удалось получить доступ к микрофону');
+                console.error('Ошибка при ответе на звонок:', err);
+                showToast('❌ Не удалось ответить на звонок');
+                // Отмечаем звонок как завершенный
+                await db.collection('calls').doc(callId).update({ status: 'ended' });
             }
-            window.pendingCall = null;
         };
         
-        window.declineCall = function() {
-            const call = window.pendingCall;
-            if (call) call.close();
+        window.declineCall = async function(callId) {
+            if (callRingInterval) clearInterval(callRingInterval);
             const overlay = document.querySelector('.call-overlay');
             if (overlay) overlay.remove();
+            
+            await db.collection('calls').doc(callId).update({ status: 'declined' });
             showToast('📞 Звонок отклонен');
-            window.pendingCall = null;
         };
         
-        function showActiveCallUI(peerId) {
+        function showActiveCallUI() {
             const oldOverlay = document.querySelector('.call-overlay');
             if (oldOverlay) oldOverlay.remove();
             
@@ -1103,22 +1123,35 @@
             }, 1000);
         }
         
-        function endCallUI() {
-            const overlay = document.querySelector('.call-overlay');
-            if (overlay) overlay.remove();
-            if (callTimerInterval) clearInterval(callTimerInterval);
+        async function endCall() {
+            // Закрываем соединение
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
             }
-            currentCall = null;
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            
+            // Закрываем слушателей
+            if (window.currentCallListeners) {
+                if (window.currentCallListeners.answersListener) window.currentCallListeners.answersListener();
+                if (window.currentCallListeners.candidatesListener) window.currentCallListeners.candidatesListener();
+                window.currentCallListeners = null;
+            }
+            
+            // Обновляем статус звонка если есть ID
+            if (currentCallDocId) {
+                await db.collection('calls').doc(currentCallDocId).update({ status: 'ended' });
+                currentCallDocId = null;
+            }
+            
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
             showToast('📞 Звонок завершен');
         }
-        
-        window.endCall = function() {
-            if (currentCall) currentCall.close();
-            endCallUI();
-        };
         
         window.toggleMute = function() {
             if (localStream) {
@@ -1148,7 +1181,7 @@
                 return;
             }
             
-            // Обновляем статус собеседника перед звонком
+            // Проверяем статус собеседника
             const targetUserDoc = await db.collection('users').doc(targetUserId).get();
             const targetUserData = targetUserDoc.data();
             
@@ -1157,78 +1190,200 @@
                 return;
             }
             
-            // Получаем peerId
-            let targetPeerId = targetUserData.peerId;
-            
-            // Если peerId нет, пробуем создать новый
-            if (!targetPeerId) {
-                showToast('⏳ Ожидание готовности собеседника...');
-                // Ждем немного
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                const updatedDoc = await db.collection('users').doc(targetUserId).get();
-                targetPeerId = updatedDoc.data()?.peerId;
-                if (!targetPeerId) {
-                    showToast('❌ Собеседник не готов к звонку');
-                    return;
-                }
-            }
-            
             try {
-                await initPeer();
+                // Создаем документ звонка
+                const callDoc = await db.collection('calls').add({
+                    from: currentUser.uid,
+                    to: targetUserId,
+                    status: 'ringing',
+                    startedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                currentCallDocId = callDoc.id;
+                
+                // Показываем UI исходящего звонка
+                showOutgoingCallUI(targetUserData.name);
+                
+                // Создаем PeerConnection
+                peerConnection = new RTCPeerConnection(iceServers);
+                
+                // Получаем локальный аудиопоток
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                const call = peer.call(targetPeerId, localStream);
-                currentCall = call;
-                
-                call.on('stream', (remoteStream) => {
-                    const audio = new Audio();
-                    audio.srcObject = remoteStream;
-                    audio.play().catch(e => console.log('Ошибка воспроизведения', e));
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
                 });
                 
-                call.on('close', () => { endCallUI(); });
-                call.on('error', (err) => {
-                    console.error('Ошибка звонка:', err);
-                    if (err.type === 'peer-unavailable') {
-                        showToast('❌ Собеседник не отвечает');
-                    } else {
-                        showToast('❌ Ошибка соединения');
+                // Обработка удаленного потока
+                peerConnection.ontrack = (event) => {
+                    const remoteAudio = new Audio();
+                    remoteAudio.srcObject = event.streams[0];
+                    remoteAudio.play().catch(e => console.log('Audio play error:', e));
+                };
+                
+                // Обработка ICE кандидатов
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        db.collection('calls').doc(callDoc.id).collection('candidates').add({
+                            candidate: event.candidate,
+                            type: 'offer',
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
                     }
-                    endCallUI();
+                };
+                
+                // Создаем offer
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                // Сохраняем offer
+                await db.collection('calls').doc(callDoc.id).collection('offers').add({
+                    offer: offer,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                showActiveCallUI(targetPeerId);
+                // Слушаем ответы
+                const answersListener = db.collection('calls').doc(callDoc.id).collection('answers')
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach(async (change) => {
+                            if (change.type === 'added') {
+                                const answer = change.doc.data();
+                                if (answer.answer && !peerConnection.currentRemoteDescription) {
+                                    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer.answer));
+                                    // Скрываем UI звонка и показываем активный
+                                    hideOutgoingCallUI();
+                                    showActiveCallUI();
+                                }
+                            }
+                        });
+                    });
+                
+                // Слушаем ICE кандидаты от собеседника
+                const candidatesListener = db.collection('calls').doc(callDoc.id).collection('candidates')
+                    .where('type', '==', 'answer')
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach(async (change) => {
+                            if (change.type === 'added') {
+                                const candidate = change.doc.data();
+                                if (candidate.candidate) {
+                                    try {
+                                        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate.candidate));
+                                    } catch(e) { console.log('ICE candidate error:', e); }
+                                }
+                            }
+                        });
+                    });
+                
+                // Слушаем статус звонка (если отклонили)
+                const statusListener = db.collection('calls').doc(callDoc.id)
+                    .onSnapshot((doc) => {
+                        if (doc.exists && doc.data().status === 'declined') {
+                            statusListener();
+                            endCall();
+                            showToast('📞 Звонок отклонен');
+                        }
+                    });
+                
+                window.currentCallListeners = { answersListener, candidatesListener, statusListener };
+                
+                // Таймаут если не ответили
+                setTimeout(async () => {
+                    const callDocCheck = await db.collection('calls').doc(callDoc.id).get();
+                    if (callDocCheck.exists && callDocCheck.data().status === 'ringing') {
+                        endCall();
+                        showToast('❌ Собеседник не ответил');
+                    }
+                }, 30000);
                 
             } catch (err) {
-                console.error('Ошибка:', err);
+                console.error('Ошибка при начале звонка:', err);
                 showToast('❌ Не удалось начать звонок');
                 if (localStream) {
                     localStream.getTracks().forEach(track => track.stop());
                     localStream = null;
                 }
+                if (currentCallDocId) {
+                    await db.collection('calls').doc(currentCallDocId).update({ status: 'error' });
+                }
             }
         }
+        
+        function showOutgoingCallUI(callerName) {
+            const oldOverlay = document.querySelector('.call-overlay');
+            if (oldOverlay) oldOverlay.remove();
+            
+            // Проигрываем звук ожидания
+            if (callRingInterval) clearInterval(callRingInterval);
+            callRingInterval = setInterval(() => {
+                playCallSound();
+            }, 2000);
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'call-overlay ringing';
+            overlay.innerHTML = `
+                <div class="call-card">
+                    <div class="call-avatar">📞</div>
+                    <div class="call-name">${escapeHtml(callerName)}</div>
+                    <div class="call-status">📞 Вызов...</div>
+                    <div class="call-buttons">
+                        <button class="call-btn call-end" onclick="endCall()">❌ Отменить</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        
+        function hideOutgoingCallUI() {
+            if (callRingInterval) clearInterval(callRingInterval);
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+        }
+        
+        window.endCall = endCall;
+        window.toggleMute = toggleMute;
+        window.startCall = startCall;
 
         // ========== ОТПРАВКА СООБЩЕНИЙ ==========
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
-            if (!text || !currentChat) return;
+            
+            if (!text || !currentChat) {
+                showToast('❌ Выберите чат и введите сообщение');
+                return;
+            }
+            
+            if (!currentChat.id) {
+                showToast('❌ Ошибка: ID чата не определен');
+                return;
+            }
             
             if (currentChatData?.type === 'channel') {
                 const isAdmin = currentChatData.admins && currentChatData.admins.includes(currentUser.uid);
-                if (!isAdmin) { showToast('❌ Только администраторы могут писать в канал'); return; }
+                if (!isAdmin) {
+                    showToast('❌ Только администраторы могут писать в канал');
+                    return;
+                }
             }
             
             try {
                 const encryptedText = encryptText(text);
-                await db.collection('messages').add({
-                    text: encryptedText, type: 'text', senderId: currentUser.uid, senderName: userData.name,
-                    senderAvatar: userData.avatar, chatId: currentChat.id,
+                const messageData = {
+                    text: encryptedText,
+                    type: 'text',
+                    senderId: currentUser.uid,
+                    senderName: userData.name,
+                    senderAvatar: userData.avatar || null,
+                    chatId: currentChat.id,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+                
+                console.log('Отправка сообщения в чат:', currentChat.id);
+                await db.collection('messages').add(messageData);
                 input.value = '';
-            } catch (error) { console.error(error); showToast('❌ Ошибка отправки'); }
+                showToast('✅ Сообщение отправлено');
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showToast('❌ Ошибка отправки: ' + error.message);
+            }
         }
 
         // ========== ФОТО ==========
@@ -1451,19 +1606,9 @@
                     
                     snap.docChanges().forEach(change => {
                         if (change.type === 'added' && change.doc.data().senderId !== currentUser?.uid) {
-                            const newMsg = change.doc.data();
-                            const msgTime = newMsg.timestamp?.toDate()?.getTime() || 0;
-                            if (msgTime > lastMessageTimestamp) {
-                                playMessageSound();
-                            }
+                            playMessageSound();
                         }
                     });
-                    
-                    if (snap.docs.length > 0) {
-                        const lastDoc = snap.docs[snap.docs.length - 1];
-                        const lastMsg = lastDoc.data();
-                        lastMessageTimestamp = lastMsg.timestamp?.toDate()?.getTime() || Date.now();
-                    }
                     
                     area.innerHTML = '';
                     snap.forEach(doc => {
@@ -1532,24 +1677,77 @@
                                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                                 });
                             }
-                            chats.push({ id: chatId, name: user.data().name, avatar: user.data().avatar, type: 'private' });
+                            const lastMsgQuery = await db.collection('messages').where('chatId', '==', chatId).orderBy('timestamp', 'desc').limit(1).get();
+                            let lastMessage = '', lastTime = '';
+                            if (!lastMsgQuery.empty) {
+                                const msg = lastMsgQuery.docs[0].data();
+                                if (msg.type === 'gift') lastMessage = `🎁 Подарок: ${msg.gift.name}`;
+                                else if (msg.type === 'text') { try { lastMessage = decryptText(msg.text).substring(0, 30); } catch(e) { lastMessage = '🔒 Сообщение'; } }
+                                else if (msg.type === 'image') lastMessage = '📷 Фото';
+                                else if (msg.type === 'video') lastMessage = '🎥 Видео';
+                                else if (msg.type === 'audio') lastMessage = '🎙️ Голосовое';
+                                lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                            }
+                            chats.push({ id: chatId, name: user.data().name, avatar: user.data().avatar, type: 'private', lastMessage, lastTime });
                         }
                     }
                 }
                 
                 const groupsQuery = await db.collection('chats').where('members', 'array-contains', currentUser.uid).get();
-                groupsQuery.docs.forEach(doc => { const data = doc.data(); if (data.type === 'group') chats.push({ id: doc.id, name: data.name, avatar: null, type: 'group', memberCount: data.members?.length || 0 }); });
+                for (const doc of groupsQuery.docs) {
+                    const data = doc.data();
+                    if (data.type === 'group') {
+                        const lastMsgQuery = await db.collection('messages').where('chatId', '==', doc.id).orderBy('timestamp', 'desc').limit(1).get();
+                        let lastMessage = '', lastTime = '';
+                        if (!lastMsgQuery.empty) {
+                            const msg = lastMsgQuery.docs[0].data();
+                            if (msg.type === 'gift') lastMessage = `🎁 Подарок: ${msg.gift.name}`;
+                            else if (msg.type === 'text') { try { lastMessage = decryptText(msg.text).substring(0, 30); } catch(e) { lastMessage = '🔒 Сообщение'; } }
+                            else if (msg.type === 'image') lastMessage = '📷 Фото';
+                            else if (msg.type === 'video') lastMessage = '🎥 Видео';
+                            else if (msg.type === 'audio') lastMessage = '🎙️ Голосовое';
+                            lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                        }
+                        chats.push({ id: doc.id, name: data.name, avatar: null, type: 'group', memberCount: data.members?.length || 0, lastMessage, lastTime });
+                    }
+                }
                 
                 const channelsQuery = await db.collection('chats').where('subscribers', 'array-contains', currentUser.uid).get();
-                channelsQuery.docs.forEach(doc => { const data = doc.data(); if (data.type === 'channel') chats.push({ id: doc.id, name: data.name, avatar: null, type: 'channel', username: data.username }); });
+                for (const doc of channelsQuery.docs) {
+                    const data = doc.data();
+                    if (data.type === 'channel') {
+                        const lastMsgQuery = await db.collection('messages').where('chatId', '==', doc.id).orderBy('timestamp', 'desc').limit(1).get();
+                        let lastMessage = '', lastTime = '';
+                        if (!lastMsgQuery.empty) {
+                            const msg = lastMsgQuery.docs[0].data();
+                            if (msg.type === 'gift') lastMessage = `🎁 Подарок: ${msg.gift.name}`;
+                            else if (msg.type === 'text') { try { lastMessage = decryptText(msg.text).substring(0, 30); } catch(e) { lastMessage = '🔒 Сообщение'; } }
+                            else if (msg.type === 'image') lastMessage = '📷 Фото';
+                            else if (msg.type === 'video') lastMessage = '🎥 Видео';
+                            else if (msg.type === 'audio') lastMessage = '🎙️ Голосовое';
+                            lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                        }
+                        chats.push({ id: doc.id, name: data.name, avatar: null, type: 'channel', username: data.username, lastMessage, lastTime });
+                    }
+                }
                 
-                if (chats.length === 0) { container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChats}<br><br>➕ Создайте группу или канал</div>`; return; }
+                if (chats.length === 0) {
+                    container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChats}<br><br>➕ Добавьте контакты через поиск</div>`;
+                    return;
+                }
                 
-                container.innerHTML = chats.map(chat => `<div class="chat-item" onclick="openChat('${chat.id}', '${escapeHtml(chat.name).replace(/'/g, "\\'")}', '${chat.type}')"><div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.type === 'group' ? '👥' : chat.type === 'channel' ? '📢' : (chat.name ? chat.name[0].toUpperCase() : '?'))}</div><div class="item-info"><div class="item-name">${escapeHtml(chat.name)}${chat.type === 'group' ? ` (${chat.memberCount || 0})` : chat.type === 'channel' ? ' 📢' : ''}</div></div></div>`).join('');
+                container.innerHTML = chats.map(chat => `
+                    <div class="chat-item" onclick="openChat('${chat.id}', '${escapeHtml(chat.name).replace(/'/g, "\\'")}', '${chat.type}')">
+                        <div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.type === 'group' ? '👥' : chat.type === 'channel' ? '📢' : (chat.name ? chat.name[0].toUpperCase() : '?'))}</div>
+                        <div class="item-info">
+                            <div class="item-name">${escapeHtml(chat.name)}${chat.type === 'group' ? ` (${chat.memberCount || 0})` : chat.type === 'channel' ? ' 📢' : ''}</div>
+                            <div class="item-last-message">${chat.lastMessage || '💬 Новый чат'}</div>
+                        </div>
+                        <div class="item-time">${chat.lastTime || ''}</div>
+                    </div>
+                `).join('');
             } catch (error) { console.error(error); container.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">❌ Ошибка загрузки</div>'; }
         }
-        
-        function getPrivateChatId(uid1, uid2) { return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`; }
         
         async function loadContacts() {
             const container = document.getElementById('items-list');
@@ -1597,7 +1795,6 @@
                 const targetUserId = participants.find(id => id !== currentUser.uid);
                 if (targetUserId) {
                     await subscribeToUserStatus(targetUserId);
-                    currentTargetUserId = targetUserId;
                 }
             } else {
                 document.getElementById('chat-status').innerHTML = '';
@@ -1650,16 +1847,14 @@
                     if (userData.avatar) { document.getElementById('user-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`; }
                     if (!userData.contacts) { await db.collection('users').doc(user.uid).update({ contacts: [] }); userData.contacts = []; }
                 } else {
-                    await db.collection('users').doc(user.uid).set({ name: user.email?.split('@')[0] || 'User', email: user.email, crystals: 500, nixcoin: 0, contacts: [], onlineStatus: true, readReceipts: true, autoDelete: 0, peerId: user.uid });
+                    await db.collection('users').doc(user.uid).set({ name: user.email?.split('@')[0] || 'User', email: user.email, crystals: 500, nixcoin: 0, contacts: [], onlineStatus: true, readReceipts: true, autoDelete: 0 });
                     userData = { name: user.email?.split('@')[0] || 'User', crystals: 500, nixcoin: 0, contacts: [], onlineStatus: true, readReceipts: true, autoDelete: 0 };
                 }
                 document.getElementById('input-area').style.display = 'block';
                 loadChats();
                 
-                await initPeer();
-                
-                // Обновляем peerId при каждом входе
-                await db.collection('users').doc(user.uid).update({ peerId: user.uid, onlineStatus: true, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+                // Запускаем слушатель звонков
+                startCallListener();
                 
                 let deviceName = navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('Android') ? 'Android' : 'PC';
                 await db.collection('sessions').add({ userId: user.uid, device: deviceName, lastActive: new Date() });
@@ -1697,10 +1892,10 @@
         window.subscribeToChannel = subscribeToChannel; window.unsubscribeFromChannel = unsubscribeFromChannel;
         window.openAddMemberModal = openAddMemberModal; window.searchAndOpen = searchAndOpen;
         window.viewChannel = viewChannel; window.openChatWithUser = openChatWithUser;
-        window.startCall = startCall; window.endCall = endCall; window.toggleMute = toggleMute;
-        window.acceptCall = acceptCall; window.declineCall = declineCall;
         window.deleteAccount = deleteAccount; window.openUserProfile = openUserProfile;
         window.addContactFromProfile = addContactFromProfile;
+        window.startCall = startCall; window.endCall = endCall; window.toggleMute = toggleMute;
+        window.acceptCall = acceptCall; window.declineCall = declineCall;
     </script>
 </body>
 </html>
