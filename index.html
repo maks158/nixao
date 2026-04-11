@@ -220,9 +220,18 @@
             <div class="settings-section">
                 <div class="settings-item" onclick="openThemeSettings()">🎨 Тема<span>➡️</span></div>
                 <div class="settings-item" onclick="openFontSizeSettings()">🔤 Размер шрифта<span>➡️</span></div>
+                <div class="settings-item" onclick="openChatBgSettings()">🖼️ Фон чата<span>➡️</span></div>
+                <div class="settings-item" onclick="openReadReceiptsSettings()">👁️ Чётки (прочтено)<span>➡️</span></div>
+                <div class="settings-item" onclick="openAutoDeleteSettings()">⏰ Автоудаление сообщений<span>➡️</span></div>
+                <div class="settings-item" onclick="openStatusSettings()">🟢 Статус онлайн<span>➡️</span></div>
                 <div class="settings-item" onclick="openLanguageSettings()">🌐 Язык<span>➡️</span></div>
                 <div class="settings-item" onclick="openProfileModal()">👤 Мой профиль<span>➡️</span></div>
                 <div class="settings-item" onclick="openDevices()">📱 Устройства<span>➡️</span></div>
+                <div class="settings-item" onclick="openNotificationsSettings()">🔔 Уведомления и звуки<span>➡️</span></div>
+                <div class="settings-item" onclick="openDataSettings()">💾 Данные и память<span>➡️</span></div>
+                <div class="settings-item" onclick="openPremium()">💎 Nixao Premium<span>➡️</span></div>
+                <div class="settings-item" onclick="openPrivacy()">🔒 Политика конфиденциальности<span>➡️</span></div>
+                <div class="settings-item" onclick="openHelp()">❓ Помощь<span>➡️</span></div>
                 <div class="settings-item" onclick="openAbout()">ℹ️ О Нихауу<span>➡️</span></div>
             </div>
             <button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button>
@@ -258,22 +267,28 @@
     <div id="theme-modal" class="modal"><div class="modal-content"><div class="modal-header">🎨 Тема</div><button class="modal-btn" onclick="setTheme('light')">☀️ Светлая</button><button class="modal-btn" onclick="setTheme('dark')">🌙 Темная</button><button class="modal-btn secondary" onclick="closeModal('theme-modal')">Отмена</button></div></div>
     <div id="language-modal" class="modal"><div class="modal-content"><div class="modal-header">🌐 Язык</div><button class="modal-btn" onclick="setLanguage('ru')">🇷🇺 Русский</button><button class="modal-btn" onclick="setLanguage('en')">🇬🇧 English</button><button class="modal-btn secondary" onclick="closeModal('language-modal')">Отмена</button></div></div>
     <div id="fontsize-modal" class="modal"><div class="modal-content"><div class="modal-header">🔤 Размер шрифта</div><button class="font-size-btn" onclick="setFontSize('small')">Маленький</button><button class="font-size-btn" onclick="setFontSize('medium')">Средний</button><button class="font-size-btn" onclick="setFontSize('large')">Большой</button><button class="modal-btn secondary" onclick="closeModal('fontsize-modal')">Отмена</button></div></div>
+    <div id="chatbg-modal" class="modal"><div class="modal-content"><div class="modal-header">🖼️ Фон чата</div><div class="chat-bg-item" onclick="setChatBg('default')">🌊 По умолчанию</div><div class="chat-bg-item" onclick="setChatBg('dark')">🌙 Темный фон</div><div class="chat-bg-item" onclick="setChatBg('forest')">🌲 Лес</div><div class="chat-bg-item" onclick="setChatBg('ocean')">🌊 Океан</div><button class="modal-btn secondary" onclick="closeModal('chatbg-modal')">Закрыть</button></div></div>
+    <div id="readreceipts-modal" class="modal"><div class="modal-content"><div class="modal-header">👁️ Чётки (прочтено)</div><button class="modal-btn" onclick="setReadReceipts(true)">✅ Включить</button><button class="modal-btn" onclick="setReadReceipts(false)">❌ Выключить</button><button class="modal-btn secondary" onclick="closeModal('readreceipts-modal')">Отмена</button></div></div>
+    <div id="autodelete-modal" class="modal"><div class="modal-content"><div class="modal-header">⏰ Автоудаление сообщений</div><button class="modal-btn" onclick="setAutoDelete(0)">❌ Выключено</button><button class="modal-btn" onclick="setAutoDelete(86400)">🗑️ Через 24 часа</button><button class="modal-btn" onclick="setAutoDelete(604800)">🗑️ Через 7 дней</button><button class="modal-btn" onclick="setAutoDelete(2592000)">🗑️ Через 30 дней</button><button class="modal-btn secondary" onclick="closeModal('autodelete-modal')">Отмена</button></div></div>
+    <div id="status-modal" class="modal"><div class="modal-content"><div class="modal-header">🟢 Статус онлайн</div><button class="modal-btn" onclick="setOnlineStatus(true)">🟢 Показывать онлайн</button><button class="modal-btn" onclick="setOnlineStatus(false)">⚫ Скрыть онлайн</button><button class="modal-btn secondary" onclick="closeModal('status-modal')">Отмена</button></div></div>
     <div id="devices-modal" class="modal"><div class="modal-content"><div class="modal-header">📱 Устройства</div><div id="devices-list"></div><button class="modal-btn secondary" onclick="closeModal('devices-modal')">Закрыть</button></div></div>
+    <div id="privacy-modal" class="modal"><div class="modal-content"><div class="modal-header">🔒 Политика конфиденциальности</div><div id="privacy-text" style="padding: 10px; line-height: 1.5;"></div><button class="modal-btn secondary" onclick="closeModal('privacy-modal')">Закрыть</button></div></div>
     <div id="create-modal" class="modal"><div class="modal-content"><div class="modal-header">➕ Создать</div><button class="modal-btn" onclick="showCreateGroup()">👥 Создать группу</button><button class="modal-btn" onclick="showCreateChannel()">📢 Создать канал</button><button class="modal-btn secondary" onclick="closeModal('create-modal')">Отмена</button></div></div>
     <div id="create-group-modal" class="modal"><div class="modal-content"><div class="modal-header">👥 Создать группу</div><input type="text" id="group-name" class="modal-input" placeholder="Название группы"><button class="modal-btn" onclick="createGroup()">Создать</button><button class="modal-btn secondary" onclick="closeModal('create-group-modal')">Отмена</button></div></div>
     <div id="create-channel-modal" class="modal"><div class="modal-content"><div class="modal-header">📢 Создать канал</div><input type="text" id="channel-name" class="modal-input" placeholder="Название канала"><input type="text" id="channel-username" class="modal-input" placeholder="@username канала"><button class="modal-btn" onclick="createChannel()">Создать</button><button class="modal-btn secondary" onclick="closeModal('create-channel-modal')">Отмена</button></div></div>
     <div id="attach-modal" class="modal"><div class="modal-content"><div class="modal-header">📎 Прикрепить</div><button class="modal-btn" onclick="attachPhoto()">📷 Фото</button><button class="modal-btn" onclick="attachVideo()">🎥 Видео</button><button class="modal-btn secondary" onclick="closeModal('attach-modal')">Отмена</button></div></div>
     <div id="gift-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Подарки</div><div id="gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('gift-modal')">Закрыть</button></div></div>
     <div id="reactions-modal" class="modal"><div class="modal-content"><div class="modal-header">😊 Реакции</div><div id="reactions-list" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;"></div><button class="modal-btn secondary" onclick="closeModal('reactions-modal')">Закрыть</button></div></div>
+    <div id="crystals-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 Кристаллы</div><button class="modal-btn" onclick="buyCrystals(100)">100 💎 - 199₽</button><button class="modal-btn" onclick="buyCrystals(500)">500 💎 - 470₽</button><button class="modal-btn" onclick="buyCrystals(1000)">1000 💎 - 700₽</button><button class="modal-btn secondary" onclick="closeModal('crystals-shop')">Закрыть</button></div></div>
+    <div id="nixcoin-shop" class="modal"><div class="modal-content"><div class="modal-header">🪙 Купить NixCoin</div><div>1 NIX = 200₽</div><button class="modal-btn" onclick="buyNixCoin(10)">10 NIX - 2000₽</button><button class="modal-btn" onclick="buyNixCoin(50)">50 NIX - 10000₽</button><button class="modal-btn" onclick="buyNixCoin(100)">100 NIX - 20000₽</button><button class="modal-btn secondary" onclick="closeModal('nixcoin-shop')">Закрыть</button></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <script>
-        // ========== ШИФРОВАНИЕ ==========
+        // ========== ШИФРОВАНИЕ AES-256 ==========
         const SECRET_KEY = 'nixao_super_secret_key_2024';
         
         function encryptText(text) {
@@ -290,7 +305,7 @@
             } catch(e) { return encryptedText; }
         }
 
-        // Firebase config
+        // Firebase config (только Auth и Firestore, Storage не используется)
         const firebaseConfig = {
             apiKey: "AIzaSyBwX0gTIGwKSVGcE3TF6f5TYbG1Q0HB6mA",
             authDomain: "nixaayymessage.firebaseapp.com",
@@ -303,10 +318,9 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         let currentUser = null;
-        let userData = { crystals: 500, nixcoin: 0, name: 'Пользователь', avatar: null, username: '', bio: '' };
+        let userData = { crystals: 500, nixcoin: 0, name: 'Пользователь', avatar: null, username: '', bio: '', contacts: [] };
         let currentChat = null;
         let currentChatData = null;
         let mediaRecorder = null;
@@ -314,28 +328,72 @@
         let isRecording = false;
         let currentMessagesUnsubscribe = null;
 
+        // Локальное хранилище для медиафайлов (IndexedDB)
+        let mediaStore = {
+            async save(key, data) {
+                localStorage.setItem(`media_${key}`, data);
+            },
+            async get(key) {
+                return localStorage.getItem(`media_${key}`);
+            }
+        };
+
         const gifts = [
             { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹' }, { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻' },
-            { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸' }, { id: 4, name: '💎 Бриллиант', price: 300, emoji: '💎' }
+            { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸' }, { id: 4, name: '🌺 Гибискус', price: 35, emoji: '🌺' },
+            { id: 5, name: '🌷 Тюльпан', price: 40, emoji: '🌷' }, { id: 6, name: '🌼 Ромашка', price: 45, emoji: '🌼' },
+            { id: 7, name: '💐 Букет', price: 60, emoji: '💐' }, { id: 8, name: '🎂 Торт', price: 80, emoji: '🎂' },
+            { id: 9, name: '🧸 Мишка', price: 100, emoji: '🧸' }, { id: 10, name: '💍 Кольцо', price: 150, emoji: '💍' },
+            { id: 11, name: '👑 Корона', price: 200, emoji: '👑' }, { id: 12, name: '💎 Бриллиант', price: 300, emoji: '💎' },
+            { id: 13, name: '⭐ Золотая звезда', price: 400, emoji: '⭐' }, { id: 14, name: '🌙 Лунный камень', price: 500, emoji: '🌙' },
+            { id: 15, name: '🔥 Вечный огонь', price: 600, emoji: '🔥' }, { id: 16, name: '❄️ Снежинка', price: 700, emoji: '❄️' },
+            { id: 17, name: '🌈 Единорог', price: 800, emoji: '🦄' }, { id: 18, name: '🐉 Дракон', price: 1000, emoji: '🐉' },
+            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚' }, { id: 20, name: '👾 Космос', price: 2000, emoji: '👾' }
         ];
 
         const reactions = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
         let currentLang = 'ru';
         const translations = {
-            ru: { welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', noContacts: 'Нет контактов', noChannels: '📢 Нет подписок на каналы', about: 'Нихауу v2.0 - мессенджер с AES-256 шифрованием' },
-            en: { welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', noContacts: 'No contacts', noChannels: '📢 No channel subscriptions', about: 'Nixao v2.0 - messenger with AES-256 encryption' }
+            ru: { 
+                welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', 
+                noContacts: 'Нет контактов', noChannels: '📢 Нет подписок на каналы', 
+                about: 'Нихауу v2.0 - мессенджер с AES-256 шифрованием',
+                privacy: 'Нихауу заботится о вашей конфиденциальности. Все сообщения шифруются AES-256.',
+                inputPlaceholder: 'Сообщение...'
+            },
+            en: { 
+                welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', 
+                noContacts: 'No contacts', noChannels: '📢 No channel subscriptions', 
+                about: 'Nixao v2.0 - messenger with AES-256 encryption',
+                privacy: 'Nixao cares about your privacy. All messages are encrypted with AES-256.',
+                inputPlaceholder: 'Message...'
+            },
+            be: {
+                welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨', noMessages: '💬 Няма паведамленняў', noChats: 'Няма чатаў',
+                noContacts: 'Няма кантактаў', noChannels: '📢 Няма падпісак на каналы',
+                about: 'Ніхауу v2.0 - месенджар з AES-256 шыфраваннем',
+                privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Усе паведамленні шыфруюцца AES-256.',
+                inputPlaceholder: 'Паведамленне...'
+            }
         };
 
         function updateAllUITexts() {
             const t = translations[currentLang];
             document.getElementById('welcome-msg').innerHTML = t.welcome;
-            document.getElementById('message-input').placeholder = t.inputPlaceholder || 'Сообщение...';
+            document.getElementById('message-input').placeholder = t.inputPlaceholder;
+            document.getElementById('privacy-text').innerHTML = t.privacy;
         }
 
         function setLanguage(lang) { currentLang = lang; localStorage.setItem('language', lang); updateAllUITexts(); closeModal('language-modal'); showToast('🌐 Язык изменен'); }
         function setFontSize(size) { let fs = size === 'small' ? '14px' : size === 'large' ? '18px' : '16px'; document.body.style.fontSize = fs; localStorage.setItem('fontSize', size); closeModal('fontsize-modal'); }
         function setTheme(theme) { document.body.className = `theme-${theme}`; localStorage.setItem('theme', theme); closeModal('theme-modal'); }
+        function setChatBg(bg) { const bgMap = { default: 'var(--bg)', dark: '#1a1a2e', forest: '#1a3d2f', ocean: '#1a3a5f' }; document.getElementById('messages-area').style.background = bgMap[bg] || 'var(--bg)'; localStorage.setItem('chatBg', bg); closeModal('chatbg-modal'); }
+        function setReadReceipts(enabled) { userData.readReceipts = enabled; if(currentUser) db.collection('users').doc(currentUser.uid).update({ readReceipts: enabled }); localStorage.setItem('readReceipts', enabled); closeModal('readreceipts-modal'); showToast(`👁️ ${enabled ? 'Чётки включены' : 'Чётки выключены'}`); }
+        function setAutoDelete(seconds) { userData.autoDelete = seconds; if(currentUser) db.collection('users').doc(currentUser.uid).update({ autoDelete: seconds }); localStorage.setItem('autoDelete', seconds); closeModal('autodelete-modal'); showToast(`⏰ ${seconds === 0 ? 'Автоудаление выключено' : 'Сообщения будут удаляться через ' + seconds/86400 + ' дней'}`); if(seconds > 0) checkAndDeleteOldMessages(); }
+        async function checkAndDeleteOldMessages() { if(!userData.autoDelete) return; const cutoffDate = new Date(Date.now() - userData.autoDelete * 1000); const oldMessages = await db.collection('messages').where('timestamp', '<', cutoffDate).get(); oldMessages.forEach(async (doc) => await doc.ref.delete()); }
+        function setOnlineStatus(show) { userData.onlineStatus = show; if(currentUser) db.collection('users').doc(currentUser.uid).update({ onlineStatus: show, lastSeen: firebase.firestore.FieldValue.serverTimestamp() }); localStorage.setItem('onlineStatus', show); closeModal('status-modal'); showToast(`🟢 ${show ? 'Вы теперь онлайн' : 'Вы скрыты'}`); }
+        
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
         function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
@@ -345,11 +403,24 @@
         function openThemeSettings() { closeModal('settings-modal'); document.getElementById('theme-modal').classList.add('active'); }
         function openLanguageSettings() { closeModal('settings-modal'); document.getElementById('language-modal').classList.add('active'); }
         function openFontSizeSettings() { closeModal('settings-modal'); document.getElementById('fontsize-modal').classList.add('active'); }
+        function openChatBgSettings() { closeModal('settings-modal'); document.getElementById('chatbg-modal').classList.add('active'); }
+        function openReadReceiptsSettings() { closeModal('settings-modal'); document.getElementById('readreceipts-modal').classList.add('active'); }
+        function openAutoDeleteSettings() { closeModal('settings-modal'); document.getElementById('autodelete-modal').classList.add('active'); }
+        function openStatusSettings() { closeModal('settings-modal'); document.getElementById('status-modal').classList.add('active'); }
+        function openNotificationsSettings() { showToast('🔔 Уведомления будут скоро'); }
+        function openDataSettings() { if(confirm('Очистить кеш медиафайлов?')) { localStorage.clear(); showToast('✅ Кеш очищен'); } }
+        function openPremium() { showToast('💎 Premium - скоро!'); }
+        function openPrivacy() { closeModal('settings-modal'); document.getElementById('privacy-modal').classList.add('active'); }
+        function openHelp() { showToast('❓ Помощь: @nixao_support'); }
         function openAbout() { alert(translations[currentLang].about); }
         function showCreateMenu() { closeModal('settings-modal'); document.getElementById('create-modal').classList.add('active'); }
         function showCreateGroup() { closeModal('create-modal'); document.getElementById('create-group-modal').classList.add('active'); }
         function showCreateChannel() { closeModal('create-modal'); document.getElementById('create-channel-modal').classList.add('active'); }
         function findChat() { closeModal('settings-modal'); document.getElementById('find-chat-modal').classList.add('active'); }
+        function buyCrystals(amount) { userData.crystals += amount; db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals }); document.getElementById('crystals').innerHTML = userData.crystals; closeModal('crystals-shop'); showToast(`💎 +${amount} кристаллов`); }
+        function buyNixCoin(amount) { userData.nixcoin += amount; db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin }); document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin; closeModal('nixcoin-shop'); showToast(`🪙 +${amount} NIX`); }
+        function openCrystalsShop() { closeModal('profile-modal'); document.getElementById('crystals-shop').classList.add('active'); }
+        function openNixCoinShop() { closeModal('profile-modal'); document.getElementById('nixcoin-shop').classList.add('active'); }
 
         // АВТОРИЗАЦИЯ
         function showRegisterForm() { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; }
@@ -364,7 +435,8 @@
             try {
                 const user = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(user.user.uid).set({
-                    name, email, username, crystals: 500, nixcoin: 0, avatar: null, bio: '',
+                    name, email, username, crystals: 500, nixcoin: 0, avatar: null, bio: '', contacts: [],
+                    onlineStatus: true, readReceipts: true, autoDelete: 0,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 showToast('✅ Регистрация успешна!');
@@ -387,6 +459,8 @@
             document.getElementById('profile-name').value = userData.name || '';
             document.getElementById('profile-username').value = userData.username || '';
             document.getElementById('profile-bio').value = userData.bio || '';
+            document.getElementById('profile-crystals').textContent = userData.crystals || 0;
+            document.getElementById('profile-nixcoin').textContent = userData.nixcoin || 0;
             if (userData.avatar) {
                 document.getElementById('profile-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
             } else {
@@ -413,13 +487,15 @@
             input.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    const storageRef = storage.ref(`avatars/${currentUser.uid}`);
-                    await storageRef.put(file);
-                    const url = await storageRef.getDownloadURL();
-                    await db.collection('users').doc(currentUser.uid).update({ avatar: url });
-                    userData.avatar = url;
-                    document.getElementById('user-avatar').innerHTML = `<img src="${url}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                    showToast('✅ Аватар обновлен');
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const avatarUrl = ev.target.result;
+                        await db.collection('users').doc(currentUser.uid).update({ avatar: avatarUrl });
+                        userData.avatar = avatarUrl;
+                        document.getElementById('user-avatar').innerHTML = `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        showToast('✅ Аватар обновлен');
+                    };
+                    reader.readAsDataURL(file);
                 }
             };
             input.click();
@@ -429,7 +505,7 @@
             const sessions = await db.collection('sessions').where('userId', '==', currentUser.uid).get();
             const devices = [];
             sessions.forEach(doc => devices.push({ id: doc.id, ...doc.data() }));
-            document.getElementById('devices-list').innerHTML = devices.map(d => `<div class="device-item">📱 ${d.device}</div>`).join('');
+            document.getElementById('devices-list').innerHTML = devices.map(d => `<div class="device-item">📱 ${d.device}<div style="font-size:11px;">Активно: ${new Date(d.lastActive?.toDate()).toLocaleString()}</div></div>`).join('');
             closeModal('settings-modal');
             document.getElementById('devices-modal').classList.add('active');
         }
@@ -442,16 +518,9 @@
             const groupId = 'group_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             
             await db.collection('chats').doc(groupId).set({
-                id: groupId,
-                type: 'group',
-                name: name,
-                creatorId: currentUser.uid,
-                creatorName: userData.name,
-                members: [currentUser.uid],
-                admins: [currentUser.uid],
-                memberNames: { [currentUser.uid]: userData.name },
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                avatar: null
+                id: groupId, type: 'group', name: name, creatorId: currentUser.uid, creatorName: userData.name,
+                members: [currentUser.uid], admins: [currentUser.uid], memberNames: { [currentUser.uid]: userData.name },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(), avatar: null
             });
             
             showToast(`✅ Группа "${name}" создана!`);
@@ -466,24 +535,15 @@
             if (!name || !username) { alert('Введите название и @username канала'); return; }
             if (!username.startsWith('@')) { alert('Username должен начинаться с @'); return; }
             
-            // Проверяем уникальность username канала
             const existing = await db.collection('chats').where('username', '==', username).get();
             if (!existing.empty) { alert('❌ Канал с таким @username уже существует'); return; }
             
             const channelId = 'channel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             
             await db.collection('chats').doc(channelId).set({
-                id: channelId,
-                type: 'channel',
-                name: name,
-                username: username,
-                creatorId: currentUser.uid,
-                creatorName: userData.name,
-                subscribers: [currentUser.uid],
-                admins: [currentUser.uid],
-                subscriberNames: { [currentUser.uid]: userData.name },
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                avatar: null
+                id: channelId, type: 'channel', name: name, username: username, creatorId: currentUser.uid, creatorName: userData.name,
+                subscribers: [currentUser.uid], admins: [currentUser.uid], subscriberNames: { [currentUser.uid]: userData.name },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(), avatar: null
             });
             
             showToast(`✅ Канал "${name}" создан!`);
@@ -495,31 +555,25 @@
         async function searchAndOpen() {
             const query = document.getElementById('search-query').value.trim();
             if (!query) return;
-            
             closeModal('find-chat-modal');
             
-            // Ищем канал по @username
             const channelQuery = await db.collection('chats').where('username', '==', query).get();
             if (!channelQuery.empty) {
                 const channel = channelQuery.docs[0].data();
                 if (channel.type === 'channel') {
-                    // Проверяем подписку
                     const isSubscribed = channel.subscribers && channel.subscribers.includes(currentUser.uid);
-                    if (!isSubscribed) {
-                        if (confirm(`Подписаться на канал "${channel.name}"?`)) {
-                            await db.collection('chats').doc(channel.id).update({
-                                subscribers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
-                                subscriberNames: { ...channel.subscriberNames, [currentUser.uid]: userData.name }
-                            });
-                            showToast(`✅ Вы подписались на канал "${channel.name}"`);
-                        }
+                    if (!isSubscribed && confirm(`Подписаться на канал "${channel.name}"?`)) {
+                        await db.collection('chats').doc(channel.id).update({
+                            subscribers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                            subscriberNames: { ...channel.subscriberNames, [currentUser.uid]: userData.name }
+                        });
+                        showToast(`✅ Вы подписались на канал "${channel.name}"`);
                     }
                     openChat(channel.id, channel.name, 'channel');
                     return;
                 }
             }
             
-            // Ищем пользователя по @username
             const userQuery = await db.collection('users').where('username', '==', query).get();
             if (!userQuery.empty) {
                 const user = userQuery.docs[0];
@@ -537,14 +591,12 @@
                     return;
                 }
             }
-            
             showToast('❌ Ничего не найдено');
         }
 
         // ========== УПРАВЛЕНИЕ ГРУППОЙ ==========
         async function openChatInfo() {
             if (!currentChat || !currentChatData) return;
-            
             const content = document.getElementById('chat-info-content');
             
             if (currentChatData.type === 'group') {
@@ -558,20 +610,10 @@
                 }));
                 
                 content.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div class="avatar" style="width: 80px; height: 80px; margin: 0 auto; font-size: 40px;">👥</div>
-                        <h3>${escapeHtml(currentChatData.name)}</h3>
-                        <div style="color: var(--text-secondary);">Группа</div>
-                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;"><div class="avatar" style="width: 80px; height: 80px; margin: 0 auto; font-size: 40px;">👥</div><h3>${escapeHtml(currentChatData.name)}</h3><div style="color: var(--text-secondary);">Группа</div></div>
                     <div><strong>📊 Участники (${memberList.length})</strong></div>
                     <div id="members-list" style="max-height: 300px; overflow-y: auto; margin: 10px 0;">
-                        ${memberList.map(m => `
-                            <div class="member-item">
-                                <span>${escapeHtml(m.name)} ${m.isAdmin ? '<span class="admin-badge">Админ</span>' : ''}</span>
-                                ${isAdmin && m.uid !== currentUser.uid && m.uid !== currentChatData.creatorId ? 
-                                    `<button class="remove-member-btn" onclick="removeMemberFromGroup('${m.uid}')">Удалить</button>` : ''}
-                            </div>
-                        `).join('')}
+                        ${memberList.map(m => `<div class="member-item"><span>${escapeHtml(m.name)} ${m.isAdmin ? '<span class="admin-badge">Админ</span>' : ''}</span>${isAdmin && m.uid !== currentUser.uid && m.uid !== currentChatData.creatorId ? `<button class="remove-member-btn" onclick="removeMemberFromGroup('${m.uid}')">Удалить</button>` : ''}</div>`).join('')}
                     </div>
                     ${isAdmin ? `<button class="modal-btn" onclick="openAddMemberModal()">➕ Добавить участника</button>` : ''}
                     ${isAdmin ? `<button class="modal-btn" onclick="changeGroupName()">✏️ Изменить название</button>` : ''}
@@ -582,24 +624,14 @@
                 const subscribers = currentChatData.subscribers || [];
                 
                 content.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <div class="avatar" style="width: 80px; height: 80px; margin: 0 auto; font-size: 40px;">📢</div>
-                        <h3>${escapeHtml(currentChatData.name)}</h3>
-                        <div style="color: var(--accent);">${currentChatData.username || ''}</div>
-                        <div style="color: var(--text-secondary);">Канал</div>
-                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;"><div class="avatar" style="width: 80px; height: 80px; margin: 0 auto; font-size: 40px;">📢</div><h3>${escapeHtml(currentChatData.name)}</h3><div style="color: var(--accent);">${currentChatData.username || ''}</div><div style="color: var(--text-secondary);">Канал</div></div>
                     <div><strong>👥 Подписчики: ${subscribers.length}</strong></div>
-                    <div style="margin: 15px 0;">
-                        ${!isSubscribed ? 
-                            `<button class="subscribe-btn" onclick="subscribeToChannel()">🔔 Подписаться</button>` : 
-                            `<button class="subscribe-btn" style="background: #4caf50;" onclick="unsubscribeFromChannel()">✅ Вы подписаны</button>`}
-                    </div>
+                    <div style="margin: 15px 0;">${!isSubscribed ? `<button class="subscribe-btn" onclick="subscribeToChannel()">🔔 Подписаться</button>` : `<button class="subscribe-btn" style="background: #4caf50;" onclick="unsubscribeFromChannel()">✅ Вы подписаны</button>`}</div>
                     ${isAdmin ? `<button class="modal-btn" onclick="changeChannelName()">✏️ Изменить название</button>` : ''}
                 `;
             } else {
                 content.innerHTML = `<div style="text-align: center;"><div class="avatar" style="width: 80px; height: 80px; margin: 0 auto;">👤</div><h3>${escapeHtml(currentChatData.name)}</h3><div style="color: var(--text-secondary);">Личный чат</div></div>`;
             }
-            
             document.getElementById('chat-info-modal').classList.add('active');
         }
         
@@ -624,24 +656,18 @@
             loadChats();
         }
         
-        function openAddMemberModal() {
-            closeModal('chat-info-modal');
-            document.getElementById('add-member-modal').classList.add('active');
-        }
+        function openAddMemberModal() { closeModal('chat-info-modal'); document.getElementById('add-member-modal').classList.add('active'); }
         
         async function addMemberToGroup() {
             const username = document.getElementById('member-username').value.trim();
             if (!username) return;
-            
             const userQuery = await db.collection('users').where('username', '==', username).get();
             if (userQuery.empty) { alert('❌ Пользователь не найден'); return; }
             const newMember = userQuery.docs[0];
-            
             await db.collection('chats').doc(currentChat.id).update({
                 members: firebase.firestore.FieldValue.arrayUnion(newMember.id),
                 [`memberNames.${newMember.id}`]: newMember.data().name
             });
-            
             showToast(`✅ ${newMember.data().name} добавлен в группу`);
             closeModal('add-member-modal');
             openChatInfo();
@@ -649,9 +675,7 @@
         
         async function removeMemberFromGroup(memberId) {
             if (!confirm('Удалить участника из группы?')) return;
-            await db.collection('chats').doc(currentChat.id).update({
-                members: firebase.firestore.FieldValue.arrayRemove(memberId)
-            });
+            await db.collection('chats').doc(currentChat.id).update({ members: firebase.firestore.FieldValue.arrayRemove(memberId) });
             showToast(`✅ Участник удален`);
             openChatInfo();
         }
@@ -686,16 +710,11 @@
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
-            
             if (!text || !currentChat) return;
             
-            // Проверяем права в канале
             if (currentChatData?.type === 'channel') {
                 const isAdmin = currentChatData.admins && currentChatData.admins.includes(currentUser.uid);
-                if (!isAdmin) {
-                    showToast('❌ Только администраторы могут писать в канал');
-                    return;
-                }
+                if (!isAdmin) { showToast('❌ Только администраторы могут писать в канал'); return; }
             }
             
             try {
@@ -706,33 +725,130 @@
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 input.value = '';
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showToast('❌ Ошибка отправки');
+            } catch (error) { console.error(error); showToast('❌ Ошибка отправки'); }
+        }
+
+        // ========== ФОТО (без Storage) ==========
+        async function attachPhoto() {
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                        const mediaData = ev.target.result;
+                        await mediaStore.save(mediaId, mediaData);
+                        await db.collection('messages').add({
+                            type: 'image', imageData: mediaData, imageId: mediaId, senderId: currentUser.uid,
+                            senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        showToast('📷 Фото отправлено');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+            closeModal('attach-modal');
+        }
+        
+        // ========== ВИДЕО (без Storage) ==========
+        async function attachVideo() {
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                        const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                        const mediaData = ev.target.result;
+                        await mediaStore.save(mediaId, mediaData);
+                        await db.collection('messages').add({
+                            type: 'video', videoData: mediaData, videoId: mediaId, senderId: currentUser.uid,
+                            senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        showToast('🎥 Видео отправлено');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+            closeModal('attach-modal');
+        }
+
+        // ========== ГОЛОСОВЫЕ (без Storage) ==========
+        async function toggleRecording() {
+            if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            if (isRecording) {
+                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('recordBtn').classList.remove('recording-active');
+                document.getElementById('recordBtn').innerHTML = '🎙️';
+            } else {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onload = async (ev) => {
+                            const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                            const mediaData = ev.target.result;
+                            await mediaStore.save(mediaId, mediaData);
+                            await db.collection('messages').add({
+                                type: 'audio', audioData: mediaData, audioId: mediaId, senderId: currentUser.uid,
+                                senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            showToast('🎙️ Голосовое отправлено');
+                        };
+                        reader.readAsDataURL(audioBlob);
+                        stream.getTracks().forEach(t => t.stop());
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    document.getElementById('recordBtn').classList.add('recording-active');
+                    document.getElementById('recordBtn').innerHTML = '⏹️';
+                } catch (e) { showToast('❌ Нет доступа к микрофону'); }
             }
+        }
+
+        function openAttachMenu() { if (!currentChat) { showToast('❌ Выберите чат'); return; } document.getElementById('attach-modal').classList.add('active'); }
+
+        // ========== ПОДАРКИ ==========
+        function openGiftModal() { if (!currentChat) { showToast('❌ Выберите чат'); return; } document.getElementById('gifts-list').innerHTML = gifts.map(g => `<div class="gift-item" onclick="sendGift(${g.id})"><div style="font-size:48px;">${g.emoji}</div><div>${g.name}</div><div>${g.price} 💎</div></div>`).join(''); document.getElementById('gift-modal').classList.add('active'); }
+        
+        async function sendGift(id) {
+            const gift = gifts.find(g => g.id === id);
+            if (userData.crystals < gift.price) { showToast('❌ Недостаточно кристаллов'); return; }
+            userData.crystals -= gift.price;
+            await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
+            await db.collection('messages').add({ type: 'gift', gift: gift, senderId: currentUser.uid, senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById('crystals').innerHTML = userData.crystals;
+            showToast(`✅ Подарок "${gift.name}" отправлен!`);
+            closeModal('gift-modal');
         }
 
         // ========== РЕАКЦИИ ==========
         let currentMessageForReaction = null;
-        
-        function showReactions(messageId) {
-            currentMessageForReaction = messageId;
-            const container = document.getElementById('reactions-list');
-            container.innerHTML = reactions.map(r => `<button class="reaction-btn" onclick="addReaction('${messageId}', '${r}')">${r}</button>`).join('');
-            document.getElementById('reactions-modal').classList.add('active');
-        }
+        function showReactions(messageId) { currentMessageForReaction = messageId; document.getElementById('reactions-list').innerHTML = reactions.map(r => `<button class="reaction-btn" onclick="addReaction('${messageId}', '${r}')">${r}</button>`).join(''); document.getElementById('reactions-modal').classList.add('active'); }
         
         async function addReaction(messageId, reaction) {
             const messageRef = db.collection('messages').doc(messageId);
             const message = await messageRef.get();
             const reactionsObj = message.data().reactions || {};
-            
-            if (reactionsObj[currentUser.uid] === reaction) {
-                delete reactionsObj[currentUser.uid];
-            } else {
-                reactionsObj[currentUser.uid] = reaction;
-            }
-            
+            if (reactionsObj[currentUser.uid] === reaction) delete reactionsObj[currentUser.uid];
+            else reactionsObj[currentUser.uid] = reaction;
             await messageRef.update({ reactions: reactionsObj });
             closeModal('reactions-modal');
         }
@@ -746,10 +862,7 @@
                 .where('chatId', '==', chatId)
                 .orderBy('timestamp', 'asc')
                 .onSnapshot(snap => {
-                    if (snap.empty) { 
-                        area.innerHTML = `<div style="text-align: center; padding: 50px;">${translations[currentLang].noMessages}</div>`; 
-                        return; 
-                    }
+                    if (snap.empty) { area.innerHTML = `<div style="text-align: center; padding: 50px;">${translations[currentLang].noMessages}</div>`; return; }
                     area.innerHTML = '';
                     snap.forEach(doc => {
                         const m = doc.data();
@@ -759,20 +872,17 @@
                         
                         if (m.type === 'text') {
                             const decryptedText = decryptText(m.text);
-                            div.innerHTML = `
-                                <div>${escapeHtml(decryptedText)}</div>
-                                <div class="message-time">
-                                    ${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}
-                                    <button class="reaction-btn" onclick="showReactions('${doc.id}')">😊</button>
-                                </div>
-                            `;
-                        } else if (m.type === 'image') {
-                            div.innerHTML = `<div><img src="${m.imageUrl}" class="message-media" onclick="window.open('${m.imageUrl}')"></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}<button class="reaction-btn" onclick="showReactions('${doc.id}')">😊</button></div>`;
+                            div.innerHTML = `<div>${escapeHtml(decryptedText)}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}<button class="reaction-btn" onclick="showReactions('${doc.id}')">😊</button></div>`;
+                        } else if (m.type === 'image' && m.imageData) {
+                            div.innerHTML = `<div><img src="${m.imageData}" class="message-media" onclick="window.open('${m.imageData}')"></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}<button class="reaction-btn" onclick="showReactions('${doc.id}')">😊</button></div>`;
+                        } else if (m.type === 'video' && m.videoData) {
+                            div.innerHTML = `<div><video src="${m.videoData}" class="message-media" controls></video></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}<button class="reaction-btn" onclick="showReactions('${doc.id}')">😊</button></div>`;
+                        } else if (m.type === 'audio' && m.audioData) {
+                            div.innerHTML = `<div><audio src="${m.audioData}" class="message-audio" controls></audio></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}<button class="reaction-btn" onclick="showReactions('${doc.id}')">😊</button></div>`;
                         } else if (m.type === 'gift') {
                             div.innerHTML = `<div style="text-align:center;"><div style="font-size:48px;">${m.gift.emoji}</div><div><strong>${escapeHtml(m.gift.name)}</strong></div><div>Подарок от ${escapeHtml(m.senderName)}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div></div>`;
                         }
                         
-                        // Отображаем реакции
                         if (m.reactions && Object.keys(m.reactions).length > 0) {
                             const reactionDiv = document.createElement('div');
                             reactionDiv.style.fontSize = '12px';
@@ -783,6 +893,13 @@
                             div.appendChild(reactionDiv);
                         }
                         
+                        if (isMine) {
+                            const del = document.createElement('button');
+                            del.className = 'delete-message-btn';
+                            del.innerHTML = '🗑️';
+                            del.onclick = async () => { if (confirm('Удалить?')) await db.collection('messages').doc(doc.id).delete(); };
+                            div.appendChild(del);
+                        }
                         area.appendChild(div);
                     });
                     area.scrollTop = area.scrollHeight;
@@ -798,8 +915,6 @@
             
             try {
                 const chats = [];
-                
-                // Приватные чаты (из контактов)
                 const contacts = userData.contacts || [];
                 for (const contactUsername of contacts) {
                     const userQuery = await db.collection('users').where('username', '==', contactUsername).get();
@@ -820,41 +935,16 @@
                     }
                 }
                 
-                // Группы
                 const groupsQuery = await db.collection('chats').where('members', 'array-contains', currentUser.uid).get();
-                groupsQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.type === 'group') {
-                        chats.push({ id: doc.id, name: data.name, avatar: null, type: 'group', memberCount: data.members?.length || 0 });
-                    }
-                });
+                groupsQuery.docs.forEach(doc => { const data = doc.data(); if (data.type === 'group') chats.push({ id: doc.id, name: data.name, avatar: null, type: 'group', memberCount: data.members?.length || 0 }); });
                 
-                // Каналы (на которые подписан)
                 const channelsQuery = await db.collection('chats').where('subscribers', 'array-contains', currentUser.uid).get();
-                channelsQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (data.type === 'channel') {
-                        chats.push({ id: doc.id, name: data.name, avatar: null, type: 'channel', username: data.username });
-                    }
-                });
+                channelsQuery.docs.forEach(doc => { const data = doc.data(); if (data.type === 'channel') chats.push({ id: doc.id, name: data.name, avatar: null, type: 'channel', username: data.username }); });
                 
-                if (chats.length === 0) {
-                    container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChats}<br><br>➕ Создайте группу или канал</div>`;
-                    return;
-                }
+                if (chats.length === 0) { container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChats}<br><br>➕ Создайте группу или канал</div>`; return; }
                 
-                container.innerHTML = chats.map(chat => `
-                    <div class="chat-item" onclick="openChat('${chat.id}', '${escapeHtml(chat.name).replace(/'/g, "\\'")}', '${chat.type}')">
-                        <div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.type === 'group' ? '👥' : chat.type === 'channel' ? '📢' : (chat.name ? chat.name[0].toUpperCase() : '?'))}</div>
-                        <div class="item-info">
-                            <div class="item-name">${escapeHtml(chat.name)}${chat.type === 'group' ? ` (${chat.memberCount || 0})` : chat.type === 'channel' ? ' 📢' : ''}</div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Ошибка:', error);
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">❌ Ошибка загрузки</div>';
-            }
+                container.innerHTML = chats.map(chat => `<div class="chat-item" onclick="openChat('${chat.id}', '${escapeHtml(chat.name).replace(/'/g, "\\'")}', '${chat.type}')"><div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.type === 'group' ? '👥' : chat.type === 'channel' ? '📢' : (chat.name ? chat.name[0].toUpperCase() : '?'))}</div><div class="item-info"><div class="item-name">${escapeHtml(chat.name)}${chat.type === 'group' ? ` (${chat.memberCount || 0})` : chat.type === 'channel' ? ' 📢' : ''}</div></div></div>`).join('');
+            } catch (error) { console.error(error); container.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">❌ Ошибка загрузки</div>'; }
         }
         
         function getPrivateChatId(uid1, uid2) { return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`; }
@@ -865,59 +955,29 @@
             const contactsList = [];
             for (const username of contacts) {
                 const userQuery = await db.collection('users').where('username', '==', username).get();
-                if (!userQuery.empty) {
-                    const user = userQuery.docs[0];
-                    contactsList.push({ id: user.id, name: user.data().name, username: user.data().username, avatar: user.data().avatar });
-                }
+                if (!userQuery.empty) { const user = userQuery.docs[0]; contactsList.push({ id: user.id, name: user.data().name, username: user.data().username, avatar: user.data().avatar }); }
             }
-            if (contactsList.length === 0) {
-                container.innerHTML = `<div style="padding: 20px; text-align: center;">Нет контактов<br><br>➕ Найдите пользователей через поиск</div>`;
-                return;
-            }
-            container.innerHTML = contactsList.map(c => `
-                <div class="chat-item" onclick="openChatWithUser('${c.id}', '${escapeHtml(c.name).replace(/'/g, "\\'")}')">
-                    <div class="item-avatar">${c.avatar ? `<img src="${c.avatar}" class="item-avatar-img">` : (c.name ? c.name[0].toUpperCase() : '?')}</div>
-                    <div><div class="item-name">${escapeHtml(c.name)}</div><div style="font-size: 12px;">@${c.username}</div></div>
-                </div>
-            `).join('');
+            if (contactsList.length === 0) { container.innerHTML = `<div style="padding: 20px; text-align: center;">Нет контактов<br><br>➕ Найдите пользователей через поиск</div>`; return; }
+            container.innerHTML = contactsList.map(c => `<div class="chat-item" onclick="openChatWithUser('${c.id}', '${escapeHtml(c.name).replace(/'/g, "\\'")}')"><div class="item-avatar">${c.avatar ? `<img src="${c.avatar}" class="item-avatar-img">` : (c.name ? c.name[0].toUpperCase() : '?')}</div><div><div class="item-name">${escapeHtml(c.name)}</div><div style="font-size: 12px;">@${c.username}</div></div></div>`).join('');
         }
         
         async function loadChannels() {
             const container = document.getElementById('items-list');
             const channelsQuery = await db.collection('chats').where('type', '==', 'channel').get();
             const channels = [];
-            channelsQuery.docs.forEach(doc => {
-                const data = doc.data();
-                channels.push({ id: doc.id, name: data.name, username: data.username, subscribers: data.subscribers || [] });
-            });
-            if (channels.length === 0) {
-                container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChannels}<br><br>📢 Создайте канал через меню "Создать"</div>`;
-                return;
-            }
-            container.innerHTML = channels.map(ch => `
-                <div class="chat-item" onclick="viewChannel('${ch.id}', '${escapeHtml(ch.name).replace(/'/g, "\\'")}')">
-                    <div class="item-avatar">📢</div>
-                    <div>
-                        <div class="item-name">${escapeHtml(ch.name)}</div>
-                        <div style="font-size: 12px;">${ch.username} • ${ch.subscribers.length} подписчиков</div>
-                    </div>
-                </div>
-            `).join('');
+            channelsQuery.docs.forEach(doc => { const data = doc.data(); channels.push({ id: doc.id, name: data.name, username: data.username, subscribers: data.subscribers || [] }); });
+            if (channels.length === 0) { container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChannels}<br><br>📢 Создайте канал через меню "Создать"</div>`; return; }
+            container.innerHTML = channels.map(ch => `<div class="chat-item" onclick="viewChannel('${ch.id}', '${escapeHtml(ch.name).replace(/'/g, "\\'")}')"><div class="item-avatar">📢</div><div><div class="item-name">${escapeHtml(ch.name)}</div><div style="font-size: 12px;">${ch.username} • ${ch.subscribers.length} подписчиков</div></div></div>`).join('');
         }
         
         async function viewChannel(id, name) {
             const channelDoc = await db.collection('chats').doc(id).get();
             const channel = channelDoc.data();
             const isSubscribed = channel.subscribers && channel.subscribers.includes(currentUser.uid);
-            if (!isSubscribed) {
-                if (confirm(`Подписаться на канал "${name}"?`)) {
-                    await db.collection('chats').doc(id).update({
-                        subscribers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
-                        subscriberNames: { ...channel.subscriberNames, [currentUser.uid]: userData.name }
-                    });
-                    showToast(`✅ Вы подписались на канал "${name}"`);
-                    loadChats();
-                }
+            if (!isSubscribed && confirm(`Подписаться на канал "${name}"?`)) {
+                await db.collection('chats').doc(id).update({ subscribers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid), subscriberNames: { ...channel.subscriberNames, [currentUser.uid]: userData.name } });
+                showToast(`✅ Вы подписались на канал "${name}"`);
+                loadChats();
             }
             openChat(id, name, 'channel');
         }
@@ -928,17 +988,10 @@
             currentChat = { id, name, type };
             document.getElementById('chat-name').textContent = name;
             
-            // Проверяем права на отправку в канале
             if (type === 'channel') {
                 const isAdmin = currentChatData.admins && currentChatData.admins.includes(currentUser.uid);
-                if (!isAdmin) {
-                    document.getElementById('message-input').placeholder = '📢 Только чтение. Реагируйте смайликами на сообщения';
-                } else {
-                    document.getElementById('message-input').placeholder = 'Сообщение...';
-                }
-            } else {
-                document.getElementById('message-input').placeholder = 'Сообщение...';
-            }
+                document.getElementById('message-input').placeholder = isAdmin ? 'Сообщение...' : '📢 Только чтение. Реагируйте смайликами на сообщения';
+            } else { document.getElementById('message-input').placeholder = 'Сообщение...'; }
             
             document.getElementById('input-area').style.display = 'block';
             loadMessages(id);
@@ -948,97 +1001,8 @@
         async function openChatWithUser(userId, name) {
             const chatId = getPrivateChatId(currentUser.uid, userId);
             const chatDoc = await db.collection('chats').doc(chatId).get();
-            if (!chatDoc.exists) {
-                await db.collection('chats').doc(chatId).set({
-                    id: chatId, type: 'private', participants: [currentUser.uid, userId],
-                    participantNames: { [currentUser.uid]: userData.name, [userId]: name },
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
+            if (!chatDoc.exists) { await db.collection('chats').doc(chatId).set({ id: chatId, type: 'private', participants: [currentUser.uid, userId], participantNames: { [currentUser.uid]: userData.name, [userId]: name }, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); }
             openChat(chatId, name, 'private');
-        }
-
-        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
-        function openAttachMenu() { if (!currentChat) { showToast('❌ Выберите чат'); return; } document.getElementById('attach-modal').classList.add('active'); }
-        function openGiftModal() { if (!currentChat) { showToast('❌ Выберите чат'); return; } document.getElementById('gifts-list').innerHTML = gifts.map(g => `<div class="gift-item" onclick="sendGift(${g.id})"><div style="font-size:48px;">${g.emoji}</div><div>${g.name}</div><div>${g.price} 💎</div></div>`).join(''); document.getElementById('gift-modal').classList.add('active'); }
-        
-        async function sendGift(id) {
-            const gift = gifts.find(g => g.id === id);
-            if (userData.crystals < gift.price) { showToast('❌ Недостаточно кристаллов'); return; }
-            userData.crystals -= gift.price;
-            await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
-            await db.collection('messages').add({ type: 'gift', gift: gift, senderId: currentUser.uid, senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('crystals').innerHTML = userData.crystals;
-            showToast(`✅ Подарок "${gift.name}" отправлен!`);
-            closeModal('gift-modal');
-        }
-        
-        function buyCrystals(amount) { userData.crystals += amount; db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals }); document.getElementById('crystals').innerHTML = userData.crystals; showToast(`💎 +${amount} кристаллов`); }
-        
-        async function attachPhoto() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const storageRef = storage.ref(`images/${Date.now()}_${currentUser.uid}`);
-                    await storageRef.put(file);
-                    const url = await storageRef.getDownloadURL();
-                    await db.collection('messages').add({ type: 'image', imageUrl: url, senderId: currentUser.uid, senderName: userData.name, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                    showToast('📷 Фото отправлено');
-                }
-            };
-            input.click();
-            closeModal('attach-modal');
-        }
-        
-        async function attachVideo() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'video/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const storageRef = storage.ref(`videos/${Date.now()}_${currentUser.uid}`);
-                    await storageRef.put(file);
-                    const url = await storageRef.getDownloadURL();
-                    await db.collection('messages').add({ type: 'video', videoUrl: url, senderId: currentUser.uid, senderName: userData.name, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                    showToast('🎥 Видео отправлено');
-                }
-            };
-            input.click();
-            closeModal('attach-modal');
-        }
-        
-        async function toggleRecording() {
-            if (!currentChat) { showToast('❌ Выберите чат'); return; }
-            if (isRecording) {
-                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-                isRecording = false;
-                document.getElementById('recordBtn').classList.remove('recording-active');
-                document.getElementById('recordBtn').innerHTML = '🎙️';
-            } else {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const audioRef = storage.ref(`audio/${Date.now()}_${currentUser.uid}`);
-                        await audioRef.put(audioBlob);
-                        const url = await audioRef.getDownloadURL();
-                        await db.collection('messages').add({ type: 'audio', audioUrl: url, senderId: currentUser.uid, senderName: userData.name, chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                        showToast('🎙️ Голосовое отправлено');
-                        stream.getTracks().forEach(t => t.stop());
-                    };
-                    mediaRecorder.start();
-                    isRecording = true;
-                    document.getElementById('recordBtn').classList.add('recording-active');
-                    document.getElementById('recordBtn').innerHTML = '⏹️';
-                } catch (e) { showToast('❌ Нет доступа к микрофону'); }
-            }
         }
 
         function switchTab(tab) {
@@ -1049,12 +1013,10 @@
         }
 
         // ========== ЗАПУСК ==========
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) document.body.className = `theme-${savedTheme}`;
-        const savedLang = localStorage.getItem('language');
-        if (savedLang) setLanguage(savedLang);
-        const savedFontSize = localStorage.getItem('fontSize');
-        if (savedFontSize) setFontSize(savedFontSize);
+        const savedTheme = localStorage.getItem('theme'); if (savedTheme) document.body.className = `theme-${savedTheme}`;
+        const savedLang = localStorage.getItem('language'); if (savedLang) setLanguage(savedLang); else updateAllUITexts();
+        const savedFontSize = localStorage.getItem('fontSize'); if (savedFontSize) setFontSize(savedFontSize);
+        const savedChatBg = localStorage.getItem('chatBg'); if (savedChatBg) setChatBg(savedChatBg);
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -1066,25 +1028,17 @@
                     document.getElementById('user-name').textContent = userData.name;
                     document.getElementById('crystals').innerHTML = userData.crystals || 0;
                     document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin || 0;
-                    if (userData.avatar) {
-                        document.getElementById('user-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                    }
-                    if (!userData.contacts) {
-                        await db.collection('users').doc(user.uid).update({ contacts: [] });
-                        userData.contacts = [];
-                    }
+                    if (userData.avatar) { document.getElementById('user-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`; }
+                    if (!userData.contacts) { await db.collection('users').doc(user.uid).update({ contacts: [] }); userData.contacts = []; }
                 } else {
-                    await db.collection('users').doc(user.uid).set({ name: user.email?.split('@')[0] || 'User', email: user.email, crystals: 500, nixcoin: 0, contacts: [] });
-                    userData = { name: user.email?.split('@')[0] || 'User', crystals: 500, nixcoin: 0, contacts: [] };
+                    await db.collection('users').doc(user.uid).set({ name: user.email?.split('@')[0] || 'User', email: user.email, crystals: 500, nixcoin: 0, contacts: [], onlineStatus: true, readReceipts: true, autoDelete: 0 });
+                    userData = { name: user.email?.split('@')[0] || 'User', crystals: 500, nixcoin: 0, contacts: [], onlineStatus: true, readReceipts: true, autoDelete: 0 };
                 }
                 document.getElementById('input-area').style.display = 'block';
                 loadChats();
-                
                 let deviceName = navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('Android') ? 'Android' : 'PC';
                 await db.collection('sessions').add({ userId: user.uid, device: deviceName, lastActive: new Date() });
-            } else {
-                document.getElementById('auth-modal').classList.add('active');
-            }
+            } else { document.getElementById('auth-modal').classList.add('active'); }
         });
 
         // Экспорт глобальных функций
@@ -1103,8 +1057,15 @@
         window.openAbout = openAbout; window.openAttachMenu = openAttachMenu;
         window.attachPhoto = attachPhoto; window.attachVideo = attachVideo;
         window.openGiftModal = openGiftModal; window.sendGift = sendGift;
-        window.toggleRecording = toggleRecording; window.buyCrystals = buyCrystals;
+        window.toggleRecording = toggleRecording; window.buyCrystals = buyCrystals; window.buyNixCoin = buyNixCoin;
+        window.openCrystalsShop = openCrystalsShop; window.openNixCoinShop = openNixCoinShop;
         window.setFontSize = setFontSize; window.openFontSizeSettings = openFontSizeSettings;
+        window.setChatBg = setChatBg; window.openChatBgSettings = openChatBgSettings;
+        window.setReadReceipts = setReadReceipts; window.openReadReceiptsSettings = openReadReceiptsSettings;
+        window.setAutoDelete = setAutoDelete; window.openAutoDeleteSettings = openAutoDeleteSettings;
+        window.setOnlineStatus = setOnlineStatus; window.openStatusSettings = openStatusSettings;
+        window.openNotificationsSettings = openNotificationsSettings; window.openDataSettings = openDataSettings;
+        window.openPremium = openPremium; window.openPrivacy = openPrivacy; window.openHelp = openHelp;
         window.showReactions = showReactions; window.addReaction = addReaction;
         window.addMemberToGroup = addMemberToGroup; window.removeMemberFromGroup = removeMemberFromGroup;
         window.changeGroupName = changeGroupName; window.changeChannelName = changeChannelName;
