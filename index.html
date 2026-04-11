@@ -145,8 +145,6 @@
         .ringtone-option { padding: 12px; margin: 5px 0; border-radius: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .ringtone-option:hover { background: var(--border); }
         .ringtone-option.selected { background: var(--accent-light); border-left: 3px solid var(--accent); }
-        .voice-level { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-        .voice-level-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s; }
     </style>
 </head>
 <body class="theme-light">
@@ -349,9 +347,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 
     <script>
-        // ========== ШИФРОВАНИЕ AES-256 (ВОЗВРАЩЕНО!) ==========
+        // ========== ШИФРОВАНИЕ AES-256 ==========
         const SECRET_KEY = 'nixao_super_secret_key_2024';
         
         function encryptText(text) {
@@ -392,17 +391,14 @@
         let recordingStartTime = null;
         let recordingTimerInterval = null;
 
-        // Переменные для звонков (через аудиопоток)
+        // Переменные для звонков (PeerJS)
+        let peer = null;
+        let currentCall = null;
         let localStream = null;
-        let isInCall = false;
         let callTimerInterval = null;
         let callStartTime = null;
-        let currentCallId = null;
         let callRingInterval = null;
         let callListenerUnsubscribe = null;
-        let audioContext = null;
-        let mediaStreamDestination = null;
-        let isMuted = false;
 
         // Статус собеседника
         let targetUserStatus = { online: false, lastSeen: null };
@@ -1273,7 +1269,7 @@
                     }
                     
                     snap.docChanges().forEach(change => {
-                        if (change.type === 'added' && change.doc.data().senderId !== currentUser?.uid && change.doc.data().type !== 'call_audio') {
+                        if (change.type === 'added' && change.doc.data().senderId !== currentUser?.uid && change.doc.data().type !== 'call_missed') {
                             playMessageSound();
                         }
                     });
@@ -1297,9 +1293,7 @@
                         } else if (m.type === 'gift') {
                             div.innerHTML = `<div style="text-align:center;"><div style="font-size:48px;">${m.gift.emoji}</div><div><strong>${escapeHtml(m.gift.name)}</strong></div><div>Подарок от ${escapeHtml(m.senderName)}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div></div>`;
                         } else if (m.type === 'call_missed') {
-                            div.innerHTML = `<div style="text-align:center;">${translations[currentLang].missedCall}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
-                        } else if (m.type === 'call_audio') {
-                            div.innerHTML = `<div><audio src="${m.audioData}" class="message-audio" controls></audio></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                            div.innerHTML = `<div style="text-align:center; color: var(--text-secondary);">${translations[currentLang].missedCall}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
                         }
                         
                         if (m.reactions && Object.keys(m.reactions).length > 0) {
@@ -1312,7 +1306,7 @@
                             div.appendChild(reactionDiv);
                         }
                         
-                        if (isMine && m.type !== 'call_audio') {
+                        if (isMine && m.type !== 'call_missed') {
                             const del = document.createElement('button');
                             del.className = 'delete-message-btn';
                             del.innerHTML = '🗑️';
@@ -1505,12 +1499,193 @@
             openChat(chatId, name, 'private');
         }
 
-        // ========== ЗВОНКИ (РЕАЛЬНЫЕ, ЧЕРЕЗ ЗАПИСЬ И ВОСПРОИЗВЕДЕНИЕ) ==========
+        // ========== АУДИОЗВОНКИ (PeerJS - ИСПРАВЛЕННАЯ ВЕРСИЯ) ==========
         
-        let callRecorder = null;
-        let callAudioChunks = [];
-        let isCallActive = false;
-        let callInterval = null;
+        async function initPeer() {
+            if (peer) {
+                console.log('Peer уже инициализирован');
+                return;
+            }
+            
+            const peerId = currentUser.uid;
+            console.log('Инициализация Peer с ID:', peerId);
+            
+            peer = new Peer(peerId, {
+                debug: 3,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                        { urls: 'stun:stun3.l.google.com:19302' },
+                        { urls: 'stun:stun4.l.google.com:19302' }
+                    ]
+                }
+            });
+            
+            peer.on('open', (id) => {
+                console.log('PeerJS подключен, ID:', id);
+                db.collection('users').doc(currentUser.uid).update({ peerId: id, peerReady: true });
+            });
+            
+            peer.on('call', async (call) => {
+                console.log('Входящий звонок от:', call.peer);
+                
+                stopRingtone();
+                playRingtone();
+                
+                const callerDoc = await db.collection('users').doc(call.peer).get();
+                const callerName = callerDoc.exists ? callerDoc.data().name : 'Пользователь';
+                const callerAvatar = callerDoc.exists ? callerDoc.data().avatar : null;
+                
+                showIncomingCallUI(call, callerName, callerAvatar);
+            });
+            
+            peer.on('error', (err) => {
+                console.error('PeerJS ошибка:', err);
+            });
+            
+            peer.on('disconnected', () => {
+                console.log('PeerJS отключен, переподключение...');
+                peer.reconnect();
+            });
+        }
+        
+        function showIncomingCallUI(call, callerName, callerAvatar) {
+            const oldOverlay = document.querySelector('.call-overlay');
+            if (oldOverlay) oldOverlay.remove();
+            
+            window.pendingCall = call;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'call-overlay ringing';
+            overlay.innerHTML = `
+                <div class="call-card">
+                    <div class="call-avatar">${callerAvatar ? `<img src="${callerAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : '📞'}</div>
+                    <div class="call-name">${escapeHtml(callerName)}</div>
+                    <div class="call-status">📞 Входящий звонок...</div>
+                    <div class="call-buttons">
+                        <button class="call-btn call-accept" onclick="acceptCall()">✅</button>
+                        <button class="call-btn call-decline" onclick="declineCall()">❌</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        
+        window.acceptCall = async function() {
+            const call = window.pendingCall;
+            if (!call) return;
+            
+            stopRingtone();
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                call.answer(localStream);
+                currentCall = call;
+                
+                call.on('stream', (remoteStream) => {
+                    const audio = new Audio();
+                    audio.srcObject = remoteStream;
+                    audio.play().catch(e => console.log('Ошибка воспроизведения:', e));
+                });
+                
+                call.on('close', () => {
+                    endCallUI();
+                });
+                
+                call.on('error', (err) => {
+                    console.error('Ошибка звонка:', err);
+                    showToast('❌ Ошибка соединения');
+                    endCallUI();
+                });
+                
+                showActiveCallUI();
+                
+            } catch (err) {
+                console.error('Ошибка при ответе на звонок:', err);
+                showToast('❌ Не удалось получить доступ к микрофону');
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+            }
+            window.pendingCall = null;
+        };
+        
+        window.declineCall = function() {
+            const call = window.pendingCall;
+            if (call) call.close();
+            stopRingtone();
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+            showToast('📞 Звонок отклонен');
+            window.pendingCall = null;
+        };
+        
+        function showActiveCallUI() {
+            const oldOverlay = document.querySelector('.call-overlay');
+            if (oldOverlay) oldOverlay.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'call-overlay';
+            overlay.innerHTML = `
+                <div class="call-card">
+                    <div class="call-avatar">🎤</div>
+                    <div class="call-name">В звонке</div>
+                    <div class="call-timer" id="call-timer">0:00</div>
+                    <div class="call-buttons">
+                        <button class="call-btn call-mute" onclick="toggleMute()">🔇</button>
+                        <button class="call-btn call-end" onclick="endCall()">❌</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            callStartTime = Date.now();
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            callTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                const timerSpan = document.getElementById('call-timer');
+                if (timerSpan) timerSpan.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        function endCallUI() {
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            currentCall = null;
+            showToast('📞 Звонок завершен');
+        }
+        
+        window.endCall = function() {
+            if (currentCall) currentCall.close();
+            endCallUI();
+        };
+        
+        window.toggleMute = function() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    const muteBtn = document.querySelector('.call-mute');
+                    if (muteBtn) {
+                        muteBtn.innerHTML = audioTrack.enabled ? '🔇' : '🔈';
+                        muteBtn.style.opacity = audioTrack.enabled ? '1' : '0.5';
+                    }
+                    showToast(audioTrack.enabled ? '🔊 Микрофон включен' : '🔇 Микрофон выключен');
+                }
+            }
+        };
         
         async function startCall() {
             if (!currentChat || currentChatData.type !== 'private') {
@@ -1535,56 +1710,76 @@
                 return;
             }
             
+            let targetPeerId = targetUserData.peerId;
+            if (!targetPeerId) {
+                showToast('⏳ Ожидание готовности собеседника...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const updatedDoc = await db.collection('users').doc(targetUserId).get();
+                targetPeerId = updatedDoc.data()?.peerId;
+                if (!targetPeerId) {
+                    showToast('❌ Собеседник не готов к звонку');
+                    await sendMissedCallMessage(currentChat.id, targetUserId);
+                    return;
+                }
+            }
+            
             try {
-                // Создаем документ звонка
-                const callDoc = await db.collection('calls').add({
-                    from: currentUser.uid,
-                    to: targetUserId,
-                    status: 'ringing',
-                    startedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                currentCallId = callDoc.id;
+                await initPeer();
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 
                 showOutgoingCallUI(targetUserData.name);
                 playRingtone();
                 
-                // Ждем ответа 30 секунд
-                let answered = false;
-                const checkInterval = setInterval(async () => {
-                    const callCheck = await db.collection('calls').doc(currentCallId).get();
-                    if (callCheck.exists && callCheck.data().status === 'connected') {
-                        answered = true;
-                        clearInterval(checkInterval);
-                        hideOutgoingCallUI();
-                        stopRingtone();
-                        startCallSession(targetUserId);
-                    } else if (callCheck.exists && callCheck.data().status === 'declined') {
-                        clearInterval(checkInterval);
-                        hideOutgoingCallUI();
-                        stopRingtone();
-                        showToast('📞 Звонок отклонен');
-                        currentCallId = null;
-                    }
-                }, 1000);
+                const call = peer.call(targetPeerId, localStream);
+                currentCall = call;
                 
-                setTimeout(async () => {
-                    if (!answered) {
-                        clearInterval(checkInterval);
-                        const callCheck = await db.collection('calls').doc(currentCallId).get();
-                        if (callCheck.exists && callCheck.data().status === 'ringing') {
-                            hideOutgoingCallUI();
-                            stopRingtone();
-                            showToast('❌ Собеседник не ответил');
-                            await db.collection('calls').doc(currentCallId).update({ status: 'missed' });
-                            await sendMissedCallMessage(currentChat.id, targetUserId);
-                            currentCallId = null;
-                        }
+                call.on('stream', (remoteStream) => {
+                    const audio = new Audio();
+                    audio.srcObject = remoteStream;
+                    audio.play().catch(e => console.log('Ошибка воспроизведения:', e));
+                    hideOutgoingCallUI();
+                    stopRingtone();
+                    showActiveCallUI();
+                });
+                
+                call.on('close', () => {
+                    hideOutgoingCallUI();
+                    stopRingtone();
+                    endCallUI();
+                });
+                
+                call.on('error', (err) => {
+                    console.error('Ошибка звонка:', err);
+                    hideOutgoingCallUI();
+                    stopRingtone();
+                    if (err.type === 'peer-unavailable') {
+                        showToast('❌ Собеседник не отвечает');
+                        sendMissedCallMessage(currentChat.id, targetUserId);
+                    } else {
+                        showToast('❌ Ошибка соединения');
+                    }
+                    endCallUI();
+                });
+                
+                setTimeout(() => {
+                    if (currentCall && currentCall.open) {
+                        hideOutgoingCallUI();
+                        stopRingtone();
+                        showToast('❌ Собеседник не ответил');
+                        sendMissedCallMessage(currentChat.id, targetUserId);
+                        endCall();
                     }
                 }, 30000);
                 
             } catch (err) {
-                console.error('Ошибка звонка:', err);
-                showToast('❌ Не удалось начать звонок');
+                console.error('Ошибка при начале звонка:', err);
+                showToast('❌ Не удалось начать звонок. Проверьте микрофон.');
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+                hideOutgoingCallUI();
+                stopRingtone();
             }
         }
         
@@ -1612,7 +1807,7 @@
                     <div class="call-name">${escapeHtml(calleeName)}</div>
                     <div class="call-status">📞 Вызов...</div>
                     <div class="call-buttons">
-                        <button class="call-btn call-end" onclick="endCallSession()">❌ Отменить</button>
+                        <button class="call-btn call-end" onclick="endCall()">❌ Отменить</button>
                     </div>
                 </div>
             `;
@@ -1625,236 +1820,6 @@
                 overlay.remove();
             }
         }
-        
-        // Слушатель входящих звонков
-        function startCallListener() {
-            if (callListenerUnsubscribe) callListenerUnsubscribe();
-            
-            callListenerUnsubscribe = db.collection('calls')
-                .where('to', '==', currentUser.uid)
-                .where('status', '==', 'ringing')
-                .onSnapshot(async (snapshot) => {
-                    for (const change of snapshot.docChanges()) {
-                        if (change.type === 'added') {
-                            const callData = change.doc.data();
-                            console.log('Входящий звонок от:', callData.from);
-                            
-                            const callerDoc = await db.collection('users').doc(callData.from).get();
-                            const callerName = callerDoc.exists ? callerDoc.data().name : 'Пользователь';
-                            const callerAvatar = callerDoc.exists ? callerDoc.data().avatar : null;
-                            
-                            showIncomingCallUI(change.doc.id, callData.from, callerName, callerAvatar);
-                        }
-                    }
-                });
-        }
-        
-        function showIncomingCallUI(callId, fromUserId, callerName, callerAvatar) {
-            const oldOverlay = document.querySelector('.call-overlay');
-            if (oldOverlay) oldOverlay.remove();
-            
-            playRingtone();
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'call-overlay ringing';
-            overlay.innerHTML = `
-                <div class="call-card">
-                    <div class="call-avatar">${callerAvatar ? `<img src="${callerAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : '📞'}</div>
-                    <div class="call-name">${escapeHtml(callerName)}</div>
-                    <div class="call-status">📞 Входящий звонок...</div>
-                    <div class="call-buttons">
-                        <button class="call-btn call-accept" onclick="acceptCallSession('${callId}', '${fromUserId}')">✅</button>
-                        <button class="call-btn call-decline" onclick="declineCallSession('${callId}')">❌</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-            window.currentIncomingCallId = callId;
-            window.currentIncomingCallerId = fromUserId;
-        }
-        
-        window.acceptCallSession = async function(callId, fromUserId) {
-            stopRingtone();
-            const overlay = document.querySelector('.call-overlay');
-            if (overlay) overlay.remove();
-            
-            await db.collection('calls').doc(callId).update({ status: 'connected', acceptedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            currentCallId = callId;
-            startCallSession(fromUserId);
-        };
-        
-        window.declineCallSession = async function(callId) {
-            stopRingtone();
-            const overlay = document.querySelector('.call-overlay');
-            if (overlay) overlay.remove();
-            await db.collection('calls').doc(callId).update({ status: 'declined' });
-            showToast('📞 Звонок отклонен');
-        };
-        
-        async function startCallSession(targetUserId) {
-            if (isCallActive) return;
-            isCallActive = true;
-            
-            try {
-                // Получаем доступ к микрофону
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Создаем AudioContext для обработки
-                audioContext = new AudioContext();
-                const source = audioContext.createMediaStreamSource(localStream);
-                const destination = audioContext.createMediaStreamDestination();
-                source.connect(destination);
-                
-                // Настраиваем запись
-                callRecorder = new MediaRecorder(destination.stream);
-                callAudioChunks = [];
-                
-                callRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
-                        callAudioChunks.push(e.data);
-                    }
-                };
-                
-                callRecorder.start(1000);
-                
-                // Отправляем аудио каждые 2 секунды
-                callInterval = setInterval(async () => {
-                    if (callRecorder && callRecorder.state === 'recording' && callAudioChunks.length > 0) {
-                        const audioBlob = new Blob(callAudioChunks, { type: 'audio/webm' });
-                        callAudioChunks = [];
-                        
-                        const reader = new FileReader();
-                        reader.onload = async (ev) => {
-                            const audioData = ev.target.result;
-                            await db.collection('messages').add({
-                                type: 'call_audio',
-                                audioData: audioData,
-                                senderId: currentUser.uid,
-                                senderName: userData.name,
-                                chatId: currentChat.id,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        };
-                        reader.readAsDataURL(audioBlob);
-                    }
-                }, 2000);
-                
-                // Показываем UI активного звонка
-                showActiveCallUI();
-                
-                // Запускаем таймер
-                callStartTime = Date.now();
-                if (callTimerInterval) clearInterval(callTimerInterval);
-                callTimerInterval = setInterval(() => {
-                    if (isCallActive) {
-                        const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-                        const mins = Math.floor(elapsed / 60);
-                        const secs = elapsed % 60;
-                        const timerSpan = document.getElementById('call-timer');
-                        if (timerSpan) timerSpan.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-                    }
-                }, 1000);
-                
-            } catch (err) {
-                console.error('Ошибка начала сессии звонка:', err);
-                showToast('❌ Не удалось получить доступ к микрофону');
-                endCallSession();
-            }
-        }
-        
-        function showActiveCallUI() {
-            const oldOverlay = document.querySelector('.call-overlay');
-            if (oldOverlay) oldOverlay.remove();
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'call-overlay';
-            overlay.innerHTML = `
-                <div class="call-card">
-                    <div class="call-avatar">🎤</div>
-                    <div class="call-name">В звонке</div>
-                    <div class="call-timer" id="call-timer">0:00</div>
-                    <div class="voice-level"><div class="voice-level-fill" id="voice-level-fill"></div></div>
-                    <div class="call-buttons">
-                        <button class="call-btn call-mute" onclick="toggleCallMute()">🔇</button>
-                        <button class="call-btn call-end" onclick="endCallSession()">❌</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-            
-            // Визуализация уровня звука
-            if (audioContext && localStream) {
-                const source = audioContext.createMediaStreamSource(localStream);
-                const analyser = audioContext.createAnalyser();
-                source.connect(analyser);
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                
-                const updateLevel = () => {
-                    if (isCallActive) {
-                        analyser.getByteTimeDomainData(dataArray);
-                        let max = 0;
-                        for (let i = 0; i < dataArray.length; i++) {
-                            const v = (dataArray[i] - 128) / 128;
-                            max = Math.max(max, Math.abs(v));
-                        }
-                        const levelFill = document.getElementById('voice-level-fill');
-                        if (levelFill) levelFill.style.width = (max * 100) + '%';
-                        requestAnimationFrame(updateLevel);
-                    }
-                };
-                updateLevel();
-            }
-        }
-        
-        function toggleCallMute() {
-            if (localStream) {
-                const audioTrack = localStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    isMuted = !isMuted;
-                    audioTrack.enabled = !isMuted;
-                    const muteBtn = document.querySelector('.call-mute');
-                    if (muteBtn) {
-                        muteBtn.innerHTML = isMuted ? '🔈' : '🔇';
-                        muteBtn.style.opacity = isMuted ? '0.5' : '1';
-                    }
-                    showToast(isMuted ? '🔇 Микрофон выключен' : '🔊 Микрофон включен');
-                }
-            }
-        }
-        
-        window.endCallSession = function() {
-            if (callInterval) {
-                clearInterval(callInterval);
-                callInterval = null;
-            }
-            if (callTimerInterval) {
-                clearInterval(callTimerInterval);
-                callTimerInterval = null;
-            }
-            if (callRecorder && callRecorder.state === 'recording') {
-                callRecorder.stop();
-            }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
-            }
-            if (currentCallId) {
-                db.collection('calls').doc(currentCallId).update({ status: 'ended' });
-                currentCallId = null;
-            }
-            isCallActive = false;
-            isMuted = false;
-            
-            const overlay = document.querySelector('.call-overlay');
-            if (overlay) overlay.remove();
-            showToast('📞 Звонок завершен');
-        };
-        
-        window.endCall = endCallSession;
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1892,7 +1857,7 @@
                 document.getElementById('input-area').style.display = 'block';
                 loadChats();
                 
-                startCallListener();
+                await initPeer();
                 
                 let deviceName = navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('Android') ? 'Android' : 'PC';
                 await db.collection('sessions').add({ userId: user.uid, device: deviceName, lastActive: new Date() });
@@ -1933,8 +1898,8 @@
         window.deleteAccount = deleteAccount; window.openUserProfile = openUserProfile;
         window.addContactFromProfile = addContactFromProfile;
         window.openRingtoneSettings = openRingtoneSettings; window.selectRingtone = selectRingtone; window.previewRingtone = previewRingtone;
-        window.startCall = startCall; window.endCall = endCallSession; window.toggleCallMute = toggleCallMute;
-        window.acceptCallSession = acceptCallSession; window.declineCallSession = declineCallSession;
+        window.startCall = startCall; window.endCall = endCall; window.toggleMute = toggleMute;
+        window.acceptCall = acceptCall; window.declineCall = declineCall;
     </script>
 </body>
 </html>
