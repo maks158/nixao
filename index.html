@@ -117,6 +117,7 @@
         .admin-badge { background: gold; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; }
         .remove-member-btn { background: #ff4444; color: white; border: none; border-radius: 20px; padding: 4px 12px; cursor: pointer; font-size: 12px; }
         .subscribe-btn { background: var(--accent); color: white; border: none; border-radius: 20px; padding: 8px 16px; cursor: pointer; margin-top: 10px; }
+        .recording-time { font-size: 12px; margin-left: 8px; color: #ff4444; }
     </style>
 </head>
 <body class="theme-light">
@@ -174,11 +175,14 @@
                     <button class="record-btn" id="recordBtn" onclick="toggleRecording()">🎙️</button>
                     <button class="icon-btn" id="send-btn" onclick="sendMessage()">📤</button>
                 </div>
+                <div id="recording-status" style="display: none; text-align: center; margin-top: 5px; font-size: 12px; color: #ff4444;">
+                    🔴 Запись... <span id="recording-timer">0:00</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- МОДАЛКИ -->
+    <!-- МОДАЛКИ (все сохранены) -->
     <div id="auth-modal" class="modal active">
         <div class="modal-content">
             <div class="modal-header">🔐 Вход / Регистрация</div>
@@ -209,6 +213,10 @@
             <input type="text" id="profile-name" class="modal-input" placeholder="Имя">
             <input type="text" id="profile-username" class="modal-input" placeholder="@username">
             <textarea id="profile-bio" class="modal-input" rows="3" placeholder="О себе"></textarea>
+            <div class="settings-section">
+                <div class="settings-item" onclick="openCrystalsShop()"><span>💎 Кристаллы: <span id="profile-crystals">0</span></span><span>➡️</span></div>
+                <div class="settings-item" onclick="openNixCoinShop()"><span>🪙 NixCoin: <span id="profile-nixcoin">0</span></span><span>➡️</span></div>
+            </div>
             <button class="modal-btn" onclick="saveProfile()">Сохранить</button>
             <button class="modal-btn secondary" onclick="closeModal('profile-modal')">Закрыть</button>
         </div>
@@ -240,7 +248,7 @@
 
     <div id="chat-info-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header" id="chat-info-header">ℹ️ Информация</div>
+            <div class="modal-header">ℹ️ Информация</div>
             <div id="chat-info-content"></div>
             <button class="modal-btn secondary" onclick="closeModal('chat-info-modal')">Закрыть</button>
         </div>
@@ -265,7 +273,7 @@
     </div>
 
     <div id="theme-modal" class="modal"><div class="modal-content"><div class="modal-header">🎨 Тема</div><button class="modal-btn" onclick="setTheme('light')">☀️ Светлая</button><button class="modal-btn" onclick="setTheme('dark')">🌙 Темная</button><button class="modal-btn secondary" onclick="closeModal('theme-modal')">Отмена</button></div></div>
-    <div id="language-modal" class="modal"><div class="modal-content"><div class="modal-header">🌐 Язык</div><button class="modal-btn" onclick="setLanguage('ru')">🇷🇺 Русский</button><button class="modal-btn" onclick="setLanguage('en')">🇬🇧 English</button><button class="modal-btn secondary" onclick="closeModal('language-modal')">Отмена</button></div></div>
+    <div id="language-modal" class="modal"><div class="modal-content"><div class="modal-header">🌐 Язык</div><button class="modal-btn" onclick="setLanguage('ru')">🇷🇺 Русский</button><button class="modal-btn" onclick="setLanguage('en')">🇬🇧 English</button><button class="modal-btn" onclick="setLanguage('be')">🇧🇾 Беларуская</button><button class="modal-btn secondary" onclick="closeModal('language-modal')">Отмена</button></div></div>
     <div id="fontsize-modal" class="modal"><div class="modal-content"><div class="modal-header">🔤 Размер шрифта</div><button class="font-size-btn" onclick="setFontSize('small')">Маленький</button><button class="font-size-btn" onclick="setFontSize('medium')">Средний</button><button class="font-size-btn" onclick="setFontSize('large')">Большой</button><button class="modal-btn secondary" onclick="closeModal('fontsize-modal')">Отмена</button></div></div>
     <div id="chatbg-modal" class="modal"><div class="modal-content"><div class="modal-header">🖼️ Фон чата</div><div class="chat-bg-item" onclick="setChatBg('default')">🌊 По умолчанию</div><div class="chat-bg-item" onclick="setChatBg('dark')">🌙 Темный фон</div><div class="chat-bg-item" onclick="setChatBg('forest')">🌲 Лес</div><div class="chat-bg-item" onclick="setChatBg('ocean')">🌊 Океан</div><button class="modal-btn secondary" onclick="closeModal('chatbg-modal')">Закрыть</button></div></div>
     <div id="readreceipts-modal" class="modal"><div class="modal-content"><div class="modal-header">👁️ Чётки (прочтено)</div><button class="modal-btn" onclick="setReadReceipts(true)">✅ Включить</button><button class="modal-btn" onclick="setReadReceipts(false)">❌ Выключить</button><button class="modal-btn secondary" onclick="closeModal('readreceipts-modal')">Отмена</button></div></div>
@@ -292,9 +300,8 @@
         const SECRET_KEY = 'nixao_super_secret_key_2024';
         
         function encryptText(text) {
-            try {
-                return CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
-            } catch(e) { return text; }
+            try { return CryptoJS.AES.encrypt(text, SECRET_KEY).toString(); } 
+            catch(e) { return text; }
         }
         
         function decryptText(encryptedText) {
@@ -305,7 +312,7 @@
             } catch(e) { return encryptedText; }
         }
 
-        // Firebase config (только Auth и Firestore, Storage не используется)
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyBwX0gTIGwKSVGcE3TF6f5TYbG1Q0HB6mA",
             authDomain: "nixaayymessage.firebaseapp.com",
@@ -327,16 +334,8 @@
         let audioChunks = [];
         let isRecording = false;
         let currentMessagesUnsubscribe = null;
-
-        // Локальное хранилище для медиафайлов (IndexedDB)
-        let mediaStore = {
-            async save(key, data) {
-                localStorage.setItem(`media_${key}`, data);
-            },
-            async get(key) {
-                return localStorage.getItem(`media_${key}`);
-            }
-        };
+        let recordingStartTime = null;
+        let recordingTimerInterval = null;
 
         const gifts = [
             { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹' }, { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻' },
@@ -355,27 +354,9 @@
 
         let currentLang = 'ru';
         const translations = {
-            ru: { 
-                welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', 
-                noContacts: 'Нет контактов', noChannels: '📢 Нет подписок на каналы', 
-                about: 'Нихауу v2.0 - мессенджер с AES-256 шифрованием',
-                privacy: 'Нихауу заботится о вашей конфиденциальности. Все сообщения шифруются AES-256.',
-                inputPlaceholder: 'Сообщение...'
-            },
-            en: { 
-                welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', 
-                noContacts: 'No contacts', noChannels: '📢 No channel subscriptions', 
-                about: 'Nixao v2.0 - messenger with AES-256 encryption',
-                privacy: 'Nixao cares about your privacy. All messages are encrypted with AES-256.',
-                inputPlaceholder: 'Message...'
-            },
-            be: {
-                welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨', noMessages: '💬 Няма паведамленняў', noChats: 'Няма чатаў',
-                noContacts: 'Няма кантактаў', noChannels: '📢 Няма падпісак на каналы',
-                about: 'Ніхауу v2.0 - месенджар з AES-256 шыфраваннем',
-                privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Усе паведамленні шыфруюцца AES-256.',
-                inputPlaceholder: 'Паведамленне...'
-            }
+            ru: { welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', noContacts: 'Нет контактов', noChannels: '📢 Нет подписок на каналы', about: 'Нихауу v2.0 - мессенджер с AES-256 шифрованием', privacy: 'Нихауу заботится о вашей конфиденциальности. Все сообщения шифруются AES-256.', inputPlaceholder: 'Сообщение...' },
+            en: { welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', noContacts: 'No contacts', noChannels: '📢 No channel subscriptions', about: 'Nixao v2.0 - messenger with AES-256 encryption', privacy: 'Nixao cares about your privacy. All messages are encrypted with AES-256.', inputPlaceholder: 'Message...' },
+            be: { welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨', noMessages: '💬 Няма паведамленняў', noChats: 'Няма чатаў', noContacts: 'Няма кантактаў', noChannels: '📢 Няма падпісак на каналы', about: 'Ніхауу v2.0 - месенджар з AES-256 шыфраваннем', privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Усе паведамленні шыфруюцца AES-256.', inputPlaceholder: 'Паведамленне...' }
         };
 
         function updateAllUITexts() {
@@ -514,15 +495,12 @@
         async function createGroup() {
             const name = document.getElementById('group-name').value.trim();
             if (!name) { alert('Введите название группы'); return; }
-            
             const groupId = 'group_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-            
             await db.collection('chats').doc(groupId).set({
                 id: groupId, type: 'group', name: name, creatorId: currentUser.uid, creatorName: userData.name,
                 members: [currentUser.uid], admins: [currentUser.uid], memberNames: { [currentUser.uid]: userData.name },
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(), avatar: null
             });
-            
             showToast(`✅ Группа "${name}" создана!`);
             closeModal('create-group-modal');
             loadChats();
@@ -534,18 +512,14 @@
             const username = document.getElementById('channel-username').value.trim();
             if (!name || !username) { alert('Введите название и @username канала'); return; }
             if (!username.startsWith('@')) { alert('Username должен начинаться с @'); return; }
-            
             const existing = await db.collection('chats').where('username', '==', username).get();
             if (!existing.empty) { alert('❌ Канал с таким @username уже существует'); return; }
-            
             const channelId = 'channel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-            
             await db.collection('chats').doc(channelId).set({
                 id: channelId, type: 'channel', name: name, username: username, creatorId: currentUser.uid, creatorName: userData.name,
                 subscribers: [currentUser.uid], admins: [currentUser.uid], subscriberNames: { [currentUser.uid]: userData.name },
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(), avatar: null
             });
-            
             showToast(`✅ Канал "${name}" создан!`);
             closeModal('create-channel-modal');
             loadChats();
@@ -741,7 +715,6 @@
                     reader.onload = async (ev) => {
                         const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
                         const mediaData = ev.target.result;
-                        await mediaStore.save(mediaId, mediaData);
                         await db.collection('messages').add({
                             type: 'image', imageData: mediaData, imageId: mediaId, senderId: currentUser.uid,
                             senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
@@ -769,7 +742,6 @@
                     reader.onload = async (ev) => {
                         const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
                         const mediaData = ev.target.result;
-                        await mediaStore.save(mediaId, mediaData);
                         await db.collection('messages').add({
                             type: 'video', videoData: mediaData, videoId: mediaId, senderId: currentUser.uid,
                             senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
@@ -784,42 +756,183 @@
             closeModal('attach-modal');
         }
 
-        // ========== ГОЛОСОВЫЕ (без Storage) ==========
+        // ========== ГОЛОСОВЫЕ (исправлено для iPhone) ==========
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function startRecordingTimer() {
+            recordingStartTime = Date.now();
+            if (recordingTimerInterval) clearInterval(recordingTimerInterval);
+            recordingTimerInterval = setInterval(() => {
+                if (isRecording) {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const timerSpan = document.getElementById('recording-timer');
+                    if (timerSpan) timerSpan.textContent = formatTime(elapsed);
+                }
+            }, 1000);
+        }
+
+        function stopRecordingTimer() {
+            if (recordingTimerInterval) {
+                clearInterval(recordingTimerInterval);
+                recordingTimerInterval = null;
+            }
+        }
+
         async function toggleRecording() {
             if (!currentChat) { showToast('❌ Выберите чат'); return; }
+            
             if (isRecording) {
-                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+                // Останавливаем запись
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
                 isRecording = false;
+                stopRecordingTimer();
                 document.getElementById('recordBtn').classList.remove('recording-active');
                 document.getElementById('recordBtn').innerHTML = '🎙️';
+                document.getElementById('recording-status').style.display = 'none';
+                showToast('⏹️ Запись остановлена, обработка...');
             } else {
+                // Начинаем запись
                 try {
+                    // Проверяем поддержку медиа устройств
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        showToast('❌ Ваш браузер не поддерживает запись audio');
+                        return;
+                    }
+                    
+                    showToast('🎤 Запрос доступа к микрофону...');
+                    
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
+                    
+                    // Определяем поддерживаемые MIME типы для iPhone
+                    let mimeType = '';
+                    const mimeTypes = [
+                        'audio/webm',
+                        'audio/mp4',
+                        'audio/mpeg',
+                        'audio/wav',
+                        'audio/ogg',
+                        'audio/x-m4a'
+                    ];
+                    
+                    for (const type of mimeTypes) {
+                        if (MediaRecorder.isTypeSupported(type)) {
+                            mimeType = type;
+                            break;
+                        }
+                    }
+                    
+                    console.log('Используемый MIME тип:', mimeType || 'стандартный');
+                    
+                    // Создаем MediaRecorder с поддержкой iPhone
+                    const options = mimeType ? { mimeType: mimeType } : {};
+                    mediaRecorder = new MediaRecorder(stream, options);
                     audioChunks = [];
-                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const reader = new FileReader();
-                        reader.onload = async (ev) => {
-                            const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-                            const mediaData = ev.target.result;
-                            await mediaStore.save(mediaId, mediaData);
-                            await db.collection('messages').add({
-                                type: 'audio', audioData: mediaData, audioId: mediaId, senderId: currentUser.uid,
-                                senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                            showToast('🎙️ Голосовое отправлено');
-                        };
-                        reader.readAsDataURL(audioBlob);
-                        stream.getTracks().forEach(t => t.stop());
+                    
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) {
+                            audioChunks.push(e.data);
+                        }
                     };
-                    mediaRecorder.start();
+                    
+                    mediaRecorder.onstop = async () => {
+                        try {
+                            // Создаем blob из полученных данных
+                            let audioBlob;
+                            if (audioChunks.length === 0) {
+                                showToast('❌ Нет аудиоданных');
+                                stream.getTracks().forEach(t => t.stop());
+                                return;
+                            }
+                            
+                            // Определяем тип для blob
+                            const blobType = mimeType || 'audio/webm';
+                            audioBlob = new Blob(audioChunks, { type: blobType });
+                            
+                            if (audioBlob.size === 0) {
+                                showToast('❌ Аудиофайл пустой');
+                                stream.getTracks().forEach(t => t.stop());
+                                return;
+                            }
+                            
+                            showToast('📤 Отправка голосового сообщения...');
+                            
+                            const reader = new FileReader();
+                            reader.onload = async (ev) => {
+                                try {
+                                    const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                                    const mediaData = ev.target.result;
+                                    
+                                    await db.collection('messages').add({
+                                        type: 'audio',
+                                        audioData: mediaData,
+                                        audioId: mediaId,
+                                        audioMimeType: blobType,
+                                        senderId: currentUser.uid,
+                                        senderName: userData.name,
+                                        senderAvatar: userData.avatar,
+                                        chatId: currentChat.id,
+                                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                                    });
+                                    
+                                    showToast('🎙️ Голосовое отправлено');
+                                } catch (error) {
+                                    console.error('Ошибка при отправке:', error);
+                                    showToast('❌ Ошибка отправки: ' + error.message);
+                                }
+                            };
+                            
+                            reader.onerror = () => {
+                                showToast('❌ Ошибка чтения аудио');
+                            };
+                            
+                            reader.readAsDataURL(audioBlob);
+                            
+                        } catch (error) {
+                            console.error('Ошибка при обработке аудио:', error);
+                            showToast('❌ Ошибка обработки аудио');
+                        } finally {
+                            stream.getTracks().forEach(t => t.stop());
+                            audioChunks = [];
+                        }
+                    };
+                    
+                    mediaRecorder.onerror = (event) => {
+                        console.error('MediaRecorder ошибка:', event);
+                        showToast('❌ Ошибка записи');
+                        isRecording = false;
+                        document.getElementById('recordBtn').classList.remove('recording-active');
+                        document.getElementById('recordBtn').innerHTML = '🎙️';
+                        document.getElementById('recording-status').style.display = 'none';
+                        stopRecordingTimer();
+                        if (stream) stream.getTracks().forEach(t => t.stop());
+                    };
+                    
+                    // Запрашиваем данные каждую секунду для лучшей совместимости
+                    mediaRecorder.start(1000);
                     isRecording = true;
+                    startRecordingTimer();
                     document.getElementById('recordBtn').classList.add('recording-active');
                     document.getElementById('recordBtn').innerHTML = '⏹️';
-                } catch (e) { showToast('❌ Нет доступа к микрофону'); }
+                    document.getElementById('recording-status').style.display = 'block';
+                    document.getElementById('recording-timer').textContent = '0:00';
+                    showToast('🔴 Запись... Нажмите еще раз для остановки');
+                    
+                } catch (error) {
+                    console.error('Ошибка доступа к микрофону:', error);
+                    if (error.name === 'NotAllowedError') {
+                        showToast('❌ Разрешите доступ к микрофону в настройках браузера');
+                    } else if (error.name === 'NotFoundError') {
+                        showToast('❌ Микрофон не найден');
+                    } else {
+                        showToast('❌ Ошибка: ' + error.message);
+                    }
+                }
             }
         }
 
@@ -840,8 +953,7 @@
         }
 
         // ========== РЕАКЦИИ ==========
-        let currentMessageForReaction = null;
-        function showReactions(messageId) { currentMessageForReaction = messageId; document.getElementById('reactions-list').innerHTML = reactions.map(r => `<button class="reaction-btn" onclick="addReaction('${messageId}', '${r}')">${r}</button>`).join(''); document.getElementById('reactions-modal').classList.add('active'); }
+        function showReactions(messageId) { document.getElementById('reactions-list').innerHTML = reactions.map(r => `<button class="reaction-btn" onclick="addReaction('${messageId}', '${r}')">${r}</button>`).join(''); document.getElementById('reactions-modal').classList.add('active'); }
         
         async function addReaction(messageId, reaction) {
             const messageRef = db.collection('messages').doc(messageId);
