@@ -15,16 +15,81 @@
             --bg: #e8f0fe; --bg-secondary: #ffffff; --text: #1a1a1a; --text-secondary: #5f6368;
             --border: #dadce0; --message-out: #e3f2fd; --message-in: #ffffff; --accent: #1a73e8;
             --accent-light: #e8f0fe; --shadow: 0 1px 2px rgba(0,0,0,0.05); --card-bg: #ffffff;
-            --header-bg: #ffffff; --unread-bg: #1a73e8;
+            --header-bg: #ffffff; --unread-bg: #1a73e8; --call-bg: #4caf50;
         }
         body.theme-dark {
             --bg: #0a0a0a; --bg-secondary: #1a1a1a; --text: #ffffff; --text-secondary: #9aa0a6;
             --border: #2d2d2d; --message-out: #1e3a5f; --message-in: #2d2d2d; --accent: #1a73e8;
             --accent-light: #1a1a2e; --shadow: 0 1px 2px rgba(0,0,0,0.2); --card-bg: #1e1e1e;
-            --header-bg: #0a0a0a; --unread-bg: #1a73e8;
+            --header-bg: #0a0a0a; --unread-bg: #1a73e8; --call-bg: #2e7d32;
         }
+        /* Стили для звонков */
+        .call-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 0.3s;
+        }
+        .call-card {
+            background: var(--bg-secondary);
+            border-radius: 32px;
+            padding: 30px;
+            text-align: center;
+            min-width: 280px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .call-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            margin: 0 auto 20px;
+        }
+        .call-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .call-status {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        .call-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .call-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .call-btn:active { transform: scale(0.95); }
+        .call-accept { background: #4caf50; color: white; }
+        .call-decline { background: #f44336; color: white; }
+        .call-end { background: #f44336; color: white; }
+        .call-mute { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        .call-timer { font-size: 32px; font-weight: 700; margin: 20px 0; font-family: monospace; }
+        @keyframes pulse-call { 0%,100%{opacity:1;}50%{opacity:0.5;} }
+        .ringing { animation: pulse-call 1s infinite; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.1);opacity:0.7;} }
+        /* Остальные стили */
         #app { display: flex; height: 100%; width: 100%; background: var(--bg); color: var(--text); }
         #sidebar {
             width: 85%; max-width: 360px; background: var(--bg-secondary); border-right: 1px solid var(--border);
@@ -118,6 +183,7 @@
         .remove-member-btn { background: #ff4444; color: white; border: none; border-radius: 20px; padding: 4px 12px; cursor: pointer; font-size: 12px; }
         .subscribe-btn { background: var(--accent); color: white; border: none; border-radius: 20px; padding: 8px 16px; cursor: pointer; margin-top: 10px; }
         .recording-time { font-size: 12px; margin-left: 8px; color: #ff4444; }
+        .call-badge { background: #f44336; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; margin-left: 5px; }
     </style>
 </head>
 <body class="theme-light">
@@ -163,6 +229,7 @@
                     <div id="chat-status"></div>
                 </div>
                 <div class="chat-actions">
+                    <button class="icon-btn" id="call-btn" onclick="startCall()">📞</button>
                     <button class="icon-btn" id="info-btn" onclick="openChatInfo()">ℹ️</button>
                     <button class="icon-btn" id="gift-btn" onclick="openGiftModal()" style="background: var(--accent-light);">🎁</button>
                 </div>
@@ -294,6 +361,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 
     <script>
         // ========== ШИФРОВАНИЕ AES-256 ==========
@@ -337,26 +405,29 @@
         let recordingStartTime = null;
         let recordingTimerInterval = null;
 
+        // Переменные для звонков
+        let peer = null;
+        let currentCall = null;
+        let localStream = null;
+        let callTimerInterval = null;
+        let callStartTime = null;
+
         const gifts = [
             { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹' }, { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻' },
             { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸' }, { id: 4, name: '🌺 Гибискус', price: 35, emoji: '🌺' },
             { id: 5, name: '🌷 Тюльпан', price: 40, emoji: '🌷' }, { id: 6, name: '🌼 Ромашка', price: 45, emoji: '🌼' },
             { id: 7, name: '💐 Букет', price: 60, emoji: '💐' }, { id: 8, name: '🎂 Торт', price: 80, emoji: '🎂' },
             { id: 9, name: '🧸 Мишка', price: 100, emoji: '🧸' }, { id: 10, name: '💍 Кольцо', price: 150, emoji: '💍' },
-            { id: 11, name: '👑 Корона', price: 200, emoji: '👑' }, { id: 12, name: '💎 Бриллиант', price: 300, emoji: '💎' },
-            { id: 13, name: '⭐ Золотая звезда', price: 400, emoji: '⭐' }, { id: 14, name: '🌙 Лунный камень', price: 500, emoji: '🌙' },
-            { id: 15, name: '🔥 Вечный огонь', price: 600, emoji: '🔥' }, { id: 16, name: '❄️ Снежинка', price: 700, emoji: '❄️' },
-            { id: 17, name: '🌈 Единорог', price: 800, emoji: '🦄' }, { id: 18, name: '🐉 Дракон', price: 1000, emoji: '🐉' },
-            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚' }, { id: 20, name: '👾 Космос', price: 2000, emoji: '👾' }
+            { id: 11, name: '👑 Корона', price: 200, emoji: '👑' }, { id: 12, name: '💎 Бриллиант', price: 300, emoji: '💎' }
         ];
 
         const reactions = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
         let currentLang = 'ru';
         const translations = {
-            ru: { welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', noContacts: 'Нет контактов', noChannels: '📢 Нет подписок на каналы', about: 'Нихауу v2.0 - мессенджер с AES-256 шифрованием', privacy: 'Нихауу заботится о вашей конфиденциальности. Все сообщения шифруются AES-256.', inputPlaceholder: 'Сообщение...' },
-            en: { welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', noContacts: 'No contacts', noChannels: '📢 No channel subscriptions', about: 'Nixao v2.0 - messenger with AES-256 encryption', privacy: 'Nixao cares about your privacy. All messages are encrypted with AES-256.', inputPlaceholder: 'Message...' },
-            be: { welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨', noMessages: '💬 Няма паведамленняў', noChats: 'Няма чатаў', noContacts: 'Няма кантактаў', noChannels: '📢 Няма падпісак на каналы', about: 'Ніхауу v2.0 - месенджар з AES-256 шыфраваннем', privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Усе паведамленні шыфруюцца AES-256.', inputPlaceholder: 'Паведамленне...' }
+            ru: { welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', noContacts: 'Нет контактов', noChannels: '📢 Нет подписок на каналы', about: 'Нихауу v2.0 - мессенджер с AES-256 шифрованием и аудиозвонками', privacy: 'Нихауу заботится о вашей конфиденциальности. Все сообщения шифруются AES-256, звонки P2P.', inputPlaceholder: 'Сообщение...' },
+            en: { welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', noContacts: 'No contacts', noChannels: '📢 No channel subscriptions', about: 'Nixao v2.0 - messenger with AES-256 encryption and audio calls', privacy: 'Nixao cares about your privacy. All messages are encrypted with AES-256, calls are P2P.', inputPlaceholder: 'Message...' },
+            be: { welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨', noMessages: '💬 Няма паведамленняў', noChats: 'Няма чатаў', noContacts: 'Няма кантактаў', noChannels: '📢 Няма падпісак на каналы', about: 'Ніхауу v2.0 - месенджар з AES-256 шыфраваннем і аўдыёзванкамі', privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Усе паведамленні шыфруюцца AES-256, званкі P2P.', inputPlaceholder: 'Паведамленне...' }
         };
 
         function updateAllUITexts() {
@@ -604,7 +675,7 @@
                     ${isAdmin ? `<button class="modal-btn" onclick="changeChannelName()">✏️ Изменить название</button>` : ''}
                 `;
             } else {
-                content.innerHTML = `<div style="text-align: center;"><div class="avatar" style="width: 80px; height: 80px; margin: 0 auto;">👤</div><h3>${escapeHtml(currentChatData.name)}</h3><div style="color: var(--text-secondary);">Личный чат</div></div>`;
+                content.innerHTML = `<div style="text-align: center;"><div class="avatar" style="width: 80px; height: 80px; margin: 0 auto;">👤</div><h3>${escapeHtml(currentChatData.name)}</h3><div style="color: var(--text-secondary);">Личный чат</div><button class="modal-btn" onclick="startCall()">📞 Позвонить</button></div>`;
             }
             document.getElementById('chat-info-modal').classList.add('active');
         }
@@ -680,6 +751,272 @@
             }
         }
 
+        // ========== АУДИОЗВОНКИ (WebRTC) ==========
+        
+        // Инициализация PeerJS
+        async function initPeer() {
+            if (peer) return;
+            
+            // Генерируем уникальный ID для пользователя
+            const peerId = currentUser.uid;
+            
+            peer = new Peer(peerId, {
+                debug: 2,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' }
+                    ]
+                }
+            });
+            
+            peer.on('open', (id) => {
+                console.log('PeerJS подключен, ID:', id);
+                // Сохраняем peerId в Firestore для обнаружения
+                db.collection('users').doc(currentUser.uid).update({ peerId: id });
+            });
+            
+            peer.on('call', async (call) => {
+                console.log('Входящий звонок от:', call.peer);
+                
+                // Получаем информацию о звонящем
+                const callerDoc = await db.collection('users').doc(call.peer).get();
+                const callerName = callerDoc.exists ? callerDoc.data().name : 'Пользователь';
+                const callerAvatar = callerDoc.exists ? callerDoc.data().avatar : null;
+                
+                // Показываем UI входящего звонка
+                showIncomingCallUI(call, callerName, callerAvatar);
+            });
+            
+            peer.on('error', (err) => {
+                console.error('PeerJS ошибка:', err);
+                showToast('❌ Ошибка соединения для звонка');
+            });
+            
+            peer.on('disconnected', () => {
+                console.log('PeerJS отключен');
+            });
+        }
+        
+        // Показать UI входящего звонка
+        function showIncomingCallUI(call, callerName, callerAvatar) {
+            // Удаляем старый UI если есть
+            const oldOverlay = document.querySelector('.call-overlay');
+            if (oldOverlay) oldOverlay.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'call-overlay';
+            overlay.innerHTML = `
+                <div class="call-card ringing">
+                    <div class="call-avatar">${callerAvatar ? `<img src="${callerAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : '📞'}</div>
+                    <div class="call-name">${escapeHtml(callerName)}</div>
+                    <div class="call-status">📞 Входящий звонок...</div>
+                    <div class="call-buttons">
+                        <button class="call-btn call-accept" onclick="acceptCall(this)">✅</button>
+                        <button class="call-btn call-decline" onclick="declineCall(this)">❌</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            // Сохраняем call в глобальную переменную
+            window.pendingCall = call;
+            
+            // Воспроизводим звук звонка
+            playRingSound();
+        }
+        
+        function playRingSound() {
+            try {
+                const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBzb3VuZCBub3QgYXZhaWxhYmxl');
+                audio.play().catch(e => console.log('Звук не воспроизведен'));
+            } catch(e) {}
+        }
+        
+        // Принять звонок
+        window.acceptCall = async function(btn) {
+            const call = window.pendingCall;
+            if (!call) return;
+            
+            // Убираем UI
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+            
+            try {
+                // Запрашиваем доступ к микрофону
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Отвечаем на звонок
+                call.answer(localStream);
+                
+                currentCall = call;
+                
+                // Обработка получения аудиопотока
+                call.on('stream', (remoteStream) => {
+                    const audio = new Audio();
+                    audio.srcObject = remoteStream;
+                    audio.play().catch(e => console.log('Ошибка воспроизведения', e));
+                });
+                
+                call.on('close', () => {
+                    endCallUI();
+                });
+                
+                // Показываем UI активного звонка
+                showActiveCallUI(call.peer);
+                
+            } catch (err) {
+                console.error('Ошибка при ответе на звонок:', err);
+                showToast('❌ Не удалось получить доступ к микрофону');
+            }
+        };
+        
+        // Отклонить звонок
+        window.declineCall = function(btn) {
+            const call = window.pendingCall;
+            if (call) {
+                call.close();
+            }
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+            showToast('📞 Звонок отклонен');
+            window.pendingCall = null;
+        };
+        
+        // Показать UI активного звонка
+        function showActiveCallUI(peerId) {
+            // Удаляем старый UI
+            const oldOverlay = document.querySelector('.call-overlay');
+            if (oldOverlay) oldOverlay.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'call-overlay';
+            overlay.innerHTML = `
+                <div class="call-card">
+                    <div class="call-avatar">🎤</div>
+                    <div class="call-name">В звонке</div>
+                    <div class="call-timer" id="call-timer">0:00</div>
+                    <div class="call-buttons">
+                        <button class="call-btn call-mute" onclick="toggleMute()">🔇</button>
+                        <button class="call-btn call-end" onclick="endCall()">❌</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            // Запускаем таймер
+            callStartTime = Date.now();
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            callTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                const timerSpan = document.getElementById('call-timer');
+                if (timerSpan) timerSpan.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        function endCallUI() {
+            const overlay = document.querySelector('.call-overlay');
+            if (overlay) overlay.remove();
+            if (callTimerInterval) clearInterval(callTimerInterval);
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            currentCall = null;
+            showToast('📞 Звонок завершен');
+        }
+        
+        // Завершить звонок
+        window.endCall = function() {
+            if (currentCall) {
+                currentCall.close();
+            }
+            endCallUI();
+        };
+        
+        // Вкл/Выкл микрофон
+        window.toggleMute = function() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    const muteBtn = document.querySelector('.call-mute');
+                    if (muteBtn) {
+                        muteBtn.innerHTML = audioTrack.enabled ? '🔇' : '🔈';
+                        muteBtn.style.opacity = audioTrack.enabled ? '1' : '0.5';
+                    }
+                }
+            }
+        };
+        
+        // Начать звонок
+        async function startCall() {
+            if (!currentChat || currentChatData.type !== 'private') {
+                showToast('❌ Звонки доступны только в личных чатах');
+                return;
+            }
+            
+            // Получаем ID собеседника
+            const participants = currentChatData.participants;
+            const targetUserId = participants.find(id => id !== currentUser.uid);
+            
+            if (!targetUserId) {
+                showToast('❌ Не найден собеседник');
+                return;
+            }
+            
+            // Получаем peerId собеседника
+            const targetUserDoc = await db.collection('users').doc(targetUserId).get();
+            const targetPeerId = targetUserDoc.data()?.peerId;
+            
+            if (!targetPeerId) {
+                showToast('❌ Собеседник не в сети для звонка');
+                return;
+            }
+            
+            try {
+                // Инициализируем Peer если нужно
+                await initPeer();
+                
+                // Запрашиваем доступ к микрофону
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Совершаем звонок
+                const call = peer.call(targetPeerId, localStream);
+                currentCall = call;
+                
+                call.on('stream', (remoteStream) => {
+                    const audio = new Audio();
+                    audio.srcObject = remoteStream;
+                    audio.play().catch(e => console.log('Ошибка воспроизведения', e));
+                });
+                
+                call.on('close', () => {
+                    endCallUI();
+                });
+                
+                call.on('error', (err) => {
+                    console.error('Ошибка звонка:', err);
+                    showToast('❌ Ошибка соединения');
+                    endCallUI();
+                });
+                
+                // Показываем UI активного звонка
+                showActiveCallUI(targetPeerId);
+                
+            } catch (err) {
+                console.error('Ошибка при начале звонка:', err);
+                showToast('❌ Не удалось начать звонок. Проверьте микрофон.');
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+            }
+        }
+
         // ========== ОТПРАВКА СООБЩЕНИЙ ==========
         async function sendMessage() {
             const input = document.getElementById('message-input');
@@ -702,7 +1039,7 @@
             } catch (error) { console.error(error); showToast('❌ Ошибка отправки'); }
         }
 
-        // ========== ФОТО (без Storage) ==========
+        // ========== ФОТО ==========
         async function attachPhoto() {
             if (!currentChat) { showToast('❌ Выберите чат'); return; }
             const input = document.createElement('input');
@@ -713,10 +1050,9 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = async (ev) => {
-                        const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
                         const mediaData = ev.target.result;
                         await db.collection('messages').add({
-                            type: 'image', imageData: mediaData, imageId: mediaId, senderId: currentUser.uid,
+                            type: 'image', imageData: mediaData, senderId: currentUser.uid,
                             senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -729,7 +1065,7 @@
             closeModal('attach-modal');
         }
         
-        // ========== ВИДЕО (без Storage) ==========
+        // ========== ВИДЕО ==========
         async function attachVideo() {
             if (!currentChat) { showToast('❌ Выберите чат'); return; }
             const input = document.createElement('input');
@@ -740,10 +1076,9 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = async (ev) => {
-                        const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
                         const mediaData = ev.target.result;
                         await db.collection('messages').add({
-                            type: 'video', videoData: mediaData, videoId: mediaId, senderId: currentUser.uid,
+                            type: 'video', videoData: mediaData, senderId: currentUser.uid,
                             senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -756,7 +1091,7 @@
             closeModal('attach-modal');
         }
 
-        // ========== ГОЛОСОВЫЕ (исправлено для iPhone) ==========
+        // ========== ГОЛОСОВЫЕ ==========
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
@@ -786,7 +1121,6 @@
             if (!currentChat) { showToast('❌ Выберите чат'); return; }
             
             if (isRecording) {
-                // Останавливаем запись
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.stop();
                 }
@@ -797,29 +1131,17 @@
                 document.getElementById('recording-status').style.display = 'none';
                 showToast('⏹️ Запись остановлена, обработка...');
             } else {
-                // Начинаем запись
                 try {
-                    // Проверяем поддержку медиа устройств
                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                         showToast('❌ Ваш браузер не поддерживает запись audio');
                         return;
                     }
                     
                     showToast('🎤 Запрос доступа к микрофону...');
-                    
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     
-                    // Определяем поддерживаемые MIME типы для iPhone
                     let mimeType = '';
-                    const mimeTypes = [
-                        'audio/webm',
-                        'audio/mp4',
-                        'audio/mpeg',
-                        'audio/wav',
-                        'audio/ogg',
-                        'audio/x-m4a'
-                    ];
-                    
+                    const mimeTypes = ['audio/webm', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a'];
                     for (const type of mimeTypes) {
                         if (MediaRecorder.isTypeSupported(type)) {
                             mimeType = type;
@@ -827,32 +1149,24 @@
                         }
                     }
                     
-                    console.log('Используемый MIME тип:', mimeType || 'стандартный');
-                    
-                    // Создаем MediaRecorder с поддержкой iPhone
                     const options = mimeType ? { mimeType: mimeType } : {};
                     mediaRecorder = new MediaRecorder(stream, options);
                     audioChunks = [];
                     
                     mediaRecorder.ondataavailable = (e) => {
-                        if (e.data && e.data.size > 0) {
-                            audioChunks.push(e.data);
-                        }
+                        if (e.data && e.data.size > 0) audioChunks.push(e.data);
                     };
                     
                     mediaRecorder.onstop = async () => {
                         try {
-                            // Создаем blob из полученных данных
-                            let audioBlob;
                             if (audioChunks.length === 0) {
                                 showToast('❌ Нет аудиоданных');
                                 stream.getTracks().forEach(t => t.stop());
                                 return;
                             }
                             
-                            // Определяем тип для blob
                             const blobType = mimeType || 'audio/webm';
-                            audioBlob = new Blob(audioChunks, { type: blobType });
+                            const audioBlob = new Blob(audioChunks, { type: blobType });
                             
                             if (audioBlob.size === 0) {
                                 showToast('❌ Аудиофайл пустой');
@@ -864,37 +1178,17 @@
                             
                             const reader = new FileReader();
                             reader.onload = async (ev) => {
-                                try {
-                                    const mediaId = Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-                                    const mediaData = ev.target.result;
-                                    
-                                    await db.collection('messages').add({
-                                        type: 'audio',
-                                        audioData: mediaData,
-                                        audioId: mediaId,
-                                        audioMimeType: blobType,
-                                        senderId: currentUser.uid,
-                                        senderName: userData.name,
-                                        senderAvatar: userData.avatar,
-                                        chatId: currentChat.id,
-                                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                                    });
-                                    
-                                    showToast('🎙️ Голосовое отправлено');
-                                } catch (error) {
-                                    console.error('Ошибка при отправке:', error);
-                                    showToast('❌ Ошибка отправки: ' + error.message);
-                                }
+                                const mediaData = ev.target.result;
+                                await db.collection('messages').add({
+                                    type: 'audio', audioData: mediaData, senderId: currentUser.uid,
+                                    senderName: userData.name, senderAvatar: userData.avatar, chatId: currentChat.id,
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                                showToast('🎙️ Голосовое отправлено');
                             };
-                            
-                            reader.onerror = () => {
-                                showToast('❌ Ошибка чтения аудио');
-                            };
-                            
                             reader.readAsDataURL(audioBlob);
-                            
                         } catch (error) {
-                            console.error('Ошибка при обработке аудио:', error);
+                            console.error('Ошибка:', error);
                             showToast('❌ Ошибка обработки аудио');
                         } finally {
                             stream.getTracks().forEach(t => t.stop());
@@ -902,18 +1196,6 @@
                         }
                     };
                     
-                    mediaRecorder.onerror = (event) => {
-                        console.error('MediaRecorder ошибка:', event);
-                        showToast('❌ Ошибка записи');
-                        isRecording = false;
-                        document.getElementById('recordBtn').classList.remove('recording-active');
-                        document.getElementById('recordBtn').innerHTML = '🎙️';
-                        document.getElementById('recording-status').style.display = 'none';
-                        stopRecordingTimer();
-                        if (stream) stream.getTracks().forEach(t => t.stop());
-                    };
-                    
-                    // Запрашиваем данные каждую секунду для лучшей совместимости
                     mediaRecorder.start(1000);
                     isRecording = true;
                     startRecordingTimer();
@@ -924,14 +1206,8 @@
                     showToast('🔴 Запись... Нажмите еще раз для остановки');
                     
                 } catch (error) {
-                    console.error('Ошибка доступа к микрофону:', error);
-                    if (error.name === 'NotAllowedError') {
-                        showToast('❌ Разрешите доступ к микрофону в настройках браузера');
-                    } else if (error.name === 'NotFoundError') {
-                        showToast('❌ Микрофон не найден');
-                    } else {
-                        showToast('❌ Ошибка: ' + error.message);
-                    }
+                    console.error('Ошибка:', error);
+                    showToast('❌ Ошибка доступа к микрофону');
                 }
             }
         }
@@ -1148,6 +1424,10 @@
                 }
                 document.getElementById('input-area').style.display = 'block';
                 loadChats();
+                
+                // Инициализируем PeerJS для звонков
+                await initPeer();
+                
                 let deviceName = navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('Android') ? 'Android' : 'PC';
                 await db.collection('sessions').add({ userId: user.uid, device: deviceName, lastActive: new Date() });
             } else { document.getElementById('auth-modal').classList.add('active'); }
@@ -1184,6 +1464,8 @@
         window.subscribeToChannel = subscribeToChannel; window.unsubscribeFromChannel = unsubscribeFromChannel;
         window.openAddMemberModal = openAddMemberModal; window.searchAndOpen = searchAndOpen;
         window.viewChannel = viewChannel; window.openChatWithUser = openChatWithUser;
+        window.startCall = startCall; window.endCall = endCall; window.toggleMute = toggleMute;
+        window.acceptCall = acceptCall; window.declineCall = declineCall;
     </script>
 </body>
 </html>
