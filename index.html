@@ -5,457 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Нихауу - Мессенджер</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            height: 100vh;
-            height: -webkit-fill-available;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
+            height: 100vh; height: -webkit-fill-available; overflow: hidden; position: fixed; width: 100%;
             transition: background 0.3s, color 0.3s;
         }
-
-        /* СВЕТЛАЯ ТЕМА (синий с белым) */
         body.theme-light {
-            --bg: #e8f0fe;
-            --bg-secondary: #ffffff;
-            --text: #1a1a1a;
-            --text-secondary: #5f6368;
-            --border: #dadce0;
-            --message-out: #e3f2fd;
-            --message-in: #ffffff;
-            --accent: #1a73e8;
-            --accent-light: #e8f0fe;
-            --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
-            --card-bg: #ffffff;
-            --header-bg: #ffffff;
-            --unread-bg: #1a73e8;
+            --bg: #e8f0fe; --bg-secondary: #ffffff; --text: #1a1a1a; --text-secondary: #5f6368;
+            --border: #dadce0; --message-out: #e3f2fd; --message-in: #ffffff; --accent: #1a73e8;
+            --accent-light: #e8f0fe; --shadow: 0 1px 2px rgba(0,0,0,0.05); --card-bg: #ffffff;
+            --header-bg: #ffffff; --unread-bg: #1a73e8;
         }
-
-        /* ТЕМНАЯ ТЕМА (синий с черным) */
         body.theme-dark {
-            --bg: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --text: #ffffff;
-            --text-secondary: #9aa0a6;
-            --border: #2d2d2d;
-            --message-out: #1e3a5f;
-            --message-in: #2d2d2d;
-            --accent: #1a73e8;
-            --accent-light: #1a1a2e;
-            --shadow: 0 1px 2px rgba(0,0,0,0.2);
-            --card-bg: #1e1e1e;
-            --header-bg: #0a0a0a;
-            --unread-bg: #1a73e8;
+            --bg: #0a0a0a; --bg-secondary: #1a1a1a; --text: #ffffff; --text-secondary: #9aa0a6;
+            --border: #2d2d2d; --message-out: #1e3a5f; --message-in: #2d2d2d; --accent: #1a73e8;
+            --accent-light: #1a1a2e; --shadow: 0 1px 2px rgba(0,0,0,0.2); --card-bg: #1e1e1e;
+            --header-bg: #0a0a0a; --unread-bg: #1a73e8;
         }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
-        }
-
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.1);opacity:0.7;} }
         #app { display: flex; height: 100%; width: 100%; background: var(--bg); color: var(--text); }
-        
         #sidebar {
-            width: 85%;
-            max-width: 360px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            left: -85%;
-            top: 0;
-            height: 100%;
-            z-index: 1000;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow);
+            width: 85%; max-width: 360px; background: var(--bg-secondary); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; position: fixed; left: -85%; top: 0; height: 100%;
+            z-index: 1000; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow);
         }
         #sidebar.open { left: 0; }
-        
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(4px); }
         .sidebar-overlay.active { display: block; }
-
-        #sidebar-header {
-            padding: 16px;
-            background: var(--header-bg);
-            border-bottom: 1px solid var(--border);
-        }
-
-        #user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-
-        .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: white;
-        }
-
-        .balance-container { display: flex; gap: 8px; margin-top: 8px; }
+        #sidebar-header { padding: 16px; background: var(--header-bg); border-bottom: 1px solid var(--border); }
+        #user-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; }
+        .balance-container { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
         .balance-badge { background: var(--accent-light); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-
-        .icon-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            background: transparent;
-            color: var(--text);
-            font-size: 22px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .icon-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent; color: var(--text); font-size: 22px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
         .icon-btn:active { transform: scale(0.92); background: var(--border); }
-
-        #tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-secondary);
-        }
-        .tab {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.3s;
-            font-weight: 500;
-        }
+        #tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg-secondary); }
+        .tab { flex: 1; padding: 14px; text-align: center; cursor: pointer; color: var(--text-secondary); transition: all 0.3s; font-weight: 500; }
         .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-
-        #items-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px;
-        }
-
-        .chat-item {
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            border-radius: 16px;
-            transition: all 0.2s;
-            background: var(--bg-secondary);
-            margin-bottom: 4px;
-        }
+        #items-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .chat-item { padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 16px; transition: all 0.2s; background: var(--bg-secondary); margin-bottom: 4px; }
         .chat-item:active { background: var(--border); transform: scale(0.98); }
-        .chat-item.unread { background: var(--accent-light); }
-        
-        .item-avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: white;
-            position: relative;
-            flex-shrink: 0;
-        }
+        .item-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; position: relative; flex-shrink: 0; }
         .item-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .unread-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: var(--unread-bg); border-radius: 50%; border: 2px solid var(--bg-secondary); }
-        .unread-count { position: absolute; top: -4px; right: -4px; background: #ff4444; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .item-info { flex: 1; min-width: 0; }
         .item-name { font-weight: 600; margin-bottom: 4px; }
         .item-last-message { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-time { font-size: 10px; color: var(--text-secondary); flex-shrink: 0; }
-
-        #main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg);
-            width: 100%;
-        }
-
-        #chat-header {
-            padding: 12px 16px;
-            background: var(--header-bg);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        #chat-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-            cursor: pointer;
-        }
-
+        #main { flex: 1; display: flex; flex-direction: column; background: var(--bg); width: 100%; }
+        #chat-header { padding: 12px 16px; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+        #chat-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; cursor: pointer; }
         #chat-info { flex: 1; cursor: pointer; }
         #chat-name { font-weight: 600; font-size: 16px; }
-        #chat-status { font-size: 11px; color: var(--text-secondary); }
-
         .chat-actions { display: flex; gap: 8px; }
-
-        #messages-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .message {
-            max-width: 80%;
-            margin-bottom: 4px;
-            padding: 10px 14px;
-            border-radius: 20px;
-            animation: fadeInUp 0.3s;
-            position: relative;
-        }
+        #messages-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .message { max-width: 80%; margin-bottom: 4px; padding: 10px 14px; border-radius: 20px; animation: fadeInUp 0.3s; position: relative; word-wrap: break-word; }
         .message.out { background: var(--message-out); margin-left: auto; border-bottom-right-radius: 4px; }
         .message.in { background: var(--message-in); margin-right: auto; border-bottom-left-radius: 4px; box-shadow: var(--shadow); }
-
-        .message-media {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 12px;
-            margin-top: 6px;
-            cursor: pointer;
-        }
-        .message-audio {
-            width: 200px;
-            height: 36px;
-            border-radius: 18px;
-            margin-top: 6px;
-        }
-        .preview-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 5000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeInUp 0.3s;
-        }
-        .preview-img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 16px;
-        }
-
-        .delete-message-btn {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 10px;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .message-media { max-width: 200px; max-height: 200px; border-radius: 12px; margin-top: 6px; cursor: pointer; }
+        .message-audio { width: 200px; height: 36px; border-radius: 18px; margin-top: 6px; }
+        .delete-message-btn { position: absolute; top: -8px; right: -8px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 10px; cursor: pointer; opacity: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
         .message:hover .delete-message-btn { opacity: 1; }
-
-        #input-area {
-            padding: 10px 12px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border);
-        }
-        #message-input-wrapper {
-            display: flex;
-            gap: 8px;
-            background: var(--bg);
-            border-radius: 28px;
-            padding: 6px 12px;
-            align-items: center;
-        }
-        #message-input {
-            flex: 1;
-            padding: 8px 0;
-            border: none;
-            background: transparent;
-            color: var(--text);
-            outline: none;
-            font-size: 16px;
-        }
-        .attach-btn, .record-btn {
-            background: none;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            padding: 6px;
-            color: var(--text-secondary);
-        }
+        #input-area { padding: 10px 12px; background: var(--bg-secondary); border-top: 1px solid var(--border); }
+        #message-input-wrapper { display: flex; gap: 8px; background: var(--bg); border-radius: 28px; padding: 6px 12px; align-items: center; }
+        #message-input { flex: 1; padding: 8px 0; border: none; background: transparent; color: var(--text); outline: none; font-size: 16px; }
+        .attach-btn, .record-btn { background: none; border: none; font-size: 22px; cursor: pointer; padding: 6px; color: var(--text-secondary); }
         .recording-active { animation: pulse 1s infinite; color: #ff4444; }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal.active { display: flex; animation: fadeInUp 0.3s; }
-        .modal-content {
-            background: var(--bg-secondary);
-            border-radius: 28px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        .modal-header {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
-            color: var(--accent);
-        }
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 16px;
-        }
-        .modal-btn {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            background: var(--accent);
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
+        .modal-content { background: var(--bg-secondary); border-radius: 28px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; padding: 20px; }
+        .modal-header { font-size: 22px; font-weight: 700; margin-bottom: 20px; text-align: center; color: var(--accent); }
+        .modal-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); color: var(--text); font-size: 16px; }
+        .modal-btn { width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 16px; cursor: pointer; background: var(--accent); color: white; font-size: 16px; font-weight: 600; transition: all 0.2s; }
         .modal-btn:active { transform: scale(0.98); }
         .modal-btn.secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .modal-btn.danger { background: #ff4444; }
-
         .settings-section { margin: 20px 0; }
-        .settings-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-        }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
         .settings-item:active { opacity: 0.7; }
-
-        .device-item {
-            padding: 12px;
-            background: var(--bg);
-            border-radius: 16px;
-            margin: 8px 0;
-        }
-
-        .gifts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        .gift-item {
-            background: var(--bg);
-            border-radius: 16px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+        .device-item { padding: 12px; background: var(--bg); border-radius: 16px; margin: 8px 0; }
+        .gifts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .gift-item { background: var(--bg); border-radius: 16px; padding: 16px; text-align: center; cursor: pointer; transition: transform 0.2s; }
         .gift-item:active { transform: scale(0.96); }
-
+        .preview-container {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95);
+            z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeInUp 0.3s;
+        }
+        .preview-img { max-width: 90%; max-height: 60%; border-radius: 16px; }
+        .preview-audio { width: 80%; max-width: 300px; margin: 20px; }
+        .preview-buttons { display: flex; gap: 15px; margin-top: 20px; }
         .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            z-index: 3000;
-            font-size: 14px;
-            animation: fadeInUp 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards;
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); color: white; padding: 10px 20px; border-radius: 30px;
+            z-index: 3000; font-size: 14px; animation: fadeInUp 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards;
         }
         @keyframes fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(20px); } }
-
         @media (min-width: 769px) {
             #sidebar { position: relative; left: 0 !important; width: 360px; }
             #menu-btn { display: none !important; }
             .sidebar-overlay { display: none !important; }
         }
+        .font-size-btn { padding: 8px 12px; margin: 5px; background: var(--accent-light); border: none; border-radius: 12px; cursor: pointer; }
+        .chat-bg-item { padding: 10px; margin: 5px 0; border-radius: 12px; cursor: pointer; }
+        .chat-bg-item:hover { background: var(--border); }
+        .encrypted-badge { font-size: 10px; opacity: 0.6; margin-left: 5px; }
     </style>
 </head>
 <body class="theme-light">
@@ -476,18 +130,18 @@
                 <button class="icon-btn" onclick="openSettings()">⚙️</button>
             </div>
             <div id="tabs">
-                <div class="tab active" onclick="switchTab('chats')">Чаты</div>
-                <div class="tab" onclick="switchTab('contacts')">Контакты</div>
-                <div class="tab" onclick="switchTab('channels')">Каналы</div>
+                <div class="tab active" id="tab-chats" onclick="switchTab('chats')">Чаты</div>
+                <div class="tab" id="tab-contacts" onclick="switchTab('contacts')">Контакты</div>
+                <div class="tab" id="tab-channels" onclick="switchTab('channels')">Каналы</div>
             </div>
             <div style="padding: 10px;">
-                <button class="modal-btn" onclick="findUser()" style="width: 100%;">🔍 Найти пользователя/канал</button>
+                <button class="modal-btn" id="find-user-btn" onclick="findUser()" style="width: 100%;">🔍 Найти пользователя/канал</button>
             </div>
             <div id="items-list"></div>
             <div style="padding: 12px; border-top: 1px solid var(--border);">
                 <div class="settings-item" onclick="showCreateMenu()">
-                    <span>➕ Создать</span>
-                    <span style="font-size: 12px; color: var(--text-secondary);">группу, канал</span>
+                    <span id="create-btn-text">➕ Создать</span>
+                    <span style="font-size: 12px;" id="create-subtext">группу, канал</span>
                 </div>
             </div>
         </div>
@@ -501,17 +155,17 @@
                     <div id="chat-status"></div>
                 </div>
                 <div class="chat-actions">
-                    <button class="icon-btn" onclick="startCall()">📞</button>
-                    <button class="icon-btn" onclick="openGiftModal()" style="background: var(--accent-light);">🎁</button>
+                    <button class="icon-btn" id="call-btn" onclick="startCall()">📞</button>
+                    <button class="icon-btn" id="gift-btn" onclick="openGiftModal()" style="background: var(--accent-light);">🎁</button>
                 </div>
             </div>
-            <div id="messages-area"><div style="text-align: center; color: var(--text-secondary); margin-top: 50px;">✨ Добро пожаловать в Нихауу! ✨</div></div>
+            <div id="messages-area"><div style="text-align: center; margin-top: 50px;" id="welcome-msg">✨ Добро пожаловать в Нихауу! ✨</div></div>
             <div id="input-area" style="display: none;">
                 <div id="message-input-wrapper">
-                    <button class="attach-btn" onclick="openAttachMenu()">📎</button>
+                    <button class="attach-btn" id="attach-btn" onclick="openAttachMenu()">📎</button>
                     <input type="text" id="message-input" placeholder="Сообщение..." onkeypress="handleKeyPress(event)">
                     <button class="record-btn" id="recordBtn" onclick="toggleRecording()">🎙️</button>
-                    <button class="icon-btn" onclick="sendMessage()">📤</button>
+                    <button class="icon-btn" id="send-btn" onclick="sendMessage()">📤</button>
                 </div>
             </div>
         </div>
@@ -520,30 +174,30 @@
     <!-- МОДАЛКИ -->
     <div id="auth-modal" class="modal active">
         <div class="modal-content">
-            <div class="modal-header">🔐 Вход / Регистрация</div>
+            <div class="modal-header" id="auth-header">🔐 Вход / Регистрация</div>
             <div id="login-form">
                 <input type="email" id="login-email" class="modal-input" placeholder="Email" value="test@test.com">
                 <input type="password" id="login-password" class="modal-input" placeholder="Пароль" value="123456">
-                <button class="modal-btn" onclick="login()">Войти</button>
-                <button class="modal-btn secondary" onclick="showRegisterForm()">Нет аккаунта? Зарегистрироваться</button>
+                <button class="modal-btn" id="login-btn" onclick="login()">Войти</button>
+                <button class="modal-btn secondary" id="show-register-btn" onclick="showRegisterForm()">Нет аккаунта? Зарегистрироваться</button>
             </div>
             <div id="register-form" style="display: none;">
                 <input type="text" id="reg-name" class="modal-input" placeholder="Ваше имя *">
                 <input type="email" id="reg-email" class="modal-input" placeholder="Email *">
                 <input type="password" id="reg-password" class="modal-input" placeholder="Пароль (мин. 6) *">
                 <input type="text" id="reg-username" class="modal-input" placeholder="@username">
-                <button class="modal-btn" onclick="register()">Зарегистрироваться</button>
-                <button class="modal-btn secondary" onclick="showLoginForm()">Уже есть аккаунт? Войти</button>
+                <button class="modal-btn" id="register-btn" onclick="register()">Зарегистрироваться</button>
+                <button class="modal-btn secondary" id="show-login-btn" onclick="showLoginForm()">Уже есть аккаунт? Войти</button>
             </div>
         </div>
     </div>
 
     <div id="profile-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">👤 Мой профиль</div>
+            <div class="modal-header" id="profile-header">👤 Мой профиль</div>
             <div style="text-align: center; margin-bottom: 20px;">
                 <div id="profile-avatar" class="avatar" style="width: 100px; height: 100px; font-size: 40px; margin: 0 auto;">👤</div>
-                <button class="modal-btn secondary" onclick="changeAvatar()" style="margin-top: 10px;">📸 Сменить аватар</button>
+                <button class="modal-btn secondary" id="change-avatar-btn" onclick="changeAvatar()" style="margin-top: 10px;">📸 Сменить аватар</button>
             </div>
             <input type="text" id="profile-name" class="modal-input" placeholder="Имя">
             <input type="text" id="profile-username" class="modal-input" placeholder="@username">
@@ -552,91 +206,47 @@
                 <div class="settings-item" onclick="openCrystalsShop()"><span>💎 Кристаллы: <span id="profile-crystals">0</span></span><span>➡️</span></div>
                 <div class="settings-item" onclick="openNixCoinShop()"><span>🪙 NixCoin: <span id="profile-nixcoin">0</span></span><span>➡️</span></div>
             </div>
-            <button class="modal-btn" onclick="saveProfile()">Сохранить</button>
-            <button class="modal-btn secondary" onclick="closeModal('profile-modal')">Закрыть</button>
+            <button class="modal-btn" id="save-profile-btn" onclick="saveProfile()">Сохранить</button>
+            <button class="modal-btn secondary" id="close-profile-btn" onclick="closeModal('profile-modal')">Закрыть</button>
         </div>
     </div>
 
     <div id="settings-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">⚙️ Настройки</div>
+            <div class="modal-header" id="settings-header">⚙️ Настройки</div>
             <div class="settings-section">
-                <div class="settings-item" onclick="openThemeSettings()"><span>🎨 Тема</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openProfileModal()"><span>👤 Мой профиль</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openDevices()"><span>📱 Устройства</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openNotificationsSettings()"><span>🔔 Уведомления и звуки</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openDataSettings()"><span>💾 Данные и память</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openLanguageSettings()"><span>🌐 Язык</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openPremium()"><span>💎 Nixao Premium</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openPrivacy()"><span>🔒 Политика конфиденциальности</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openHelp()"><span>❓ Помощь</span><span>➡️</span></div>
-                <div class="settings-item" onclick="openAbout()"><span>ℹ️ О Нихауу</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openThemeSettings()"><span id="theme-item">🎨 Тема</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openFontSizeSettings()"><span id="fontsize-item">🔤 Размер шрифта</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openChatBgSettings()"><span id="chatbg-item">🖼️ Фон чата</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openReadReceiptsSettings()"><span id="readreceipts-item">👁️ Чётки (прочтено)</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openAutoDeleteSettings()"><span id="autodelete-item">⏰ Автоудаление сообщений</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openStatusSettings()"><span id="status-item">🟢 Статус онлайн</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openProfileModal()"><span id="profile-item">👤 Мой профиль</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openDevices()"><span id="devices-item">📱 Устройства</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openNotificationsSettings()"><span id="notifications-item">🔔 Уведомления и звуки</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openDataSettings()"><span id="data-item">💾 Данные и память</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openLanguageSettings()"><span id="language-item">🌐 Язык</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openPremium()"><span id="premium-item">💎 Nixao Premium</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openPrivacy()"><span id="privacy-item">🔒 Политика конфиденциальности</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openHelp()"><span id="help-item">❓ Помощь</span><span>➡️</span></div>
+                <div class="settings-item" onclick="openAbout()"><span id="about-item">ℹ️ О Нихауу</span><span>➡️</span></div>
             </div>
-            <button class="modal-btn secondary" onclick="closeModal('settings-modal')">Закрыть</button>
+            <button class="modal-btn secondary" id="close-settings-btn" onclick="closeModal('settings-modal')">Закрыть</button>
         </div>
     </div>
 
-    <div id="theme-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">🎨 Тема</div>
-            <button class="modal-btn" onclick="setTheme('light')">☀️ Светлая (синий/белый)</button>
-            <button class="modal-btn" onclick="setTheme('dark')">🌙 Темная (синий/черный)</button>
-            <button class="modal-btn secondary" onclick="closeModal('theme-modal')">Отмена</button>
-        </div>
-    </div>
-
-    <div id="language-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">🌐 Язык</div>
-            <button class="modal-btn" onclick="setLanguage('ru')">🇷🇺 Русский</button>
-            <button class="modal-btn" onclick="setLanguage('en')">🇬🇧 English</button>
-            <button class="modal-btn" onclick="setLanguage('be')">🇧🇾 Беларуская</button>
-            <button class="modal-btn secondary" onclick="closeModal('language-modal')">Отмена</button>
-        </div>
-    </div>
-
-    <div id="devices-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">📱 Устройства</div>
-            <div id="devices-list"></div>
-            <button class="modal-btn secondary" onclick="closeModal('devices-modal')">Закрыть</button>
-        </div>
-    </div>
-
-    <div id="privacy-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">🔒 Политика конфиденциальности</div>
-            <div id="privacy-text" style="padding: 10px; line-height: 1.5;"></div>
-            <button class="modal-btn secondary" onclick="closeModal('privacy-modal')">Закрыть</button>
-        </div>
-    </div>
-
-    <div id="create-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">➕ Создать</div>
-            <button class="modal-btn" onclick="createGroup()">👥 Создать группу</button>
-            <button class="modal-btn" onclick="createChannel()">📢 Создать канал</button>
-            <button class="modal-btn secondary" onclick="closeModal('create-modal')">Отмена</button>
-        </div>
-    </div>
-
-    <div id="attach-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">📎 Прикрепить</div>
-            <button class="modal-btn" onclick="attachPhoto()">📷 Фото</button>
-            <button class="modal-btn" onclick="attachVideo()">🎥 Видео</button>
-            <button class="modal-btn secondary" onclick="closeModal('attach-modal')">Отмена</button>
-        </div>
-    </div>
-
-    <div id="gift-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">🎁 Подарки</div>
-            <div id="gifts-list" class="gifts-grid"></div>
-            <button class="modal-btn secondary" onclick="closeModal('gift-modal')">Закрыть</button>
-        </div>
-    </div>
-
+    <div id="fontsize-modal" class="modal"><div class="modal-content"><div class="modal-header">🔤 Размер шрифта</div><button class="font-size-btn" onclick="setFontSize('small')">Маленький</button><button class="font-size-btn" onclick="setFontSize('medium')">Средний</button><button class="font-size-btn" onclick="setFontSize('large')">Большой</button><button class="modal-btn secondary" onclick="closeModal('fontsize-modal')">Отмена</button></div></div>
+    <div id="chatbg-modal" class="modal"><div class="modal-content"><div class="modal-header">🖼️ Фон чата</div><div class="chat-bg-item" onclick="setChatBg('default')">🌊 По умолчанию</div><div class="chat-bg-item" onclick="setChatBg('dark')">🌙 Темный фон</div><div class="chat-bg-item" onclick="setChatBg('forest')">🌲 Лес</div><div class="chat-bg-item" onclick="setChatBg('ocean')">🌊 Океан</div><button class="modal-btn secondary" onclick="closeModal('chatbg-modal')">Закрыть</button></div></div>
+    <div id="readreceipts-modal" class="modal"><div class="modal-content"><div class="modal-header">👁️ Чётки (прочтено)</div><button class="modal-btn" onclick="setReadReceipts(true)">✅ Включить</button><button class="modal-btn" onclick="setReadReceipts(false)">❌ Выключить</button><button class="modal-btn secondary" onclick="closeModal('readreceipts-modal')">Отмена</button></div></div>
+    <div id="autodelete-modal" class="modal"><div class="modal-content"><div class="modal-header">⏰ Автоудаление сообщений</div><button class="modal-btn" onclick="setAutoDelete(0)">❌ Выключено</button><button class="modal-btn" onclick="setAutoDelete(86400)">🗑️ Через 24 часа</button><button class="modal-btn" onclick="setAutoDelete(604800)">🗑️ Через 7 дней</button><button class="modal-btn" onclick="setAutoDelete(2592000)">🗑️ Через 30 дней</button><button class="modal-btn secondary" onclick="closeModal('autodelete-modal')">Отмена</button></div></div>
+    <div id="status-modal" class="modal"><div class="modal-content"><div class="modal-header">🟢 Статус онлайн</div><button class="modal-btn" onclick="setOnlineStatus(true)">🟢 Показывать онлайн</button><button class="modal-btn" onclick="setOnlineStatus(false)">⚫ Скрыть онлайн</button><button class="modal-btn secondary" onclick="closeModal('status-modal')">Отмена</button></div></div>
+    <div id="theme-modal" class="modal"><div class="modal-content"><div class="modal-header">🎨 Тема</div><button class="modal-btn" onclick="setTheme('light')">☀️ Светлая</button><button class="modal-btn" onclick="setTheme('dark')">🌙 Темная</button><button class="modal-btn secondary" onclick="closeModal('theme-modal')">Отмена</button></div></div>
+    <div id="language-modal" class="modal"><div class="modal-content"><div class="modal-header">🌐 Язык</div><button class="modal-btn" onclick="setLanguage('ru')">🇷🇺 Русский</button><button class="modal-btn" onclick="setLanguage('en')">🇬🇧 English</button><button class="modal-btn" onclick="setLanguage('be')">🇧🇾 Беларуская</button><button class="modal-btn secondary" onclick="closeModal('language-modal')">Отмена</button></div></div>
+    <div id="devices-modal" class="modal"><div class="modal-content"><div class="modal-header">📱 Устройства</div><div id="devices-list"></div><button class="modal-btn secondary" onclick="closeModal('devices-modal')">Закрыть</button></div></div>
+    <div id="privacy-modal" class="modal"><div class="modal-content"><div class="modal-header">🔒 Политика конфиденциальности</div><div id="privacy-text" style="padding: 10px; line-height: 1.5;"></div><button class="modal-btn secondary" onclick="closeModal('privacy-modal')">Закрыть</button></div></div>
+    <div id="create-modal" class="modal"><div class="modal-content"><div class="modal-header">➕ Создать</div><button class="modal-btn" onclick="createGroup()">👥 Создать группу</button><button class="modal-btn" onclick="createChannel()">📢 Создать канал</button><button class="modal-btn secondary" onclick="closeModal('create-modal')">Отмена</button></div></div>
+    <div id="attach-modal" class="modal"><div class="modal-content"><div class="modal-header">📎 Прикрепить</div><button class="modal-btn" onclick="attachPhoto()">📷 Фото</button><button class="modal-btn" onclick="attachVideo()">🎥 Видео</button><button class="modal-btn secondary" onclick="closeModal('attach-modal')">Отмена</button></div></div>
+    <div id="gift-modal" class="modal"><div class="modal-content"><div class="modal-header">🎁 Подарки</div><div id="gifts-list" class="gifts-grid"></div><button class="modal-btn secondary" onclick="closeModal('gift-modal')">Закрыть</button></div></div>
     <div id="crystals-shop" class="modal"><div class="modal-content"><div class="modal-header">💎 Кристаллы</div><button class="modal-btn" onclick="buyCrystals(100)">100 💎 - 199₽</button><button class="modal-btn" onclick="buyCrystals(500)">500 💎 - 470₽</button><button class="modal-btn" onclick="buyCrystals(1000)">1000 💎 - 700₽</button><button class="modal-btn secondary" onclick="closeModal('crystals-shop')">Закрыть</button></div></div>
     <div id="nixcoin-shop" class="modal"><div class="modal-content"><div class="modal-header">🪙 Купить NixCoin</div><div>1 NIX = 200₽</div><button class="modal-btn" onclick="buyNixCoin(10)">10 NIX - 2000₽</button><button class="modal-btn" onclick="buyNixCoin(50)">50 NIX - 10000₽</button><button class="modal-btn" onclick="buyNixCoin(100)">100 NIX - 20000₽</button><button class="modal-btn secondary" onclick="closeModal('nixcoin-shop')">Закрыть</button></div></div>
 
@@ -644,8 +254,71 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <!-- CryptoJS для нормального шифрования -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <script>
+        // ========== ШИФРОВАНИЕ AES-256 с CryptoJS ==========
+        // Секретный ключ (в реальном приложении должен быть уникальным для каждого пользователя)
+        const SECRET_KEY = 'nixao_super_secret_key_2024_secure_encryption';
+        
+        /**
+         * Шифрование текста с поддержкой любых языков (UTF-8)
+         * @param {string} text - Исходный текст
+         * @returns {string} - Зашифрованная строка в base64
+         */
+        function encryptText(text) {
+            try {
+                // Используем AES-256 шифрование
+                const encrypted = CryptoJS.AES.encrypt(text, SECRET_KEY);
+                return encrypted.toString(); // Возвращает base64 строку
+            } catch (error) {
+                console.error('Ошибка шифрования:', error);
+                return text; // fallback
+            }
+        }
+        
+        /**
+         * Дешифрование текста
+         * @param {string} encryptedText - Зашифрованная строка
+         * @returns {string} - Расшифрованный текст
+         */
+        function decryptText(encryptedText) {
+            try {
+                // Пробуем расшифровать как AES
+                const decrypted = CryptoJS.AES.decrypt(encryptedText, SECRET_KEY);
+                const result = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                // Если расшифровка не удалась (пустая строка), возможно это незашифрованный текст
+                if (!result && encryptedText) {
+                    // Проверяем, не является ли это старым XOR шифрованием
+                    try {
+                        const decoded = atob(encryptedText);
+                        if (decoded && decoded.length > 0) {
+                            // Пробуем расшифровать старым методом
+                            let oldResult = '';
+                            for (let i = 0; i < decoded.length; i++) {
+                                const charCode = decoded.charCodeAt(i);
+                                const keyCode = SECRET_KEY.charCodeAt(i % SECRET_KEY.length);
+                                oldResult += String.fromCharCode(charCode ^ keyCode);
+                            }
+                            if (oldResult && oldResult.length > 0) return oldResult;
+                        }
+                    } catch(e) {}
+                    return encryptedText;
+                }
+                return result || encryptedText;
+            } catch (error) {
+                console.error('Ошибка дешифрования:', error);
+                return encryptedText;
+            }
+        }
+        
+        // Для совместимости со старыми сообщениями, проверяем является ли строка AES шифрованием
+        function isAESEncrypted(str) {
+            return str && str.includes(':') && str.length > 20;
+        }
+
         // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyBwX0gTIGwKSVGcE3TF6f5TYbG1Q0HB6mA",
@@ -662,55 +335,14 @@
         const storage = firebase.storage();
 
         let currentUser = null;
-        let userData = { crystals: 500, nixcoin: 0, name: 'Пользователь', avatar: null, username: '', bio: '' };
+        let userData = { crystals: 500, nixcoin: 0, name: 'Пользователь', avatar: null, username: '', bio: '', contacts: [], onlineStatus: true, readReceipts: true, autoDelete: 0 };
         let currentChat = null;
         let mediaRecorder = null;
         let audioChunks = [];
         let isRecording = false;
-        let notificationsEnabled = true;
+        let currentMessagesUnsubscribe = null;
 
-        // Тексты для языков
-        const translations = {
-            ru: {
-                welcome: '✨ Добро пожаловать в Нихауу! ✨',
-                noMessages: '💬 Нет сообщений',
-                loading: 'Загрузка...',
-                privacy: 'Нихауу заботится о вашей конфиденциальности. Мы собираем только необходимые данные: ваше имя, email и аватар. Ваши сообщения защищены шифрованием. Мы не передаем ваши данные третьим лицам. Вы можете удалить свой аккаунт в любой момент. Все голосовые сообщения, фото и видео хранятся в зашифрованном виде. Ваши устройства видны только вам. Мы используем Firebase для хранения данных, что обеспечивает высокий уровень безопасности. Политика конфиденциальности может обновляться, о чем мы уведомим вас заранее.',
-                about: 'Нихауу v2.0 - современный мессенджер с поддержкой голосовых сообщений, фото, видео, групп и каналов. Разработан для удобного общения. Версия: 2.0.0'
-            },
-            en: {
-                welcome: '✨ Welcome to Nixao! ✨',
-                noMessages: '💬 No messages',
-                loading: 'Loading...',
-                privacy: 'Nixao cares about your privacy. We only collect necessary data: your name, email and avatar. Your messages are encrypted. We do not share your data with third parties. You can delete your account at any time. All voice messages, photos and videos are stored encrypted. Your devices are only visible to you. We use Firebase for data storage, which ensures a high level of security.',
-                about: 'Nixao v2.0 - a modern messenger with support for voice messages, photos, videos, groups and channels. Developed for convenient communication. Version: 2.0.0'
-            },
-            be: {
-                welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨',
-                noMessages: '💬 Няма паведамленняў',
-                loading: 'Загрузка...',
-                privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці. Мы збіраем толькі неабходныя даныя: ваша імя, email і аватар. Вашы паведамленні абаронены шыфраваннем. Мы не перадаем вашы даныя трэцім асобам. Вы можаце выдаліць свой акаўнт у любы момант. Усе галасавыя паведамленні, фота і відэа захоўваюцца ў зашыфраваным выглядзе. Вашы прылады бачны толькі вам.',
-                about: 'Ніхауу v2.0 - сучасны месенджар з падтрымкай галасавых паведамленняў, фота, відэа, груп і каналаў. Распрацаваны для зрубнага зносін. Версія: 2.0.0'
-            }
-        };
-        let currentLang = 'ru';
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('language', lang);
-            updateUITexts();
-            closeModal('language-modal');
-            showToast(`🌐 Язык изменен на ${lang === 'ru' ? 'Русский' : lang === 'en' ? 'English' : 'Беларуская'}`);
-        }
-
-        function updateUITexts() {
-            const t = translations[currentLang];
-            if (document.getElementById('messages-area').innerHTML.includes('Добро пожаловать')) {
-                document.getElementById('messages-area').innerHTML = `<div style="text-align: center; color: var(--text-secondary); margin-top: 50px;">${t.welcome}</div>`;
-            }
-        }
-
-        // Подарки (30 штук)
+        // Подарки
         const gifts = [
             { id: 1, name: '🌹 Роза', price: 20, emoji: '🌹' }, { id: 2, name: '🌻 Подсолнух', price: 25, emoji: '🌻' },
             { id: 3, name: '🌸 Сакура', price: 30, emoji: '🌸' }, { id: 4, name: '🌺 Гибискус', price: 35, emoji: '🌺' },
@@ -721,15 +353,175 @@
             { id: 13, name: '⭐ Золотая звезда', price: 400, emoji: '⭐' }, { id: 14, name: '🌙 Лунный камень', price: 500, emoji: '🌙' },
             { id: 15, name: '🔥 Вечный огонь', price: 600, emoji: '🔥' }, { id: 16, name: '❄️ Снежинка', price: 700, emoji: '❄️' },
             { id: 17, name: '🌈 Единорог', price: 800, emoji: '🦄' }, { id: 18, name: '🐉 Дракон', price: 1000, emoji: '🐉' },
-            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚' }, { id: 20, name: '👾 Космос', price: 2000, emoji: '👾' },
-            { id: 21, name: '⚡ Молния', price: 2500, emoji: '⚡' }, { id: 22, name: '🌋 Вулкан', price: 3000, emoji: '🌋' },
-            { id: 23, name: '🏝️ Райский остров', price: 4000, emoji: '🏝️' }, { id: 24, name: '🎭 Маска', price: 5000, emoji: '🎭' },
-            { id: 25, name: '🗡️ Меч', price: 6000, emoji: '🗡️' }, { id: 26, name: '🛡️ Щит', price: 7000, emoji: '🛡️' },
-            { id: 27, name: '🏆 Кубок', price: 8000, emoji: '🏆' }, { id: 28, name: '👁️ Всевидящее око', price: 10000, emoji: '👁️' },
-            { id: 29, name: '🌀 Бесконечность', price: 12000, emoji: '🌀' }, { id: 30, name: '💫 Дракон Времени', price: 15000, emoji: '🐉✨' }
+            { id: 19, name: '🦚 Феникс', price: 1500, emoji: '🦚' }, { id: 20, name: '👾 Космос', price: 2000, emoji: '👾' }
         ];
 
-        // ========== АВТОРИЗАЦИЯ ==========
+        // ========== ПЕРЕВОДЫ ==========
+        const translations = {
+            ru: {
+                welcome: '✨ Добро пожаловать в Нихауу! ✨', noMessages: '💬 Нет сообщений', noChats: 'Нет чатов', noContacts: 'Нет контактов',
+                noChannels: '📢 Нет подписок на каналы\nНайдите канал через поиск', privacy: 'Нихауу заботится о вашей конфиденциальности...',
+                about: 'Нихауу v2.0 - современный мессенджер с AES-256 шифрованием', inputPlaceholder: 'Сообщение...', findUserBtn: '🔍 Найти пользователя/канал',
+                createBtn: '➕ Создать', createSub: 'группу, канал', settings: '⚙️ Настройки', profile: '👤 Мой профиль',
+                theme: '🎨 Тема', language: '🌐 Язык', devices: '📱 Устройства', notifications: '🔔 Уведомления и звуки',
+                data: '💾 Данные и память', premium: '💎 Nixao Premium', help: '❓ Помощь', aboutTitle: 'ℹ️ О Нихауу',
+                close: 'Закрыть', save: 'Сохранить', darkTheme: '🌙 Темная', lightTheme: '☀️ Светлая',
+                fontSize: '🔤 Размер шрифта', chatBg: '🖼️ Фон чата', readReceipts: '👁️ Чётки (прочтено)',
+                autoDelete: '⏰ Автоудаление сообщений', onlineStatus: '🟢 Статус онлайн', small: 'Маленький',
+                medium: 'Средний', large: 'Большой', on: 'Включить', off: 'Выключить', never: 'Никогда',
+                hour24: 'Через 24 часа', days7: 'Через 7 дней', days30: 'Через 30 дней', showOnline: '🟢 Показывать онлайн',
+                hideOnline: '⚫ Скрыть онлайн', encrypted: '🔒 Зашифровано AES-256'
+            },
+            en: {
+                welcome: '✨ Welcome to Nixao! ✨', noMessages: '💬 No messages', noChats: 'No chats', noContacts: 'No contacts',
+                noChannels: '📢 No channel subscriptions\nFind a channel via search', privacy: 'Nixao cares about your privacy...',
+                about: 'Nixao v2.0 - a modern messenger with AES-256 encryption', inputPlaceholder: 'Message...', findUserBtn: '🔍 Find user/channel',
+                createBtn: '➕ Create', createSub: 'group, channel', settings: '⚙️ Settings', profile: '👤 My profile',
+                theme: '🎨 Theme', language: '🌐 Language', devices: '📱 Devices', notifications: '🔔 Notifications & sounds',
+                data: '💾 Data & storage', premium: '💎 Nixao Premium', help: '❓ Help', aboutTitle: 'ℹ️ About Nixao',
+                close: 'Close', save: 'Save', darkTheme: '🌙 Dark', lightTheme: '☀️ Light',
+                fontSize: '🔤 Font size', chatBg: '🖼️ Chat background', readReceipts: '👁️ Read receipts',
+                autoDelete: '⏰ Auto-delete messages', onlineStatus: '🟢 Online status', small: 'Small',
+                medium: 'Medium', large: 'Large', on: 'On', off: 'Off', never: 'Never',
+                hour24: 'After 24 hours', days7: 'After 7 days', days30: 'After 30 days', showOnline: '🟢 Show online',
+                hideOnline: '⚫ Hide online', encrypted: '🔒 Encrypted AES-256'
+            },
+            be: {
+                welcome: '✨ Сардэчна запрашаем у Ніхауу! ✨', noMessages: '💬 Няма паведамленняў', noChats: 'Няма чатаў', noContacts: 'Няма кантактаў',
+                noChannels: '📢 Няма падпісак на каналы\nЗнайдзіце канал праз пошук', privacy: 'Ніхауу клапоціцца аб вашай канфідэнцыяльнасці...',
+                about: 'Ніхауу v2.0 - сучасны месенджар з AES-256 шыфраваннем', inputPlaceholder: 'Паведамленне...', findUserBtn: '🔍 Знайсці карыстальніка/канал',
+                createBtn: '➕ Стварыць', createSub: 'групу, канал', settings: '⚙️ Налады', profile: '👤 Мой профіль',
+                theme: '🎨 Тэма', language: '🌐 Мова', devices: '📱 Прылады', notifications: '🔔 Паведамленні і гукі',
+                data: '💾 Даныя і памяць', premium: '💎 Nixao Premium', help: '❓ Дапамога', aboutTitle: 'ℹ️ Пра Ніхауу',
+                close: 'Закрыць', save: 'Захаваць', darkTheme: '🌙 Цёмная', lightTheme: '☀️ Светлая',
+                fontSize: '🔤 Памер шрыфту', chatBg: '🖼️ Фон чата', readReceipts: '👁️ Чыткі',
+                autoDelete: '⏰ Аўтавыдаленне паведамленняў', onlineStatus: '🟢 Статус онлайн', small: 'Маленькі',
+                medium: 'Сярэдні', large: 'Вялікі', on: 'Уключыць', off: 'Выключыць', never: 'Ніколі',
+                hour24: 'Праз 24 гадзіны', days7: 'Праз 7 дзён', days30: 'Праз 30 дзён', showOnline: '🟢 Паказваць онлайн',
+                hideOnline: '⚫ Схаваць онлайн', encrypted: '🔒 Зашыфравана AES-256'
+            }
+        };
+        let currentLang = 'ru';
+
+        function updateAllUITexts() {
+            const t = translations[currentLang];
+            document.getElementById('welcome-msg').innerHTML = t.welcome;
+            document.getElementById('privacy-text').innerHTML = t.privacy;
+            document.getElementById('message-input').placeholder = t.inputPlaceholder;
+            document.getElementById('find-user-btn').innerHTML = t.findUserBtn;
+            document.getElementById('create-btn-text').innerHTML = t.createBtn;
+            document.getElementById('create-subtext').innerHTML = t.createSub;
+            document.getElementById('theme-item').innerHTML = t.theme;
+            document.getElementById('fontsize-item').innerHTML = t.fontSize;
+            document.getElementById('chatbg-item').innerHTML = t.chatBg;
+            document.getElementById('readreceipts-item').innerHTML = t.readReceipts;
+            document.getElementById('autodelete-item').innerHTML = t.autoDelete;
+            document.getElementById('status-item').innerHTML = t.onlineStatus;
+            document.getElementById('profile-item').innerHTML = t.profile;
+            document.getElementById('devices-item').innerHTML = t.devices;
+            document.getElementById('notifications-item').innerHTML = t.notifications;
+            document.getElementById('data-item').innerHTML = t.data;
+            document.getElementById('language-item').innerHTML = t.language;
+            document.getElementById('premium-item').innerHTML = t.premium;
+            document.getElementById('privacy-item').innerHTML = t.privacy;
+            document.getElementById('help-item').innerHTML = t.help;
+            document.getElementById('about-item').innerHTML = t.aboutTitle;
+            document.getElementById('settings-header').innerHTML = t.settings;
+            document.getElementById('profile-header').innerHTML = t.profile;
+            document.getElementById('save-profile-btn').innerHTML = t.save;
+            document.getElementById('tab-chats').innerHTML = 'Чаты';
+            document.getElementById('tab-contacts').innerHTML = 'Контакты';
+            document.getElementById('tab-channels').innerHTML = 'Каналы';
+        }
+
+        function setLanguage(lang) { 
+            currentLang = lang; 
+            localStorage.setItem('language', lang); 
+            updateAllUITexts(); 
+            closeModal('language-modal'); 
+            showToast(`🌐 ${lang === 'ru' ? 'Язык изменен' : lang === 'en' ? 'Language changed' : 'Мова зменена'}`);
+        }
+
+        // ========== НОВЫЕ ФУНКЦИОНАЛЬНЫЕ ОПЦИИ ==========
+        function setFontSize(size) {
+            let fontSize = '16px';
+            if (size === 'small') fontSize = '14px';
+            else if (size === 'large') fontSize = '18px';
+            document.body.style.fontSize = fontSize;
+            localStorage.setItem('fontSize', size);
+            closeModal('fontsize-modal');
+            showToast(`🔤 ${currentLang === 'ru' ? 'Размер шрифта изменен' : 'Font size changed'}`);
+        }
+        function openFontSizeSettings() { closeModal('settings-modal'); document.getElementById('fontsize-modal').classList.add('active'); }
+        
+        function setChatBg(bg) {
+            const messagesArea = document.getElementById('messages-area');
+            const bgMap = { default: 'var(--bg)', dark: '#1a1a2e', forest: '#1a3d2f', ocean: '#1a3a5f' };
+            messagesArea.style.background = bgMap[bg] || 'var(--bg)';
+            localStorage.setItem('chatBg', bg);
+            closeModal('chatbg-modal');
+            showToast(`🖼️ ${currentLang === 'ru' ? 'Фон чата изменен' : 'Chat background changed'}`);
+        }
+        function openChatBgSettings() { closeModal('settings-modal'); document.getElementById('chatbg-modal').classList.add('active'); }
+        
+        async function setReadReceipts(enabled) {
+            userData.readReceipts = enabled;
+            if (currentUser) await db.collection('users').doc(currentUser.uid).update({ readReceipts: enabled });
+            localStorage.setItem('readReceipts', enabled);
+            closeModal('readreceipts-modal');
+            showToast(`👁️ ${enabled ? (currentLang === 'ru' ? 'Чётки включены' : 'Read receipts enabled') : (currentLang === 'ru' ? 'Чётки выключены' : 'Read receipts disabled')}`);
+        }
+        function openReadReceiptsSettings() { closeModal('settings-modal'); document.getElementById('readreceipts-modal').classList.add('active'); }
+        
+        async function setAutoDelete(seconds) {
+            userData.autoDelete = seconds;
+            if (currentUser) await db.collection('users').doc(currentUser.uid).update({ autoDelete: seconds });
+            localStorage.setItem('autoDelete', seconds);
+            closeModal('autodelete-modal');
+            const msg = seconds === 0 ? (currentLang === 'ru' ? 'Автоудаление выключено' : 'Auto-delete disabled') : 
+                        `${currentLang === 'ru' ? 'Сообщения будут удаляться через' : 'Messages will be deleted after'} ${seconds/86400} ${currentLang === 'ru' ? 'дней' : 'days'}`;
+            showToast(`⏰ ${msg}`);
+            if (seconds > 0) checkAndDeleteOldMessages();
+        }
+        async function checkAndDeleteOldMessages() {
+            if (!userData.autoDelete || userData.autoDelete === 0) return;
+            const cutoffTime = Date.now() - (userData.autoDelete * 1000);
+            const cutoffDate = new Date(cutoffTime);
+            const oldMessages = await db.collection('messages').where('timestamp', '<', cutoffDate).get();
+            oldMessages.forEach(async (doc) => await doc.ref.delete());
+        }
+        function openAutoDeleteSettings() { closeModal('settings-modal'); document.getElementById('autodelete-modal').classList.add('active'); }
+        
+        async function setOnlineStatus(show) {
+            userData.onlineStatus = show;
+            if (currentUser) await db.collection('users').doc(currentUser.uid).update({ onlineStatus: show, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+            localStorage.setItem('onlineStatus', show);
+            closeModal('status-modal');
+            showToast(`🟢 ${show ? (currentLang === 'ru' ? 'Вы теперь онлайн' : 'You are now online') : (currentLang === 'ru' ? 'Вы скрыты' : 'You are now hidden')}`);
+        }
+        function openStatusSettings() { closeModal('settings-modal'); document.getElementById('status-modal').classList.add('active'); }
+
+        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
+        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); }
+        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+        function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
+        function openThemeSettings() { closeModal('settings-modal'); document.getElementById('theme-modal').classList.add('active'); }
+        function openLanguageSettings() { closeModal('settings-modal'); document.getElementById('language-modal').classList.add('active'); }
+        function openCrystalsShop() { closeModal('profile-modal'); document.getElementById('crystals-shop').classList.add('active'); }
+        function openNixCoinShop() { closeModal('profile-modal'); document.getElementById('nixcoin-shop').classList.add('active'); }
+        function openNotificationsSettings() { showToast('🔔 Уведомления'); }
+        function openDataSettings() { if (confirm('Очистить кеш?')) { localStorage.clear(); showToast('✅ Кеш очищен'); } }
+        function openPremium() { showToast('💎 Premium - скоро!'); }
+        function openPrivacy() { closeModal('settings-modal'); document.getElementById('privacy-modal').classList.add('active'); }
+        function openHelp() { showToast('❓ Помощь: @nixao_support'); }
+        function openAbout() { alert(translations[currentLang].about); }
+        function openChatInfo() { showToast(`ℹ️ Чат: ${currentChat?.name}`); }
+        function startCall() { showToast('📞 Звонок (WebRTC)'); }
+
+        // АВТОРИЗАЦИЯ
         function showRegisterForm() { document.getElementById('login-form').style.display = 'none'; document.getElementById('register-form').style.display = 'block'; }
         function showLoginForm() { document.getElementById('login-form').style.display = 'block'; document.getElementById('register-form').style.display = 'none'; }
 
@@ -742,8 +534,8 @@
             try {
                 const user = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(user.user.uid).set({
-                    name, email, username, crystals: 500, nixcoin: 0, avatar: null, bio: '',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    name, email, username, crystals: 500, nixcoin: 0, avatar: null, bio: '', contacts: ['nixao_support'],
+                    onlineStatus: true, readReceipts: true, autoDelete: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 showToast('✅ Регистрация успешна!');
                 closeModal('auth-modal');
@@ -761,7 +553,7 @@
             } catch (e) { alert('Ошибка: ' + e.message); }
         }
 
-        // ========== ПРОФИЛЬ ==========
+        // ПРОФИЛЬ
         async function openProfileModal() {
             const modal = document.getElementById('profile-modal');
             document.getElementById('profile-name').value = userData.name || '';
@@ -773,7 +565,6 @@
                 document.getElementById('profile-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
             } else {
                 document.getElementById('profile-avatar').innerHTML = '👤';
-                document.getElementById('profile-avatar').style.background = 'var(--accent)';
             }
             modal.classList.add('active');
         }
@@ -809,96 +600,42 @@
             input.click();
         }
 
-        // ========== ТЕМЫ ==========
-        function setTheme(theme) {
-            document.body.className = `theme-${theme}`;
-            localStorage.setItem('theme', theme);
-            closeModal('theme-modal');
-        }
+        function setTheme(theme) { document.body.className = `theme-${theme}`; localStorage.setItem('theme', theme); closeModal('theme-modal'); }
 
-        function openThemeSettings() { closeModal('settings-modal'); document.getElementById('theme-modal').classList.add('active'); }
-        function openLanguageSettings() { closeModal('settings-modal'); document.getElementById('language-modal').classList.add('active'); }
-
-        // ========== УСТРОЙСТВА ==========
         async function openDevices() {
             const devicesList = document.getElementById('devices-list');
             const sessions = await db.collection('sessions').where('userId', '==', currentUser.uid).get();
             const devices = [];
             sessions.forEach(doc => devices.push({ id: doc.id, ...doc.data() }));
-            
-            // Добавляем текущее устройство если его нет
-            const userAgent = navigator.userAgent;
-            let deviceName = 'Неизвестное устройство';
-            if (userAgent.includes('iPhone')) deviceName = 'iPhone ' + (userAgent.includes('iPhone14') ? '13 Pro' : userAgent.includes('iPhone15') ? '14 Pro' : '');
-            else if (userAgent.includes('Android')) deviceName = 'Android ' + (userAgent.includes('SM-') ? 'Samsung Galaxy' : '');
-            else if (userAgent.includes('Windows')) deviceName = 'Windows PC';
-            else if (userAgent.includes('Mac')) deviceName = 'MacBook';
-            
-            if (devices.length === 0) {
-                await db.collection('sessions').add({ userId: currentUser.uid, device: deviceName, userAgent: userAgent, lastActive: new Date() });
-                devices.push({ device: deviceName, userAgent: userAgent, lastActive: new Date() });
-            }
-            
-            devicesList.innerHTML = devices.map(d => `<div class="device-item"><div>📱 ${d.device || d.userAgent?.substring(0, 30) || 'Неизвестное устройство'}</div><div style="font-size: 11px;">Активно: ${new Date(d.lastActive?.toDate()).toLocaleString()}</div></div>`).join('');
+            devicesList.innerHTML = devices.map(d => `<div class="device-item">📱 ${d.device}<div style="font-size:11px;">Активно: ${new Date(d.lastActive?.toDate()).toLocaleString()}</div></div>`).join('');
             closeModal('settings-modal');
             document.getElementById('devices-modal').classList.add('active');
         }
 
-        // ========== НАСТРОЙКИ ==========
-        function openSettings() { document.getElementById('settings-modal').classList.add('active'); }
-        function openCrystalsShop() { closeModal('profile-modal'); document.getElementById('crystals-shop').classList.add('active'); }
-        function openNixCoinShop() { closeModal('profile-modal'); document.getElementById('nixcoin-shop').classList.add('active'); }
-        function openNotificationsSettings() {
-            notificationsEnabled = !notificationsEnabled;
-            showToast(notificationsEnabled ? '🔔 Уведомления включены' : '🔕 Уведомления выключены');
-        }
-        function openDataSettings() { if (confirm('Очистить кеш сообщений?')) { localStorage.clear(); showToast('✅ Кеш очищен'); } }
-        function openPremium() { showToast('💎 Premium - скоро!'); }
-        function openPrivacy() {
-            document.getElementById('privacy-text').innerHTML = translations[currentLang].privacy;
-            closeModal('settings-modal');
-            document.getElementById('privacy-modal').classList.add('active');
-        }
-        function openHelp() { showToast('❓ Помощь: напишите в поддержку @nixao_support'); }
-        function openAbout() {
-            alert(translations[currentLang].about);
-        }
-        function openChatInfo() { showToast(`ℹ️ Чат: ${currentChat?.name}`); }
-
-        // ========== СОЗДАНИЕ ГРУПП/КАНАЛОВ ==========
         function showCreateMenu() { closeModal('settings-modal'); document.getElementById('create-modal').classList.add('active'); }
-
+        
         async function createGroup() {
             const name = prompt('Введите название группы:');
             if (!name) return;
             const groupId = 'group_' + Date.now();
             await db.collection('chats').doc(groupId).set({
-                id: groupId,
-                type: 'group',
-                name: name,
-                creator: currentUser.uid,
-                participants: [currentUser.uid],
-                admins: [currentUser.uid],
+                id: groupId, type: 'group', name: name, creator: currentUser.uid,
+                participants: [currentUser.uid], admins: [currentUser.uid],
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             showToast(`✅ Группа "${name}" создана!`);
             closeModal('create-modal');
             loadChats();
         }
-
+        
         async function createChannel() {
             const name = prompt('Введите название канала:');
             const channelUsername = prompt('Введите @username канала:');
             if (!name || !channelUsername) return;
             const channelId = 'channel_' + Date.now();
             await db.collection('chats').doc(channelId).set({
-                id: channelId,
-                type: 'channel',
-                name: name,
-                username: channelUsername,
-                creator: currentUser.uid,
-                subscribers: [currentUser.uid],
-                admins: [currentUser.uid],
+                id: channelId, type: 'channel', name: name, username: channelUsername,
+                creator: currentUser.uid, subscribers: [currentUser.uid], admins: [currentUser.uid],
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             showToast(`✅ Канал "${name}" создан!`);
@@ -906,25 +643,81 @@
             loadChats();
         }
 
-        // ========== ОТПРАВКА СООБЩЕНИЙ ==========
+        // ========== ОТПРАВКА СООБЩЕНИЙ С AES-256 ШИФРОВАНИЕМ ==========
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
-            if (!text || !currentChat) return;
-            await db.collection('messages').add({
-                text, type: 'text', senderId: currentUser.uid, senderName: userData.name, senderAvatar: userData.avatar,
-                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            input.value = '';
+            
+            if (!text || !currentChat) {
+                showToast('❌ ' + (currentLang === 'ru' ? 'Выберите чат и введите сообщение' : 'Select a chat and enter a message'));
+                return;
+            }
+            
+            if (!currentChat.id) {
+                showToast('❌ Ошибка: ID чата не определен');
+                return;
+            }
+            
+            try {
+                // Шифруем сообщение AES-256
+                const encryptedText = encryptText(text);
+                console.log('Оригинал:', text);
+                console.log('Зашифровано:', encryptedText);
+                
+                const messageData = {
+                    text: encryptedText,
+                    type: 'text',
+                    senderId: currentUser.uid,
+                    senderName: userData.name,
+                    senderAvatar: userData.avatar || null,
+                    chatId: currentChat.id,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    encrypted: true // маркер что сообщение зашифровано
+                };
+                
+                await db.collection('messages').add(messageData);
+                
+                input.value = '';
+                showToast('✅ ' + (currentLang === 'ru' ? 'Сообщение отправлено (AES-256)' : 'Message sent (AES-256)'));
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showToast('❌ ' + (currentLang === 'ru' ? 'Ошибка отправки: ' + error.message : 'Send error: ' + error.message));
+            }
         }
 
-        // ========== ГОЛОСОВЫЕ СООБЩЕНИЯ ==========
+        // ГОЛОСОВЫЕ
+        function showAudioPreview(blob) {
+            const url = URL.createObjectURL(blob);
+            const preview = document.createElement('div');
+            preview.className = 'preview-container';
+            preview.innerHTML = `
+                <audio src="${url}" class="preview-audio" controls autoplay></audio>
+                <div class="preview-buttons">
+                    <button class="modal-btn" id="send-audio-btn">📤 Отправить</button>
+                    <button class="modal-btn secondary" id="cancel-audio-btn">❌ Отмена</button>
+                </div>
+            `;
+            document.body.appendChild(preview);
+            document.getElementById('send-audio-btn').onclick = async () => {
+                const audioRef = storage.ref(`audio/${Date.now()}_${currentUser.uid}`);
+                await audioRef.put(blob);
+                const downloadUrl = await audioRef.getDownloadURL();
+                await db.collection('messages').add({
+                    type: 'audio', audioUrl: downloadUrl, senderId: currentUser.uid, senderName: userData.name,
+                    senderAvatar: userData.avatar, chatId: currentChat.id,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('✅ Голосовое отправлено');
+                preview.remove();
+                URL.revokeObjectURL(url);
+            };
+            document.getElementById('cancel-audio-btn').onclick = () => { preview.remove(); URL.revokeObjectURL(url); };
+        }
+
         async function toggleRecording() {
             if (!currentChat) { showToast('❌ Выберите чат'); return; }
             if (isRecording) {
-                if (mediaRecorder && mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
-                }
+                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
                 isRecording = false;
                 document.getElementById('recordBtn').classList.remove('recording-active');
                 document.getElementById('recordBtn').innerHTML = '🎙️';
@@ -935,17 +728,10 @@
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
                     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-                    mediaRecorder.onstop = async () => {
+                    mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const audioRef = storage.ref(`audio/${Date.now()}_${currentUser.uid}`);
-                        await audioRef.put(audioBlob);
-                        const url = await audioRef.getDownloadURL();
-                        await db.collection('messages').add({
-                            type: 'audio', audioUrl: url, senderId: currentUser.uid, senderName: userData.name,
-                            chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        showAudioPreview(audioBlob);
                         stream.getTracks().forEach(t => t.stop());
-                        showToast('✅ Голосовое отправлено');
                     };
                     mediaRecorder.start();
                     isRecording = true;
@@ -956,87 +742,60 @@
             }
         }
 
-        // ========== ФОТО/ВИДЕО С ПРЕДПРОСМОТРОМ ==========
-        function openAttachMenu() {
-            if (!currentChat) { showToast('❌ Выберите чат'); return; }
-            document.getElementById('attach-modal').classList.add('active');
-        }
-
-        function showPreview(url, type, file) {
+        // ФОТО/ВИДЕО
+        function openAttachMenu() { if (!currentChat) { showToast('❌ Выберите чат'); return; } document.getElementById('attach-modal').classList.add('active'); }
+        
+        function showMediaPreview(file, type) {
+            const url = URL.createObjectURL(file);
             const preview = document.createElement('div');
             preview.className = 'preview-container';
             if (type === 'image') {
-                preview.innerHTML = `<img src="${url}" class="preview-img" onclick="this.parentElement.remove()"><div style="position:absolute; bottom:20px; display:flex; gap:10px;"><button class="modal-btn" onclick="sendMedia('${url}', 'image')">📤 Отправить</button><button class="modal-btn secondary" onclick="this.parentElement.parentElement.remove()">❌ Отмена</button></div>`;
+                preview.innerHTML = `<img src="${url}" class="preview-img"><div class="preview-buttons"><button class="modal-btn" id="send-media-btn">📤 Отправить</button><button class="modal-btn secondary" id="cancel-media-btn">❌ Отмена</button></div>`;
             } else {
-                preview.innerHTML = `<video src="${url}" class="preview-img" controls autoplay style="max-width:90%; max-height:90%;"></video><div style="position:absolute; bottom:20px; display:flex; gap:10px;"><button class="modal-btn" onclick="sendMedia('${url}', 'video')">📤 Отправить</button><button class="modal-btn secondary" onclick="this.parentElement.parentElement.remove()">❌ Отмена</button></div>`;
+                preview.innerHTML = `<video src="${url}" class="preview-img" controls autoplay></video><div class="preview-buttons"><button class="modal-btn" id="send-media-btn">📤 Отправить</button><button class="modal-btn secondary" id="cancel-media-btn">❌ Отмена</button></div>`;
             }
             document.body.appendChild(preview);
+            document.getElementById('send-media-btn').onclick = async () => {
+                const storageRef = storage.ref(`${type}s/${Date.now()}_${currentUser.uid}`);
+                await storageRef.put(file);
+                const downloadUrl = await storageRef.getDownloadURL();
+                await db.collection('messages').add({
+                    type: type, [`${type}Url`]: downloadUrl, senderId: currentUser.uid, senderName: userData.name,
+                    senderAvatar: userData.avatar, chatId: currentChat.id,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast(`📷 ${type === 'image' ? 'Фото' : 'Видео'} отправлено`);
+                preview.remove();
+                URL.revokeObjectURL(url);
+            };
+            document.getElementById('cancel-media-btn').onclick = () => { preview.remove(); URL.revokeObjectURL(url); };
         }
-
-        let pendingFile = null;
-        let pendingFileType = null;
 
         async function attachPhoto() {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    pendingFile = file;
-                    pendingFileType = 'image';
-                    showPreview(url, 'image', file);
-                }
-            };
+            input.onchange = async (e) => { if (e.target.files[0]) showMediaPreview(e.target.files[0], 'image'); };
             input.click();
             closeModal('attach-modal');
         }
-
+        
         async function attachVideo() {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'video/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    pendingFile = file;
-                    pendingFileType = 'video';
-                    showPreview(url, 'video', file);
-                }
-            };
+            input.onchange = async (e) => { if (e.target.files[0]) showMediaPreview(e.target.files[0], 'video'); };
             input.click();
             closeModal('attach-modal');
         }
 
-        async function sendMedia(url, type) {
-            if (!pendingFile) return;
-            const storageRef = storage.ref(`${type}s/${Date.now()}_${currentUser.uid}`);
-            await storageRef.put(pendingFile);
-            const downloadUrl = await storageRef.getDownloadURL();
-            await db.collection('messages').add({
-                type: type, [`${type}Url`]: downloadUrl, senderId: currentUser.uid, senderName: userData.name,
-                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            showToast(`📷 ${type === 'image' ? 'Фото' : 'Видео'} отправлено`);
-            document.querySelector('.preview-container')?.remove();
-            pendingFile = null;
-        }
-
-        // ========== ПОДАРКИ ==========
+        // ПОДАРКИ
         function openGiftModal() {
             if (!currentChat) { showToast('❌ Выберите чат'); return; }
-            document.getElementById('gifts-list').innerHTML = gifts.map(g => `
-                <div class="gift-item" onclick="sendGift(${g.id})">
-                    <div style="font-size: 48px;">${g.emoji}</div>
-                    <div>${g.name}</div>
-                    <div>${g.price} 💎</div>
-                </div>
-            `).join('');
+            document.getElementById('gifts-list').innerHTML = gifts.map(g => `<div class="gift-item" onclick="sendGift(${g.id})"><div style="font-size:48px;">${g.emoji}</div><div>${g.name}</div><div>${g.price} 💎</div></div>`).join('');
             document.getElementById('gift-modal').classList.add('active');
         }
-
+        
         async function sendGift(id) {
             const gift = gifts.find(g => g.id === id);
             if (userData.crystals < gift.price) { showToast('❌ Недостаточно кристаллов'); return; }
@@ -1044,10 +803,10 @@
             await db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals });
             await db.collection('messages').add({
                 type: 'gift', gift: gift, senderId: currentUser.uid, senderName: userData.name,
-                chatId: currentChat.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                senderAvatar: userData.avatar, chatId: currentChat.id,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('crystals').innerHTML = userData.crystals;
-            document.getElementById('profile-crystals').textContent = userData.crystals;
             showToast(`✅ Подарок "${gift.name}" отправлен!`);
             closeModal('gift-modal');
         }
@@ -1055,216 +814,517 @@
         function buyCrystals(amount) { userData.crystals += amount; db.collection('users').doc(currentUser.uid).update({ crystals: userData.crystals }); document.getElementById('crystals').innerHTML = userData.crystals; closeModal('crystals-shop'); showToast(`💎 +${amount} кристаллов`); }
         function buyNixCoin(amount) { userData.nixcoin += amount; db.collection('users').doc(currentUser.uid).update({ nixcoin: userData.nixcoin }); document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin; closeModal('nixcoin-shop'); showToast(`🪙 +${amount} NIX`); }
 
-        // ========== ЗАГРУЗКА СООБЩЕНИЙ ==========
+        // ЗАГРУЗКА СООБЩЕНИЙ С РАСШИФРОВКОЙ
         function loadMessages(chatId) {
             const area = document.getElementById('messages-area');
-            db.collection('messages').where('chatId', '==', chatId).orderBy('timestamp', 'asc').onSnapshot(snap => {
-                if (snap.empty) { area.innerHTML = `<div style="text-align: center;">${translations[currentLang].noMessages}</div>`; return; }
-                area.innerHTML = '';
-                snap.forEach(doc => {
-                    const m = doc.data();
-                    const isMine = m.senderId === currentUser?.uid;
-                    const div = document.createElement('div');
-                    div.className = `message ${isMine ? 'out' : 'in'}`;
-                    
-                    if (m.type === 'text') {
-                        div.innerHTML = `<div>${m.text}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
-                    } else if (m.type === 'image') {
-                        div.innerHTML = `<div><img src="${m.imageUrl}" class="message-media" onclick="window.open('${m.imageUrl}')"></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
-                    } else if (m.type === 'video') {
-                        div.innerHTML = `<div><video src="${m.videoUrl}" class="message-media" controls></video></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
-                    } else if (m.type === 'audio') {
-                        div.innerHTML = `<div><audio src="${m.audioUrl}" class="message-audio" controls></audio></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
-                    } else if (m.type === 'gift') {
-                        div.innerHTML = `<div style="text-align:center;"><div style="font-size: 48px;">${m.gift.emoji}</div><div><strong>${m.gift.name}</strong></div><div>Подарок от ${m.senderName}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div></div>`;
+            
+            if (currentMessagesUnsubscribe) {
+                currentMessagesUnsubscribe();
+                currentMessagesUnsubscribe = null;
+            }
+            
+            area.innerHTML = '<div style="text-align: center; padding: 20px;">📥 Загрузка сообщений...</div>';
+            
+            currentMessagesUnsubscribe = db.collection('messages')
+                .where('chatId', '==', chatId)
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snap => {
+                    if (snap.empty) { 
+                        area.innerHTML = `<div style="text-align: center; padding: 50px;">${translations[currentLang].noMessages}</div>`; 
+                        return; 
                     }
-                    
-                    if (isMine) {
-                        const del = document.createElement('button');
-                        del.className = 'delete-message-btn';
-                        del.innerHTML = '🗑️';
-                        del.onclick = async () => { if (confirm('Удалить?')) await db.collection('messages').doc(doc.id).delete(); };
-                        div.appendChild(del);
-                    }
-                    area.appendChild(div);
+                    area.innerHTML = '';
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const isMine = m.senderId === currentUser?.uid;
+                        const div = document.createElement('div');
+                        div.className = `message ${isMine ? 'out' : 'in'}`;
+                        
+                        if (m.type === 'text') {
+                            // Расшифровываем сообщение
+                            let decryptedText = m.text;
+                            try {
+                                decryptedText = decryptText(m.text);
+                                console.log('Расшифровано:', decryptedText);
+                            } catch(e) {
+                                console.warn('Ошибка расшифровки:', e);
+                                decryptedText = m.text;
+                            }
+                            
+                            div.innerHTML = `
+                                <div>${escapeHtml(decryptedText)}</div>
+                                <div class="message-time">
+                                    ${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}
+                                    <span class="encrypted-badge" title="${translations[currentLang].encrypted}">🔒</span>
+                                </div>
+                            `;
+                        } else if (m.type === 'image') {
+                            div.innerHTML = `<div><img src="${m.imageUrl}" class="message-media" onclick="window.open('${m.imageUrl}')"></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                        } else if (m.type === 'video') {
+                            div.innerHTML = `<div><video src="${m.videoUrl}" class="message-media" controls></video></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                        } else if (m.type === 'audio') {
+                            div.innerHTML = `<div><audio src="${m.audioUrl}" class="message-audio" controls></audio></div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div>`;
+                        } else if (m.type === 'gift') {
+                            div.innerHTML = `<div style="text-align:center;"><div style="font-size:48px;">${m.gift.emoji}</div><div><strong>${escapeHtml(m.gift.name)}</strong></div><div>Подарок от ${escapeHtml(m.senderName)}</div><div class="message-time">${m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString().slice(0,5) : ''}</div></div>`;
+                        }
+                        
+                        if (isMine) {
+                            const del = document.createElement('button');
+                            del.className = 'delete-message-btn';
+                            del.innerHTML = '🗑️';
+                            del.onclick = async () => { if (confirm('Удалить?')) await db.collection('messages').doc(doc.id).delete(); };
+                            div.appendChild(del);
+                        }
+                        area.appendChild(div);
+                    });
+                    area.scrollTop = area.scrollHeight;
+                }, error => {
+                    console.error('Ошибка загрузки сообщений:', error);
+                    area.innerHTML = '<div style="text-align: center; padding: 50px; color: red;">❌ Ошибка загрузки сообщений</div>';
                 });
-                area.scrollTop = area.scrollHeight;
-            });
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
-        // ========== ЧАТЫ ==========
+        // ЧАТЫ
         async function loadChats() {
-            const chatsRef = db.collection('chats').where('participants', 'array-contains', currentUser.uid);
-            chatsRef.onSnapshot(async (snapshot) => {
+            const container = document.getElementById('items-list');
+            if (!container) return;
+            
+            container.innerHTML = '<div style="padding: 20px; text-align: center;">📥 Загрузка чатов...</div>';
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const contacts = userDoc.data()?.contacts || ['nixao_support'];
                 const chats = [];
-                for (const doc of snapshot.docs) {
-                    const data = doc.data();
-                    let name = data.name;
-                    let avatar = null;
-                    if (data.type === 'group') {
-                        name = data.name;
-                    } else if (data.type === 'channel') {
-                        name = data.name;
+                
+                for (const contactUsername of contacts) {
+                    let contactId = null, contactName = null, contactAvatar = null;
+                    
+                    if (contactUsername === 'nixao_support') {
+                        contactId = 'nixao_support_id';
+                        contactName = 'Нихауу Поддержка';
                     } else {
-                        const otherId = data.participants.find(p => p !== currentUser.uid);
-                        const user = await db.collection('users').doc(otherId).get();
-                        name = user.data()?.name;
-                        avatar = user.data()?.avatar;
+                        const userQuery = await db.collection('users').where('username', '==', contactUsername).get();
+                        if (!userQuery.empty) {
+                            const user = userQuery.docs[0];
+                            contactId = user.id;
+                            contactName = user.data().name;
+                            contactAvatar = user.data().avatar;
+                        }
                     }
-                    const lastMsg = await db.collection('messages').where('chatId', '==', doc.id).orderBy('timestamp', 'desc').limit(1).get();
-                    let lastMessage = '', lastTime = '';
-                    if (!lastMsg.empty) {
-                        const msg = lastMsg.docs[0].data();
-                        lastMessage = msg.type === 'gift' ? `🎁 Подарок: ${msg.gift.name}` : msg.text || (msg.type === 'image' ? '📷 Фото' : msg.type === 'video' ? '🎥 Видео' : msg.type === 'audio' ? '🎙️ Голосовое' : '');
-                        lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                    
+                    if (contactId && contactId !== currentUser.uid) {
+                        const chatId = getPrivateChatId(currentUser.uid, contactId);
+                        
+                        const chatDoc = await db.collection('chats').doc(chatId).get();
+                        if (!chatDoc.exists) {
+                            await db.collection('chats').doc(chatId).set({
+                                id: chatId,
+                                type: 'private',
+                                participants: [currentUser.uid, contactId],
+                                participantNames: { [currentUser.uid]: userData.name, [contactId]: contactName },
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+                        
+                        const lastMsgQuery = await db.collection('messages')
+                            .where('chatId', '==', chatId)
+                            .orderBy('timestamp', 'desc')
+                            .limit(1)
+                            .get();
+                        
+                        let lastMessage = '', lastTime = '';
+                        if (!lastMsgQuery.empty) {
+                            const msg = lastMsgQuery.docs[0].data();
+                            if (msg.type === 'gift') lastMessage = `🎁 Подарок: ${msg.gift.name}`;
+                            else if (msg.type === 'text') {
+                                try {
+                                    lastMessage = decryptText(msg.text).substring(0, 30);
+                                } catch(e) {
+                                    lastMessage = '🔒 Сообщение';
+                                }
+                            }
+                            else if (msg.type === 'image') lastMessage = '📷 Фото';
+                            else if (msg.type === 'video') lastMessage = '🎥 Видео';
+                            else if (msg.type === 'audio') lastMessage = '🎙️ Голосовое';
+                            lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                        }
+                        
+                        chats.push({ 
+                            id: chatId, 
+                            name: contactName, 
+                            avatar: contactAvatar, 
+                            lastMessage, 
+                            lastTime,
+                            type: 'private'
+                        });
                     }
-                    chats.push({ id: doc.id, name, avatar, lastMessage, lastTime });
                 }
+                
+                const groupsQuery = await db.collection('chats')
+                    .where('participants', 'array-contains', currentUser.uid)
+                    .get();
+                    
+                for (const doc of groupsQuery.docs) {
+                    const data = doc.data();
+                    if (data.type === 'group' || data.type === 'channel') {
+                        const lastMsgQuery = await db.collection('messages')
+                            .where('chatId', '==', doc.id)
+                            .orderBy('timestamp', 'desc')
+                            .limit(1)
+                            .get();
+                        
+                        let lastMessage = '', lastTime = '';
+                        if (!lastMsgQuery.empty) {
+                            const msg = lastMsgQuery.docs[0].data();
+                            if (msg.type === 'gift') lastMessage = `🎁 Подарок: ${msg.gift.name}`;
+                            else if (msg.type === 'text') {
+                                try {
+                                    lastMessage = decryptText(msg.text).substring(0, 30);
+                                } catch(e) {
+                                    lastMessage = '🔒 Сообщение';
+                                }
+                            }
+                            else if (msg.type === 'image') lastMessage = '📷 Фото';
+                            else if (msg.type === 'video') lastMessage = '🎥 Видео';
+                            else if (msg.type === 'audio') lastMessage = '🎙️ Голосовое';
+                            lastTime = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString().slice(0,5) : '';
+                        }
+                        
+                        chats.push({ 
+                            id: doc.id, 
+                            name: data.name, 
+                            avatar: null, 
+                            lastMessage, 
+                            lastTime, 
+                            type: data.type 
+                        });
+                    }
+                }
+                
                 renderChatsList(chats);
-            });
+            } catch (error) {
+                console.error('Ошибка загрузки чатов:', error);
+                container.innerHTML = `<div style="padding: 20px; text-align: center; color: red;">❌ Ошибка загрузки чатов: ${error.message}</div>`;
+            }
+        }
+        
+        function getPrivateChatId(uid1, uid2) {
+            return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
         }
 
         function renderChatsList(chats) {
             const container = document.getElementById('items-list');
             if (!container) return;
             if (chats.length === 0) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center;">Нет чатов</div>';
+                container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChats}<br><br>➕ Добавьте контакты через поиск</div>`;
                 return;
             }
             container.innerHTML = chats.map(chat => `
-                <div class="chat-item" onclick="openChat('${chat.id}', '${chat.name}')">
-                    <div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.name ? chat.name[0] : '?')}</div>
-                    <div class="item-info"><div class="item-name">${chat.name}</div><div class="item-last-message">${chat.lastMessage || 'Нет сообщений'}</div></div>
+                <div class="chat-item" onclick="openChat('${chat.id}', '${escapeHtml(chat.name).replace(/'/g, "\\'")}', '${chat.type}')">
+                    <div class="item-avatar">${chat.avatar ? `<img src="${chat.avatar}" class="item-avatar-img">` : (chat.name ? chat.name[0].toUpperCase() : '?')}</div>
+                    <div class="item-info">
+                        <div class="item-name">${escapeHtml(chat.name)}${chat.type === 'group' ? ' 👥' : chat.type === 'channel' ? ' 📢' : ''}</div>
+                        <div class="item-last-message">${chat.lastMessage || '💬 Новый чат'}</div>
+                    </div>
                     <div class="item-time">${chat.lastTime || ''}</div>
                 </div>
             `).join('');
         }
 
-        async function openChat(id, name) {
-            currentChat = { id, name };
+        async function openChat(id, name, type = 'private') {
+            console.log('Открытие чата:', id, name, type);
+            currentChat = { id, name, type };
             document.getElementById('chat-name').textContent = name;
             document.getElementById('input-area').style.display = 'block';
             loadMessages(id);
             if (window.innerWidth <= 768) closeSidebar();
         }
 
-        // ========== КОНТАКТЫ ==========
+        // КОНТАКТЫ
         async function findUser() {
-            const query = prompt('Введите @username или название канала:');
+            const query = prompt('Введите @username для добавления в контакты:');
             if (!query) return;
-            const users = await db.collection('users').where('username', '==', query).get();
-            if (!users.empty) {
+            
+            try {
+                const users = await db.collection('users').where('username', '==', query).get();
+                if (users.empty) { alert('❌ Пользователь не найден'); return; }
                 const user = users.docs[0];
-                const chatId = currentUser.uid < user.id ? currentUser.uid + '_' + user.id : user.id + '_' + currentUser.uid;
-                await db.collection('chats').doc(chatId).set({ participants: [currentUser.uid, user.id], type: 'private', updatedAt: Date.now() }, { merge: true });
-                showToast(`✅ Чат с ${user.data().name} создан`);
-            } else {
-                const channels = await db.collection('chats').where('username', '==', query).where('type', '==', 'channel').get();
-                if (!channels.empty) {
-                    const channel = channels.docs[0];
-                    const subscribers = channel.data().subscribers || [];
-                    if (!subscribers.includes(currentUser.uid)) subscribers.push(currentUser.uid);
-                    await db.collection('chats').doc(channel.id).update({ subscribers });
-                    showToast(`✅ Вы подписались на канал ${channel.data().name}`);
+                if (user.id === currentUser.uid) { alert('❌ Это вы'); return; }
+                
+                const contacts = userData.contacts || ['nixao_support'];
+                if (!contacts.includes(query)) {
+                    contacts.push(query);
+                    await db.collection('users').doc(currentUser.uid).update({ contacts: contacts });
+                    userData.contacts = contacts;
+                    showToast(`✅ ${user.data().name} добавлен в контакты`);
+                    loadChats();
                 } else {
-                    alert('❌ Не найдено');
+                    showToast(`ℹ️ ${user.data().name} уже в контактах`);
                 }
+            } catch (error) {
+                console.error('Ошибка поиска:', error);
+                showToast('❌ Ошибка поиска пользователя');
             }
-            loadChats();
         }
 
         async function loadContacts() {
-            const users = await db.collection('users').get();
-            const list = users.docs.filter(d => d.id !== currentUser?.uid).map(d => ({ id: d.id, ...d.data() }));
             const container = document.getElementById('items-list');
-            container.innerHTML = list.map(c => `
-                <div class="chat-item" onclick="openChatWithContact('${c.id}', '${c.name}')">
-                    <div class="item-avatar">${c.avatar ? `<img src="${c.avatar}" class="item-avatar-img">` : (c.name ? c.name[0] : '?')}</div>
-                    <div><div class="item-name">${c.name}</div><div>@${c.username || 'user'}</div></div>
+            if (!container) return;
+            
+            const contacts = userData.contacts || ['nixao_support'];
+            const contactsList = [];
+            
+            for (const username of contacts) {
+                if (username === 'nixao_support') {
+                    contactsList.push({ name: 'Нихауу Поддержка', username: 'nixao_support', avatar: null, id: 'support' });
+                } else {
+                    const userQuery = await db.collection('users').where('username', '==', username).get();
+                    if (!userQuery.empty) {
+                        const user = userQuery.docs[0];
+                        contactsList.push({ id: user.id, name: user.data().name, username: user.data().username, avatar: user.data().avatar });
+                    }
+                }
+            }
+            
+            if (contactsList.length === 0) {
+                container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noContacts}<br><br>➕ Найдите пользователей через поиск</div>`;
+                return;
+            }
+            
+            container.innerHTML = contactsList.map(c => `
+                <div class="chat-item" onclick="openChatWithContact('${c.username}', '${escapeHtml(c.name).replace(/'/g, "\\'")}')">
+                    <div class="item-avatar">${c.avatar ? `<img src="${c.avatar}" class="item-avatar-img">` : (c.name ? c.name[0].toUpperCase() : '?')}</div>
+                    <div>
+                        <div class="item-name">${escapeHtml(c.name)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">@${c.username}</div>
+                    </div>
                 </div>
             `).join('');
         }
 
-        async function openChatWithContact(id, name) {
-            const chatId = currentUser.uid < id ? currentUser.uid + '_' + id : id + '_' + currentUser.uid;
-            await db.collection('chats').doc(chatId).set({ participants: [currentUser.uid, id], type: 'private', updatedAt: Date.now() }, { merge: true });
-            openChat(chatId, name);
+        async function openChatWithContact(username, name) {
+            let contactId = null;
+            if (username === 'nixao_support') {
+                contactId = 'nixao_support_id';
+            } else {
+                const userQuery = await db.collection('users').where('username', '==', username).get();
+                if (!userQuery.empty) contactId = userQuery.docs[0].id;
+            }
+            if (!contactId) { showToast('❌ Контакт не найден'); return; }
+            
+            const chatId = getPrivateChatId(currentUser.uid, contactId);
+            
+            const chatDoc = await db.collection('chats').doc(chatId).get();
+            if (!chatDoc.exists) {
+                await db.collection('chats').doc(chatId).set({
+                    id: chatId,
+                    type: 'private',
+                    participants: [currentUser.uid, contactId],
+                    participantNames: { [currentUser.uid]: userData.name, [contactId]: name },
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            openChat(chatId, name, 'private');
         }
 
-        // ========== ЗВОНКИ ==========
-        function startCall() { showToast('📞 Звонок (WebRTC)'); }
-
-        // ========== ИНТЕРФЕЙС ==========
-        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-        function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('active'); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active'); }
-        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+        // КАНАЛЫ
+        async function loadChannels() {
+            const container = document.getElementById('items-list');
+            if (!container) return;
+            
+            try {
+                const channels = await db.collection('chats').where('type', '==', 'channel').get();
+                const subscribedChannels = channels.docs.filter(doc => {
+                    const data = doc.data();
+                    return data.subscribers && data.subscribers.includes(currentUser.uid);
+                }).map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                if (subscribedChannels.length === 0) {
+                    container.innerHTML = `<div style="padding: 20px; text-align: center;">${translations[currentLang].noChannels}<br><br>📢 Создайте свой канал или найдите через поиск</div>`;
+                    return;
+                }
+                
+                container.innerHTML = subscribedChannels.map(ch => `
+                    <div class="chat-item" onclick="openChat('${ch.id}', '${escapeHtml(ch.name).replace(/'/g, "\\'")}', 'channel')">
+                        <div class="item-avatar">${ch.name ? ch.name[0].toUpperCase() : '📢'}</div>
+                        <div>
+                            <div class="item-name">${escapeHtml(ch.name)}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">${ch.username || 'канал'}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки каналов:', error);
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">❌ Ошибка загрузки каналов</div>';
+            }
+        }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            if (tab === 'contacts') loadContacts();
-            else if (tab === 'channels') document.getElementById('items-list').innerHTML = '<div style="padding:20px;">📢 Каналы появятся после подписки</div>';
-            else loadChats();
+            if (tab === 'contacts') { 
+                document.getElementById('tab-contacts').classList.add('active'); 
+                loadContacts(); 
+            } else if (tab === 'channels') { 
+                document.getElementById('tab-channels').classList.add('active'); 
+                loadChannels(); 
+            } else { 
+                document.getElementById('tab-chats').classList.add('active'); 
+                loadChats(); 
+            }
         }
 
-        // ========== ЗАПУСК ==========
+        // ЗАПУСК
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) document.body.className = `theme-${savedTheme}`;
         const savedLang = localStorage.getItem('language');
         if (savedLang) setLanguage(savedLang);
+        else updateAllUITexts();
+        
+        const savedFontSize = localStorage.getItem('fontSize');
+        if (savedFontSize) setFontSize(savedFontSize);
+        const savedChatBg = localStorage.getItem('chatBg');
+        if (savedChatBg) setChatBg(savedChatBg);
+        const savedReadReceipts = localStorage.getItem('readReceipts');
+        if (savedReadReceipts !== null) userData.readReceipts = savedReadReceipts === 'true';
+        const savedAutoDelete = localStorage.getItem('autoDelete');
+        if (savedAutoDelete !== null) userData.autoDelete = parseInt(savedAutoDelete);
+        const savedOnlineStatus = localStorage.getItem('onlineStatus');
+        if (savedOnlineStatus !== null) userData.onlineStatus = savedOnlineStatus === 'true';
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 closeModal('auth-modal');
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    userData = doc.data();
-                    document.getElementById('user-name').textContent = userData.name;
-                    document.getElementById('crystals').innerHTML = userData.crystals || 0;
-                    document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin || 0;
-                    if (userData.avatar) {
-                        document.getElementById('user-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                    }
-                } else {
-                    await db.collection('users').doc(user.uid).set({ name: user.email?.split('@')[0], email: user.email, crystals: 500, nixcoin: 0 });
-                    userData = { name: user.email?.split('@')[0], crystals: 500, nixcoin: 0 };
-                }
-                document.getElementById('input-area').style.display = 'block';
-                loadChats();
                 
-                // Сохраняем сессию устройства
-                let userAgent = navigator.userAgent;
-                let deviceName = 'Неизвестное устройство';
-                if (userAgent.includes('iPhone')) deviceName = 'iPhone';
-                else if (userAgent.includes('Android')) deviceName = 'Android';
-                else if (userAgent.includes('Windows')) deviceName = 'Windows PC';
-                else if (userAgent.includes('Mac')) deviceName = 'MacBook';
-                await db.collection('sessions').add({ userId: user.uid, device: deviceName, userAgent: userAgent, lastActive: new Date() });
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        userData = { ...userData, ...doc.data() };
+                        document.getElementById('user-name').textContent = userData.name;
+                        document.getElementById('crystals').innerHTML = userData.crystals || 0;
+                        document.getElementById('nixcoin-balance').innerHTML = userData.nixcoin || 0;
+                        if (userData.avatar) {
+                            document.getElementById('user-avatar').innerHTML = `<img src="${userData.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        }
+                        if (!userData.contacts) {
+                            await db.collection('users').doc(user.uid).update({ contacts: ['nixao_support'] });
+                            userData.contacts = ['nixao_support'];
+                        }
+                    } else {
+                        await db.collection('users').doc(user.uid).set({ 
+                            name: user.email?.split('@')[0] || 'User', 
+                            email: user.email, 
+                            crystals: 500, 
+                            nixcoin: 0, 
+                            contacts: ['nixao_support'], 
+                            onlineStatus: true, 
+                            readReceipts: true, 
+                            autoDelete: 0 
+                        });
+                        userData = { 
+                            name: user.email?.split('@')[0] || 'User', 
+                            crystals: 500, 
+                            nixcoin: 0, 
+                            contacts: ['nixao_support'], 
+                            onlineStatus: true, 
+                            readReceipts: true, 
+                            autoDelete: 0 
+                        };
+                        document.getElementById('user-name').textContent = userData.name;
+                    }
+                    
+                    document.getElementById('input-area').style.display = 'block';
+                    loadChats();
+                    
+                    let deviceName = navigator.userAgent.includes('iPhone') ? 'iPhone' : 
+                                    navigator.userAgent.includes('Android') ? 'Android' : 
+                                    navigator.userAgent.includes('Windows') ? 'Windows' : 'PC';
+                    await db.collection('sessions').add({ 
+                        userId: user.uid, 
+                        device: deviceName, 
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp() 
+                    });
+                    
+                    if (userData.onlineStatus) {
+                        await db.collection('users').doc(user.uid).update({ 
+                            lastSeen: firebase.firestore.FieldValue.serverTimestamp() 
+                        });
+                    }
+                    
+                    showToast(`👋 Добро пожаловать, ${userData.name}!`);
+                } catch (error) {
+                    console.error('Ошибка загрузки данных пользователя:', error);
+                    showToast('❌ Ошибка загрузки профиля');
+                }
+            } else {
+                document.getElementById('auth-modal').classList.add('active');
+                document.getElementById('input-area').style.display = 'none';
             }
         });
 
-        window.toggleSidebar = toggleSidebar; window.closeSidebar = closeSidebar; window.openProfileModal = openProfileModal;
-        window.openSettings = openSettings; window.switchTab = switchTab; window.findUser = findUser;
-        window.openCrystalsShop = openCrystalsShop; window.openNixCoinShop = openNixCoinShop;
-        window.buyCrystals = buyCrystals; window.buyNixCoin = buyNixCoin;
-        window.sendMessage = sendMessage; window.handleKeyPress = handleKeyPress;
-        window.setTheme = setTheme; window.openThemeSettings = openThemeSettings;
-        window.openDevices = openDevices; window.showCreateMenu = showCreateMenu;
-        window.createGroup = createGroup; window.createChannel = createChannel;
-        window.toggleRecording = toggleRecording; window.openAttachMenu = openAttachMenu;
-        window.attachPhoto = attachPhoto; window.attachVideo = attachVideo;
-        window.openGiftModal = openGiftModal; window.sendGift = sendGift;
-        window.openChat = openChat; window.openChatWithContact = openChatWithContact;
-        window.changeAvatar = changeAvatar; window.saveProfile = saveProfile;
-        window.showRegisterForm = showRegisterForm; window.showLoginForm = showLoginForm;
-        window.register = register; window.login = login; window.closeModal = closeModal;
-        window.sendMedia = sendMedia; window.openLanguageSettings = openLanguageSettings;
-        window.setLanguage = setLanguage; window.openPrivacy = openPrivacy; window.openAbout = openAbout;
-        window.openNotificationsSettings = openNotificationsSettings; window.openDataSettings = openDataSettings;
-        window.openPremium = openPremium; window.openHelp = openHelp; window.openChatInfo = openChatInfo;
+        // Экспорт функций
+        window.toggleSidebar = toggleSidebar; 
+        window.closeSidebar = closeSidebar; 
+        window.openProfileModal = openProfileModal;
+        window.openSettings = openSettings; 
+        window.switchTab = switchTab; 
+        window.findUser = findUser;
+        window.openCrystalsShop = openCrystalsShop; 
+        window.openNixCoinShop = openNixCoinShop;
+        window.buyCrystals = buyCrystals; 
+        window.buyNixCoin = buyNixCoin;
+        window.sendMessage = sendMessage; 
+        window.handleKeyPress = handleKeyPress;
+        window.setTheme = setTheme; 
+        window.openThemeSettings = openThemeSettings;
+        window.openDevices = openDevices; 
+        window.showCreateMenu = showCreateMenu;
+        window.createGroup = createGroup; 
+        window.createChannel = createChannel;
+        window.toggleRecording = toggleRecording; 
+        window.openAttachMenu = openAttachMenu;
+        window.attachPhoto = attachPhoto; 
+        window.attachVideo = attachVideo;
+        window.openGiftModal = openGiftModal; 
+        window.sendGift = sendGift;
+        window.openChat = openChat; 
+        window.openChatWithContact = openChatWithContact;
+        window.changeAvatar = changeAvatar; 
+        window.saveProfile = saveProfile;
+        window.showRegisterForm = showRegisterForm; 
+        window.showLoginForm = showLoginForm;
+        window.register = register; 
+        window.login = login; 
+        window.closeModal = closeModal;
+        window.openLanguageSettings = openLanguageSettings; 
+        window.setLanguage = setLanguage;
+        window.openPrivacy = openPrivacy; 
+        window.openAbout = openAbout;
+        window.openNotificationsSettings = openNotificationsSettings; 
+        window.openDataSettings = openDataSettings;
+        window.openPremium = openPremium; 
+        window.openHelp = openHelp; 
+        window.openChatInfo = openChatInfo;
+        window.setFontSize = setFontSize; 
+        window.openFontSizeSettings = openFontSizeSettings;
+        window.setChatBg = setChatBg; 
+        window.openChatBgSettings = openChatBgSettings;
+        window.setReadReceipts = setReadReceipts; 
+        window.openReadReceiptsSettings = openReadReceiptsSettings;
+        window.setAutoDelete = setAutoDelete; 
+        window.openAutoDeleteSettings = openAutoDeleteSettings;
+        window.setOnlineStatus = setOnlineStatus; 
+        window.openStatusSettings = openStatusSettings;
     </script>
 </body>
 </html>
